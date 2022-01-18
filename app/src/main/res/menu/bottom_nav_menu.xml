@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/navigation_map"
+        android:icon="@drawable/ic_baseline_place_24"
+        android:title="@string/title_map" />
+
+    <item
+        android:id="@+id/navigation_preference"
+        android:icon="@drawable/ic_baseline_star_24"
+        android:title="@string/title_preference" />
+
+    <item
+        android:id="@+id/navigation_account"
+        android:icon="@drawable/ic_baseline_account_box_24"
+        android:title="@string/title_account" />
+
+</menu>

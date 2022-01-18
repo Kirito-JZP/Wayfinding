@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">Wayfinding</string>
+    <string name="title_activity_maps">MapsActivity</string>
+    <string name="title_map">Map</string>
+    <string name="title_preference">Preference</string>
+    <string name="title_account">Account</string>
+</resources>
