@@ -4,8 +4,12 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -21,7 +25,7 @@ import com.main.wayfinding.databinding.FragmentMapBinding;
  * @author JIA
  * @author Last Modified By JIA
  * @version Revision: 0
- * Date: 2022/1/16 13:50
+ * Date: 2022/1/26 19:50
  */
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
@@ -40,6 +44,30 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         mapFragment.getMapAsync(this);
 
         return root;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        // Get current location after clicking the locating button
+        ImageView current_location = (ImageView) view.findViewById(R.id.find_user_location);
+        current_location.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
+        // Get current location after clicking the locating button
+        ImageView way_finding = (ImageView) view.findViewById(R.id.find_way);
+        way_finding.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
     }
 
     @Override
