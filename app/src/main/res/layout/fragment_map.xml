@@ -32,49 +32,45 @@
             android:src="@drawable/ic_search"
             android:layout_marginRight="15dp"
             />
+
         <EditText
+            android:id="@+id/input_search"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_toRightOf="@+id/search_img"
-            android:id="@+id/input_search"
             android:layout_centerVertical="true"
-            android:textSize="15dp"
-            android:textColor="#000"
+            android:layout_toRightOf="@+id/search_img"
             android:background="@null"
             android:hint="Search here"
             android:singleLine="true"
-            />
+            android:textColor="#000"
+            android:textSize="15dp" />
     </RelativeLayout>
 
     <ImageView
         android:id="@+id/find_user_location"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_alignTop="@+id/Layout_search"
-        android:layout_alignParentStart="true"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="326dp"
-        android:layout_marginTop="542dp"
-        android:layout_marginEnd="34dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="129dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginBottom="168dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/ic_user_location" />
+        android:src="@drawable/navigate" />
 
     <ImageView
         android:id="@+id/find_way"
-        android:layout_width="50dp"
-        android:layout_height="50dp"
-        android:layout_alignTop="@+id/Layout_search"
-        android:layout_alignParentStart="true"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="324dp"
-        android:layout_marginTop="618dp"
-        android:layout_marginEnd="36dp"
-        android:layout_marginRight="10dp"
-        android:layout_marginBottom="53dp"
-        android:src="@drawable/ic_user_location" />
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="30dp"
+        android:layout_marginRight="30dp"
+        android:layout_marginBottom="101dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/position" />
 
 </RelativeLayout>
