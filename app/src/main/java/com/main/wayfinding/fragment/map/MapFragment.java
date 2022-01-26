@@ -50,18 +50,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Get current location after clicking the locating button
-        ImageView current_location = (ImageView) view.findViewById(R.id.find_user_location);
-        current_location.setOnClickListener(new View.OnClickListener() {
+        // Get current location after clicking the position button
+        ImageView position = (ImageView) view.findViewById(R.id.position);
+        position.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
             }
         });
 
-        // Get current location after clicking the locating button
-        ImageView way_finding = (ImageView) view.findViewById(R.id.find_way);
-        way_finding.setOnClickListener(new View.OnClickListener() {
+        // Do way finding after clicking the navigate button
+        ImageView navigate = (ImageView) view.findViewById(R.id.navigate);
+        navigate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
