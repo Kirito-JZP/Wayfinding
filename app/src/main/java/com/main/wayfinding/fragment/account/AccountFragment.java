@@ -4,28 +4,24 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
-
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
-
-import com.google.android.gms.maps.SupportMapFragment;
-import com.main.wayfinding.R;
+import com.google.firebase.auth.FirebaseAuth;
 import com.main.wayfinding.databinding.FragmentAccountBinding;
-import com.main.wayfinding.databinding.FragmentMapBinding;
+
 
 /**
  * Define the fragment used for displaying and changing user info
  *
- * @author JIA
- * @author Last Modified By JIA
+ * @author Gang
+ * @author Last Modified By Gang
  * @version Revision: 0
  * Date: 2022/1/18 16:06
  */
 public class AccountFragment extends Fragment {
     private FragmentAccountBinding binding;
-    private boolean auth;
+    private FirebaseAuth auth;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -34,6 +30,17 @@ public class AccountFragment extends Fragment {
         return root;
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        auth = FirebaseAuth.getInstance();
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        binding = null;
+    }
 
 
 }

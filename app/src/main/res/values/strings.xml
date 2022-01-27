@@ -4,4 +4,7 @@
     <string name="title_map">Map</string>
     <string name="title_preference">Preference</string>
     <string name="title_account">Account</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="login">Login</string>
 </resources>
