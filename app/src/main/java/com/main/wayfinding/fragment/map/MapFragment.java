@@ -32,6 +32,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap map;
     private FragmentMapBinding binding;
 
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
