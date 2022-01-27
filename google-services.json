@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "397782834",
+    "project_id": "wayfinding-5fb90",
+    "storage_bucket": "wayfinding-5fb90.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:397782834:android:99cebb968460c24f8e712b",
+        "android_client_info": {
+          "package_name": "com.main.wayfinding"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "397782834-q1nv4g1tnjbs5jll4081nr7ehohgh7ue.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDMH1pBSVQil8nOk8orYqozEWFbes69VIM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "397782834-q1nv4g1tnjbs5jll4081nr7ehohgh7ue.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
