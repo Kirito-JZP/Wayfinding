@@ -3,6 +3,11 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="..\:/Android Studio/Apps/Wayfinding/app/src/main/res/layout/activity_main.xml" value="0.1897644927536232" />
+        <entry key="..\:/Android Studio/Apps/Wayfinding/app/src/main/res/layout/fragment_account.xml" value="0.264" />
+        <entry key="..\:/Android Studio/Apps/Wayfinding/app/src/main/res/layout/fragment_map.xml" value="0.22826086956521738" />
+        <entry key="..\:/Android Studio/Apps/Wayfinding/app/src/main/res/layout/fragment_preference.xml" value="0.13333333333333333" />
+        <entry key="..\:/Android Studio/Apps/Wayfinding/app/src/main/res/layout/test.xml" value="0.25364583333333335" />
         <entry key="..\:/AndroidStudioProjects/wayfinding/app/src/main/res/drawable-anydpi/ic_search.xml" value="0.14583333333333334" />
         <entry key="..\:/AndroidStudioProjects/wayfinding/app/src/main/res/drawable-anydpi/ic_user_location.xml" value="0.2078125" />
         <entry key="..\:/AndroidStudioProjects/wayfinding/app/src/main/res/drawable/border.xml" value="0.2078125" />
