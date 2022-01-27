@@ -1,6 +1,8 @@
 package com.main.wayfinding;
 
 import android.os.Bundle;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
@@ -28,6 +30,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        ListView simpleList;
+        String countryList[] = {"India", "China", "australia", "Portugle", "America", "NewZealand"};
+
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -40,5 +45,9 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
+//        setContentView(R.layout.fragment_preference);
+//        simpleList = (ListView)findViewById(R.id.list_view);
+//        ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(this, R.layout.activity_listview, R.id.textView, countryList);
+//        simpleList.setAdapter(arrayAdapter);
     }
 }
