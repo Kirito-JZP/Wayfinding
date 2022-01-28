@@ -15,13 +15,15 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.main.wayfinding.R;
 import com.main.wayfinding.databinding.FragmentMapBinding;
 import com.main.wayfinding.logic.NavigationLogic;
 import com.main.wayfinding.utility.GPSTracker;
+import com.main.wayfinding.dto.LocationDto;
 
 /**
  * Define the fragment used for displaying map and dynamic Sustainable way-finding
@@ -37,6 +39,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private FragmentMapBinding binding;
     private GPSTracker gps;
     private NavigationLogic navigation;
+    private LatLng currentLocation;
+    private LocationDto targetLocation;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -63,13 +67,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         position.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Create GPS object
-                assert getParentFragment() != null;
-                gps = new GPSTracker(getParentFragment().getContext());
                 Location location = gps.getLocation(getActivity());
                 // Add a marker in current location and move the camera(for test)
                 if (gps.isLocateEnabled()) {
-                    LatLng currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                    currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
                     map.clear();
                     map.addMarker(new MarkerOptions().position(currentLocation).title("current location"));
                     map.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
@@ -83,9 +84,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         navigate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (gps.isLocateEnabled()) {
-                    Location location = gps.getLocation(getActivity());
-                    navigation.findRoute(new LatLng(location.getLatitude(), location.getLongitude()), new LatLng(53.3706544, -6.3336711));
+                if (currentLocation != null) {
+                    navigation.findRoute(currentLocation, new LatLng(53.3706544, -6.3336711));
                 }
             }
         });
@@ -97,13 +97,40 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         map = googleMap;
         navigation = new NavigationLogic(googleMap);
 
-        // Add a marker in Dublin and move the camera(for test)
-//        LatLng dublin = new LatLng(53, -6);
-        LatLng dublin = new LatLng(53, -3);
-        map.addMarker(new MarkerOptions().position(dublin).title("Marker in dublin"));
-        map.moveCamera(CameraUpdateFactory.newLatLng(dublin));
+        // Create GPS object
+        gps = new GPSTracker(getParentFragment().getContext());
+        Location location = gps.getLocation(getActivity());
+        // Add a marker in current location and move the camera(for test)
+        if (gps.isLocateEnabled()) {
+            currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+        } else {
+            // Add a marker in Dublin and move the camera(for test)
+            // LatLng dublin = new LatLng(53, -6);
+            currentLocation = new LatLng(53, -6);
+        }
 
-        // TODO
+        map.addMarker(new MarkerOptions().position(currentLocation).title("current location"));
+        map.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
+
+        // Add map click listener
+        map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+            @Override
+            public void onMapClick(@NonNull LatLng latLng) {
+                map.clear();
+                map.addMarker(new MarkerOptions().position(latLng));
+            }
+        });
+
+        // Add map marker click listener
+        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(@NonNull Marker marker) {
+                googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(
+                        new CameraPosition(marker.getPosition(), 15, 0, 0)
+                ));
+                return true;
+            }
+        });
     }
 
 }
