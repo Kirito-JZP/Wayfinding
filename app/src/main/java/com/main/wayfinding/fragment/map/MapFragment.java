@@ -19,6 +19,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.main.wayfinding.R;
 import com.main.wayfinding.databinding.FragmentMapBinding;
+import com.main.wayfinding.logic.NavigationLogic;
 import com.main.wayfinding.utility.GPSTracker;
 
 /**
@@ -34,7 +35,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap map;
     private FragmentMapBinding binding;
     private GPSTracker gps;
-    private Navigation navigation;
+    private NavigationLogic navigation;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -91,7 +92,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         map = googleMap;
-        navigation = new Navigation(googleMap);
+        navigation = new NavigationLogic(googleMap);
 
         // Add a marker in Dublin and move the camera(for test)
 //        LatLng dublin = new LatLng(53, -6);
