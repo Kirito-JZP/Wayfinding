@@ -17,6 +17,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.main.wayfinding.R;
 import com.main.wayfinding.databinding.FragmentMapBinding;
 import com.main.wayfinding.logic.NavigationLogic;
@@ -47,7 +48,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
+        
+        //bottom sheet
+        //BottomSheetBehavior.from().apply
         return root;
     }
 
