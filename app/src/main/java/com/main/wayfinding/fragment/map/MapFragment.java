@@ -34,6 +34,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap map;
     private FragmentMapBinding binding;
     private GPSTracker gps;
+    private Navigation navigation;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -59,6 +60,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View view) {
                 // Create GPS object
+                assert getParentFragment() != null;
                 gps = new GPSTracker(getParentFragment().getContext());
                 Location location = gps.getLocation(getActivity());
                 // Add a marker in current location and move the camera(for test)
@@ -77,7 +79,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         navigate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
+                if (gps.isLocateEnabled()) {
+                    Location location = gps.getLocation(getActivity());
+                    navigation.findRoute(new LatLng(location.getLatitude(), location.getLongitude()), new LatLng(53.3706544, -6.3336711));
+                }
             }
         });
 
@@ -86,9 +91,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         map = googleMap;
+        navigation = new Navigation(googleMap);
 
         // Add a marker in Dublin and move the camera(for test)
-        LatLng dublin = new LatLng(53, -6);
+//        LatLng dublin = new LatLng(53, -6);
+        LatLng dublin = new LatLng(53, -3);
         map.addMarker(new MarkerOptions().position(dublin).title("Marker in dublin"));
         map.moveCamera(CameraUpdateFactory.newLatLng(dublin));
 
