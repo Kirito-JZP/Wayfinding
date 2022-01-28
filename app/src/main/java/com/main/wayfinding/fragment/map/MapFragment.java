@@ -1,5 +1,6 @@
 package com.main.wayfinding.fragment.map;
 
+import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,6 +19,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.main.wayfinding.R;
 import com.main.wayfinding.databinding.FragmentMapBinding;
+import com.main.wayfinding.utility.GPSTracker;
 
 /**
  * Define the fragment used for displaying map and dynamic Sustainable way-finding
@@ -31,7 +33,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private GoogleMap map;
     private FragmentMapBinding binding;
-
+    private GPSTracker gps;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -56,6 +58,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         position.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // Create GPS object
+                gps = new GPSTracker(getParentFragment().getContext());
+                Location location = gps.getLocation(getActivity());
+                // Add a marker in current location and move the camera(for test)
+                if (gps.isLocateEnabled()) {
+                    LatLng currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                    map.clear();
+                    map.addMarker(new MarkerOptions().position(currentLocation).title("current location"));
+                    map.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
+                }
 
             }
         });
