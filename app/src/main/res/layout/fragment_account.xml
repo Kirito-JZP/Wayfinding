@@ -69,7 +69,7 @@
     </LinearLayout>
 
     <TextView
-        android:id="@+id/status"
+        android:id="@+id/tip"
         android:layout_width="230dp"
         android:layout_height="67dp"
         android:text="haven't log in"
