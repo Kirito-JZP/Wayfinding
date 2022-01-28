@@ -5,6 +5,14 @@ import com.google.android.gms.maps.model.LatLng;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Define the fragment used for displaying map and dynamic Sustainable way-finding
+ *
+ * @author Zehua Guo
+ * @author Last Modified By Zehua Guo
+ * @version Revision: 0
+ * Date: 2022/1/26 19:50
+ */
 public class LatLngConverter {
     public static LatLng convert(com.google.maps.model.LatLng ll) {
         return new LatLng(ll.lat, ll.lng);

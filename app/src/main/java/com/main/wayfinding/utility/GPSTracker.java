@@ -84,6 +84,9 @@ public class GPSTracker extends Service implements LocationListener {
                 );
                 Log.d("Network", "Network");
                 if (locationManager != null) {
+                    /* TODO: location can be null under certain circumstances.
+                        To reproduce, run the program on a new android emulator with no previous location cache
+                    */
                     location = locationManager
                             .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                     if (location != null) {
