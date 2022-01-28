@@ -19,22 +19,15 @@
             android:layout_height="64dp"
             android:orientation="horizontal">
 
-            <ImageView
-                android:id="@+id/account_password"
-                android:layout_width="52dp"
-                android:layout_height="54dp"
-                android:layout_centerVertical="true"
-                android:src="@drawable/account_password" />
-
             <EditText
                 android:id="@+id/username"
                 android:layout_width="231dp"
                 android:layout_height="47dp"
-                android:layout_toRightOf="@+id/account_email"
                 android:ems="10"
                 android:hint="@string/email"
                 android:inputType="textPersonName"
-                android:minHeight="48dp" />
+                android:minHeight="48dp"
+                android:drawableLeft="@drawable/ic_baseline_email_24"/>
 
         </LinearLayout>
 
@@ -43,22 +36,15 @@
             android:layout_height="64dp"
             android:orientation="horizontal">
 
-            <ImageView
-                android:id="@+id/account_email"
-                android:layout_width="52dp"
-                android:layout_height="52dp"
-                android:layout_centerVertical="true"
-                android:src="@drawable/account_email" />
-
             <EditText
                 android:id="@+id/password"
                 android:layout_width="232dp"
                 android:layout_height="50dp"
-                android:layout_toRightOf="@+id/account_password"
                 android:ems="10"
                 android:hint="@string/password"
                 android:inputType="textPassword"
-                android:minHeight="70dp" />
+                android:minHeight="70dp"
+                android:drawableLeft="@drawable/ic_baseline_lock_24"/>
         </LinearLayout>
 
         <LinearLayout

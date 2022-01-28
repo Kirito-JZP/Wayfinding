@@ -70,6 +70,8 @@ public class AccountFragment extends Fragment {
             public void onClick(View view) {
                 EditText username = getView().findViewById(R.id.username);
                 System.out.println(username.getText().toString());
+                //jump to layout2 test
+                getActivity().setContentView(R.layout.fragment_account2);
             }
         });
         view.findViewById(R.id.register).setOnClickListener(new View.OnClickListener() {
