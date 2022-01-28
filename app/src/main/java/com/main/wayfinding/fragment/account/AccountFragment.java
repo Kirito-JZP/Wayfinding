@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import com.google.firebase.auth.FirebaseAuth;
+//import com.google.firebase.auth.FirebaseAuth;
 import com.main.wayfinding.databinding.FragmentAccountBinding;
 
 
@@ -21,7 +21,7 @@ import com.main.wayfinding.databinding.FragmentAccountBinding;
  */
 public class AccountFragment extends Fragment {
     private FragmentAccountBinding binding;
-    private FirebaseAuth auth;
+//    private FirebaseAuth auth;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -33,7 +33,8 @@ public class AccountFragment extends Fragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        auth = FirebaseAuth.getInstance();
+
+//        auth = FirebaseAuth.getInstance();
     }
 
     @Override
