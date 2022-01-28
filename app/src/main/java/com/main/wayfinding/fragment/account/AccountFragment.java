@@ -6,23 +6,14 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.main.wayfinding.R;
 import com.main.wayfinding.databinding.FragmentAccountBinding;
 import com.main.wayfinding.logic.AccountLogic;
-
-
-import java.util.concurrent.Executor;
-
 
 /**
  * Define the fragment used for displaying and changing user info
@@ -37,8 +28,7 @@ public class AccountFragment extends Fragment {
     private FirebaseAuth auth;
     private AccountLogic accountLogic;
 
-    public View onCreateView(@NonNull LayoutInflater inflater,
-                             ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentAccountBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         accountLogic.setView(root);
@@ -64,16 +54,6 @@ public class AccountFragment extends Fragment {
         binding = null;
     }
 
-    public void reload(){
-        FirebaseUser currentUser = auth.getCurrentUser();
-        if (currentUser != null) {
-            TextView status = getView().findViewById(R.id.tip);
-            status.setText(currentUser.getEmail());
-        } else {
-            TextView status = getView().findViewById(R.id.tip);
-            status.setText("Not logged in");
-        }
-    }
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -100,12 +80,21 @@ public class AccountFragment extends Fragment {
         view.findViewById(R.id.logout).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                FirebaseAuth.getInstance().signOut();
+                accountLogic.signOut();
                 reload();
             }
         });
     }
 
-
+    public void reload(){
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if (currentUser != null) {
+            TextView status = getView().findViewById(R.id.tip);
+            status.setText(currentUser.getEmail());
+        } else {
+            TextView status = getView().findViewById(R.id.tip);
+            status.setText("Not logged in");
+        }
+    }
 
 }

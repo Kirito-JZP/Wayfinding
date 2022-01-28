@@ -2,10 +2,7 @@ package com.main.wayfinding.logic;
 
 import android.view.View;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
-import androidx.fragment.app.Fragment;
-
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -13,8 +10,14 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.main.wayfinding.R;
 
-import java.util.concurrent.Executor;
-
+/**
+ * Logics for account fragment
+ *
+ * @author Gang
+ * @author Last Modified By Gang
+ * @version Revision: 0
+ * Date: 2022/1/28 18:40
+ */
 public class AccountLogic {
     private FirebaseAuth auth;
     private View view;
@@ -57,5 +60,9 @@ public class AccountLogic {
                 }
             }
         });
+    }
+
+    public void signOut() {
+        FirebaseAuth.getInstance().signOut();
     }
 }
