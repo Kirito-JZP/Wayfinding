@@ -11,10 +11,15 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.main.wayfinding.R;
 import com.main.wayfinding.databinding.FragmentAccountBinding;
+
+import java.util.concurrent.Executor;
 
 
 /**
@@ -46,14 +51,7 @@ public class AccountFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        FirebaseUser currentUser = auth.getCurrentUser();
-        if (currentUser != null) {
-            TextView status = getView().findViewById(R.id.status);
-            status.setText("Y");
-        } else {
-            TextView status = getView().findViewById(R.id.status);
-            status.setText("N");
-        }
+        reload();
     }
 
     @Override
@@ -62,6 +60,16 @@ public class AccountFragment extends Fragment {
         binding = null;
     }
 
+    public void reload(){
+        FirebaseUser currentUser = auth.getCurrentUser();
+        if (currentUser != null) {
+            TextView status = getView().findViewById(R.id.tip);
+            status.setText("Y");
+        } else {
+            TextView status = getView().findViewById(R.id.tip);
+            status.setText("N");
+        }
+    }
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -70,21 +78,33 @@ public class AccountFragment extends Fragment {
             public void onClick(View view) {
                 EditText username = getView().findViewById(R.id.username);
                 System.out.println(username.getText().toString());
-                //jump to layout2 test
-                getActivity().setContentView(R.layout.fragment_account2);
             }
         });
         view.findViewById(R.id.register).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EditText username = getView().findViewById(R.id.username);
-                EditText password = getView().findViewById(R.id.password);
-
+                EditText usernameComponent = getView().findViewById(R.id.username);
+                EditText passwordComponent = getView().findViewById(R.id.password);
+                String username = usernameComponent.getText().toString();
+                String password = passwordComponent.getText().toString();
+                signUp(username,password);
             }
         });
-
-
     }
 
+    public void signUp(String username,String password){
+        auth.createUserWithEmailAndPassword(username,password)
+                .addOnCompleteListener((Executor) this, new OnCompleteListener<AuthResult>() {
+                    @Override
+                    public void onComplete(@NonNull Task<AuthResult> task) {
+                        if(task.isSuccessful()){
+                            reload();
+                        }else{
+                            TextView status = getView().findViewById(R.id.tip);
+                            status.setText("Sign up failed");
+                        }
+                    }
+                });
+    }
 
 }
