@@ -18,6 +18,8 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.main.wayfinding.R;
 import com.main.wayfinding.databinding.FragmentAccountBinding;
+import com.main.wayfinding.logic.AccountLogic;
+
 
 import java.util.concurrent.Executor;
 
@@ -33,12 +35,13 @@ import java.util.concurrent.Executor;
 public class AccountFragment extends Fragment {
     private FragmentAccountBinding binding;
     private FirebaseAuth auth;
+    private AccountLogic accountLogic;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentAccountBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-
+        accountLogic.setView(root);
         return root;
     }
 
@@ -46,6 +49,7 @@ public class AccountFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         auth = FirebaseAuth.getInstance();
+        accountLogic = new AccountLogic();
     }
 
     @Override
@@ -64,10 +68,10 @@ public class AccountFragment extends Fragment {
         FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser != null) {
             TextView status = getView().findViewById(R.id.tip);
-            status.setText("Y");
+            status.setText(currentUser.getEmail());
         } else {
             TextView status = getView().findViewById(R.id.tip);
-            status.setText("N");
+            status.setText("Not logged in");
         }
     }
     @Override
@@ -76,8 +80,11 @@ public class AccountFragment extends Fragment {
         view.findViewById(R.id.login).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EditText username = getView().findViewById(R.id.username);
-                System.out.println(username.getText().toString());
+                EditText usernameComponent = getView().findViewById(R.id.username);
+                EditText passwordComponent = getView().findViewById(R.id.password);
+                String username = usernameComponent.getText().toString();
+                String password = passwordComponent.getText().toString();
+                accountLogic.login(username,password);
             }
         });
         view.findViewById(R.id.register).setOnClickListener(new View.OnClickListener() {
@@ -87,24 +94,18 @@ public class AccountFragment extends Fragment {
                 EditText passwordComponent = getView().findViewById(R.id.password);
                 String username = usernameComponent.getText().toString();
                 String password = passwordComponent.getText().toString();
-                signUp(username,password);
+                accountLogic.signUp(username,password);
+            }
+        });
+        view.findViewById(R.id.logout).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                FirebaseAuth.getInstance().signOut();
+                reload();
             }
         });
     }
 
-    public void signUp(String username,String password){
-        auth.createUserWithEmailAndPassword(username,password)
-                .addOnCompleteListener((Executor) this, new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if(task.isSuccessful()){
-                            reload();
-                        }else{
-                            TextView status = getView().findViewById(R.id.tip);
-                            status.setText("Sign up failed");
-                        }
-                    }
-                });
-    }
+
 
 }
