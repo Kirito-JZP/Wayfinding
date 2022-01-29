@@ -1,5 +1,10 @@
 package com.main.wayfinding.fragment.map;
 
+import static com.main.wayfinding.utility.GeoLocationMsgManager.findLocationGeoMsg;
+
+import android.Manifest;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -11,6 +16,7 @@ import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -28,8 +34,8 @@ import com.main.wayfinding.R;
 import com.main.wayfinding.WayfindingApp;
 import com.main.wayfinding.databinding.FragmentMapBinding;
 import com.main.wayfinding.dto.LocationDto;
+import com.main.wayfinding.logic.GPSTrackerLogic;
 import com.main.wayfinding.logic.NavigationLogic;
-import com.main.wayfinding.utility.GPSTracker;
 
 import java.io.IOException;
 
@@ -45,7 +51,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private GoogleMap map;
     private FragmentMapBinding binding;
-    private GPSTracker gps;
+    private GPSTrackerLogic gps;
     private NavigationLogic navigation;
     private LatLng currentLocation;
     private LocationDto targetLocation;
@@ -128,7 +134,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         navigation = new NavigationLogic(googleMap);
 
         // Create GPS object
-        gps = new GPSTracker(getParentFragment().getContext());
+        gps = new GPSTrackerLogic(getParentFragment().getContext());
         Location location = gps.getLocation(getActivity());
         // Add a marker in current location and move the camera(for test)
         if (gps.isLocateEnabled()) {
@@ -148,7 +154,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             public void onMapClick(@NonNull LatLng latLng) {
                 map.clear();
                 map.addMarker(new MarkerOptions().position(latLng));
-            }
+                targetLocation = findLocationGeoMsg(getActivity(), latLng);
+                new AlertDialog.Builder(getActivity())
+                        .setTitle("Target Place")
+                        .setMessage(targetLocation.getName() + "\n" + targetLocation.getAddress())
+                        .setPositiveButton("Set", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                //Do nothing
+                            }
+                        })
+                        .setNegativeButton("Close", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                //Do nothing
+                            }
+                        })
+                        .show();
+;            }
         });
 
         // Add map marker click listener

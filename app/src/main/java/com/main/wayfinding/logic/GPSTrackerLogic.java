@@ -1,4 +1,4 @@
-package com.main.wayfinding.utility;
+package com.main.wayfinding.logic;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -19,14 +19,14 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 
 /**
- * Class for tracking current location
+ * Description
  *
- * @author JIA
+ * @author jia72
  * @author Last Modified By jia72
  * @version Revision: 0
- * Date: 2022/1/27 13:05
+ * Date: 2022/1/29 0:58
  */
-public class GPSTracker extends Service implements LocationListener {
+public class GPSTrackerLogic extends Service implements LocationListener {
 
     private final Context context;
 
@@ -51,7 +51,7 @@ public class GPSTracker extends Service implements LocationListener {
     protected LocationManager locationManager;
 
     // Tag for marking if the location info can be gotten
-    public GPSTracker(Context context) {
+    public GPSTrackerLogic(Context context) {
         this.context = context;
     }
 
@@ -84,9 +84,6 @@ public class GPSTracker extends Service implements LocationListener {
                 );
                 Log.d("Network", "Network");
                 if (locationManager != null) {
-                    /* TODO: location can be null under certain circumstances.
-                        To reproduce, run the program on a new android emulator with no previous location cache
-                    */
                     location = locationManager
                             .getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
                     if (location != null) {
