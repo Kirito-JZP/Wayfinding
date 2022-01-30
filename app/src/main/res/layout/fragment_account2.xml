@@ -27,7 +27,7 @@
             />
 
         <EditText
-            android:id="@+id/input_search"
+            android:id="@+id/autocomplete_box"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_centerVertical="true"

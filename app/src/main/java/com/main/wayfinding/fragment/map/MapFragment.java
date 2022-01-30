@@ -1,13 +1,21 @@
 package com.main.wayfinding.fragment.map;
 
+import android.content.Context;
 import android.location.Location;
 import android.os.Bundle;
-import android.view.KeyEvent;
+import android.os.Handler;
+import android.os.Message;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -19,19 +27,18 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.maps.PlacesApi;
-import com.google.maps.errors.ApiException;
-import com.google.maps.model.AutocompletePrediction;
+import com.google.maps.model.PlacesSearchResult;
+import com.main.wayfinding.adapter.LocationAdapter;
 import com.main.wayfinding.R;
-import com.main.wayfinding.WayfindingApp;
 import com.main.wayfinding.databinding.FragmentMapBinding;
 import com.main.wayfinding.dto.LocationDto;
 import com.main.wayfinding.logic.NavigationLogic;
+import com.main.wayfinding.utility.AutocompleteHandler;
 import com.main.wayfinding.utility.GPSTracker;
 
-import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Define the fragment used for displaying map and dynamic Sustainable way-finding
@@ -49,6 +56,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private NavigationLogic navigation;
     private LatLng currentLocation;
     private LocationDto targetLocation;
+    private List<LocationDto> locationList;
+    private String keyword;
+    private AutocompleteHandler autocompleteHandler;
+    private Handler UIHandler;
+    private int autocompleteDelay = 500;
+
+    EditText searchBox;
+    ListView placesListView;
+    ScrollView autocompleteScrollView;
+    RelativeLayout rootLayout;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -60,7 +77,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        
+
         //bottom sheet
         //BottomSheetBehavior.from().apply
         return root;
@@ -70,8 +87,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        rootLayout = view.findViewById(R.id.map_root_layout);
+        searchBox = view.findViewById(R.id.input_search);
+        placesListView = view.findViewById(R.id.places_listview);
+        autocompleteScrollView = view.findViewById(R.id.autocomplete_scrollview);
+
+        autocompleteHandler = new AutocompleteHandler();
+        autocompleteHandler.setFragment(this);
+        UIHandler = new Handler();
+        locationList = new ArrayList<>();
+
         // Get current location after clicking the position button
-        ImageView position = (ImageView) view.findViewById(R.id.position);
+        ImageView position = view.findViewById(R.id.position);
         position.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -83,43 +110,60 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     map.addMarker(new MarkerOptions().position(currentLocation).title("current location"));
                     map.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
                 }
-
             }
         });
 
         // Do way finding after clicking the navigate button
-        ImageView navigate = (ImageView) view.findViewById(R.id.navigate);
+        ImageView navigate = view.findViewById(R.id.navigate);
         navigate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (currentLocation != null) {
-                    navigation.findRoute(currentLocation, new LatLng(53.3706544, -6.3336711));
-                }
+                // TODO: start navigation
             }
         });
-
-        EditText searchBox = (EditText) view.findViewById(R.id.input_search);
-        searchBox.setOnKeyListener(new View.OnKeyListener() {
+        // listener for delayed trigger
+        searchBox.addTextChangedListener(new TextWatcher() {
             @Override
-            public boolean onKey(View view, int i, KeyEvent keyEvent) {
-                if (keyEvent.getKeyCode() == KeyEvent.KEYCODE_ENTER && keyEvent.getAction() == KeyEvent.ACTION_UP) {
-                    Location location = gps.getLocation(getActivity());
-                    try {
-                        AutocompletePrediction[] predictions = PlacesApi.queryAutocomplete(WayfindingApp.getGeoApiContext(), searchBox.getText().toString())
-                                .location(new com.google.maps.model.LatLng(location.getLatitude(), location.getLongitude()))
-                                .radius(50000)
-                                .await();
-                        for (AutocompletePrediction prediction : predictions) {
-                            // TODO: UI
-                        }
-                    } catch (ApiException | IOException | InterruptedException e) {
-                        e.printStackTrace();
-                    }
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                keyword = charSequence.toString().trim();
+                if (autocompleteHandler.hasMessages(AutocompleteHandler.TRIGGER_MSG)) {
+                    autocompleteHandler.removeMessages(AutocompleteHandler.TRIGGER_MSG);
                 }
-                return false;
+                Message msg = new Message();
+                msg.what = AutocompleteHandler.TRIGGER_MSG;
+                autocompleteHandler.sendMessageDelayed(msg, autocompleteDelay);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
             }
         });
-
+        // click on a place in the candidate places
+        placesListView.setOnItemClickListener((adapterView, _view, i, l) -> {
+            LocationDto location = locationList.get(i);
+            navigation.findRoute(currentLocation, new LatLng(location.getLatitude(), location.getLongitude()));
+            placesListView.setAdapter(null);
+            searchBox.setText(location.getName());
+            // hide the soft keyboard after clicking on an item
+            InputMethodManager manager = ((InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE));
+            if (manager != null)
+                manager.hideSoftInputFromWindow(view.findFocus().getWindowToken(), 0);
+            searchBox.clearFocus();
+        });
+        // listener to change the visibility of the places list
+        searchBox.setOnFocusChangeListener((_view, b) -> {
+            if (b) {
+                placesListView.setAdapter(new LocationAdapter(getContext(), R.layout.autocomplete_location_item, locationList));
+                autocompleteScrollView.setVisibility(View.VISIBLE);
+            } else {
+                placesListView.setAdapter(null);
+                autocompleteScrollView.setVisibility(View.INVISIBLE);
+            }
+        });
     }
 
     @Override
@@ -143,24 +187,35 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         map.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
 
         // Add map click listener
-        map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(@NonNull LatLng latLng) {
-                map.clear();
-                map.addMarker(new MarkerOptions().position(latLng));
-            }
+        map.setOnMapClickListener(latLng -> {
+            map.clear();
+            map.addMarker(new MarkerOptions().position(latLng));
         });
 
         // Add map marker click listener
-        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(@NonNull Marker marker) {
-                googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(
-                        new CameraPosition(marker.getPosition(), 15, 0, 0)
-                ));
-                return true;
-            }
+        map.setOnMarkerClickListener(marker -> {
+            googleMap.animateCamera(CameraUpdateFactory.newCameraPosition(
+                    new CameraPosition(marker.getPosition(), 15, 0, 0)
+            ));
+            return true;
         });
     }
 
+    public void queryAutocomplete() {
+        new Thread(() -> {
+            PlacesSearchResult[] places = navigation.nearbySearchQuery(keyword, currentLocation);
+            locationList.clear();
+            for (PlacesSearchResult place : places) {
+                locationList.add(new LocationDto()
+                        .setGmPlaceID(place.placeId)
+                        .setName(place.name)
+                        .setAddress(place.vicinity)
+                        .setLongitude(place.geometry.location.lng)
+                        .setLatitude(place.geometry.location.lat)
+                );
+            }
+            // pass the results to original thread so that UI elements can be updated
+            UIHandler.post(() -> placesListView.setAdapter(new LocationAdapter(getContext(), R.layout.autocomplete_location_item, locationList)));
+        }).start();
+    }
 }

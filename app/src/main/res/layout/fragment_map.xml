@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:map="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/map_root_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -70,16 +71,36 @@
             android:id="@+id/input_search"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_centerVertical="true"
-            android:layout_toRightOf="@+id/search_img"
+            android:layout_toRightOf="@id/search_img"
             android:background="@null"
+            android:ems="10"
             android:hint="Search here"
+            android:inputType="textPersonName"
+            android:minHeight="48dp"
             android:singleLine="true"
-            android:textColor="#000"
             android:textSize="15dp" />
+
     </RelativeLayout>
 
     <!--add to preference & exchange button-->
+
+    <ScrollView
+        android:id="@+id/autocomplete_scrollview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/Layout_search"
+        android:layout_alignStart="@id/Layout_search"
+        android:layout_alignEnd="@id/Layout_search"
+        android:layout_marginEnd="3dp"
+        android:elevation="1dp"
+        android:visibility="invisible">
+
+        <ListView
+            android:id="@+id/places_listview"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+    </ScrollView>
+
     <LinearLayout
         android:layout_width="30dp"
         android:layout_height="100dp"
@@ -237,4 +258,5 @@
             </FrameLayout>
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
     </RelativeLayout>
+
 </RelativeLayout>
