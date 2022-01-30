@@ -1,22 +1,20 @@
 package com.main.wayfinding.fragment.map;
 
-import android.content.Context;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
 import static com.main.wayfinding.utility.GeoLocationMsgManager.findLocationGeoMsg;
+
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.location.Location;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.Manifest;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.location.Location;
-import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -25,7 +23,6 @@ import android.widget.ScrollView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -36,8 +33,8 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.model.PlacesSearchResult;
-import com.main.wayfinding.adapter.LocationAdapter;
 import com.main.wayfinding.R;
+import com.main.wayfinding.adapter.LocationAdapter;
 import com.main.wayfinding.databinding.FragmentMapBinding;
 import com.main.wayfinding.dto.LocationDto;
 import com.main.wayfinding.logic.GPSTrackerLogic;
@@ -106,27 +103,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         // Get current location after clicking the position button
         ImageView position = view.findViewById(R.id.position);
-        position.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Location location = gps.getLocation(getActivity());
-                // Add a marker in current location and move the camera(for test)
-                if (gps.isLocateEnabled()) {
-                    currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                    map.clear();
-                    map.addMarker(new MarkerOptions().position(currentLocation).title("current location"));
-                    map.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
-                }
+        position.setOnClickListener(_view -> {
+            Location location = gps.getLocation(getActivity());
+            // Add a marker in current location and move the camera(for test)
+            if (gps.isLocateEnabled()) {
+                currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                map.clear();
+                map.addMarker(new MarkerOptions().position(currentLocation).title("current location"));
+                map.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
             }
         });
 
         // Do way finding after clicking the navigate button
         ImageView navigate = view.findViewById(R.id.navigate);
-        navigate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // TODO: start navigation
-            }
+        navigate.setOnClickListener(_view -> {
+            // TODO: start navigation
         });
         // listener for delayed trigger
         searchBox.addTextChangedListener(new TextWatcher() {
@@ -194,28 +185,25 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         map.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
 
         // Add map click listener
-        map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(@NonNull LatLng latLng) {
-                map.clear();
-                map.addMarker(new MarkerOptions().position(latLng));
-                targetLocation = findLocationGeoMsg(getActivity(), latLng);
-                new AlertDialog.Builder(getActivity())
-                        .setTitle("Target Place")
-                        .setMessage(targetLocation.getName() + "\n" + targetLocation.getAddress())
-                        .setPositiveButton("Set", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                //Do nothing
-                            }
-                        })
-                        .setNegativeButton("Close", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                //Do nothing
-                            }
-                        })
-                        .show();
-;            }
-        });
+        map.setOnMapClickListener(latLng -> {
+            map.clear();
+            map.addMarker(new MarkerOptions().position(latLng));
+            targetLocation = findLocationGeoMsg(getActivity(), latLng);
+            new AlertDialog.Builder(getActivity())
+                    .setTitle("Target Place")
+                    .setMessage(targetLocation.getName() + "\n" + targetLocation.getAddress())
+                    .setPositiveButton("Set", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            //Do nothing
+                        }
+                    })
+                    .setNegativeButton("Close", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            //Do nothing
+                        }
+                    })
+                    .show();
+;            });
 
         // Add map marker click listener
         map.setOnMarkerClickListener(marker -> {
