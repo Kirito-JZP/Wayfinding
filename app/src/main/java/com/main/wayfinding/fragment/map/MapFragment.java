@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -50,7 +51,7 @@ import java.util.List;
  * @author JIA
  * @author Last Modified By JIA
  * @version Revision: 0
- * Date: 2022/1/26 19:50
+ * Date: 2022/1/30 19:50
  */
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
@@ -103,21 +104,27 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         // Get current location after clicking the position button
         ImageView position = view.findViewById(R.id.position);
-        position.setOnClickListener(_view -> {
-            Location location = gps.getLocation(getActivity());
-            // Add a marker in current location and move the camera(for test)
-            if (gps.isLocateEnabled()) {
-                currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
-                map.clear();
-                map.addMarker(new MarkerOptions().position(currentLocation).title("current location"));
-                map.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
+        position.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Location location = gps.getLocation(getActivity());
+                // Add a marker in current location and move the camera(for test)
+                if (gps.isLocateEnabled()) {
+                    currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
+                    map.clear();
+                    map.addMarker(new MarkerOptions().position(currentLocation).title("current location"));
+                    map.moveCamera(CameraUpdateFactory.newLatLng(currentLocation));
+                }
             }
         });
 
         // Do way finding after clicking the navigate button
         ImageView navigate = view.findViewById(R.id.navigate);
-        navigate.setOnClickListener(_view -> {
-            // TODO: start navigation
+        navigate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // TODO: start navigation
+            }
         });
         // listener for delayed trigger
         searchBox.addTextChangedListener(new TextWatcher() {
@@ -141,25 +148,32 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
         });
         // click on a place in the candidate places
-        placesListView.setOnItemClickListener((adapterView, _view, i, l) -> {
-            LocationDto location = locationList.get(i);
-            navigation.findRoute(currentLocation, new LatLng(location.getLatitude(), location.getLongitude()));
-            placesListView.setAdapter(null);
-            searchBox.setText(location.getName());
-            // hide the soft keyboard after clicking on an item
-            InputMethodManager manager = ((InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE));
-            if (manager != null)
-                manager.hideSoftInputFromWindow(view.findFocus().getWindowToken(), 0);
-            searchBox.clearFocus();
-        });
-        // listener to change the visibility of the places list
-        searchBox.setOnFocusChangeListener((_view, b) -> {
-            if (b) {
-                placesListView.setAdapter(new LocationAdapter(getContext(), R.layout.autocomplete_location_item, locationList));
-                autocompleteScrollView.setVisibility(View.VISIBLE);
-            } else {
+        placesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                LocationDto location = locationList.get(i);
+                navigation.findRoute(currentLocation, new LatLng(location.getLatitude(), location.getLongitude()));
                 placesListView.setAdapter(null);
-                autocompleteScrollView.setVisibility(View.INVISIBLE);
+                searchBox.setText(location.getName());
+                // hide the soft keyboard after clicking on an item
+                InputMethodManager manager = ((InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE));
+                if (manager != null)
+                    manager.hideSoftInputFromWindow(view.findFocus().getWindowToken(), 0);
+                searchBox.clearFocus();
+            }
+        });
+
+        // listener to change the visibility of the places list
+        searchBox.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b) {
+                    placesListView.setAdapter(new LocationAdapter(getContext(), R.layout.autocomplete_location_item, locationList));
+                    autocompleteScrollView.setVisibility(View.VISIBLE);
+                } else {
+                    placesListView.setAdapter(null);
+                    autocompleteScrollView.setVisibility(View.INVISIBLE);
+                }
             }
         });
     }
