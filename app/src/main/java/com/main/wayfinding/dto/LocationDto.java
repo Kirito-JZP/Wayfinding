@@ -33,15 +33,6 @@ public class LocationDto {
         return this;
     }
 
-    public String getAddress() {
-        return address;
-    }
-
-    public LocationDto setAddress(String address) {
-        this.address = address;
-        return this;
-    }
-
     public String getGmPlaceID() {
         return gmPlaceID;
     }
