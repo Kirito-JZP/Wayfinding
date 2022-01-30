@@ -1,6 +1,8 @@
 package com.main.wayfinding;
 
 import android.os.Bundle;
+import android.util.DisplayMetrics;
+
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
@@ -16,7 +18,7 @@ import com.main.wayfinding.databinding.ActivityMainBinding;
  * @author JIA
  * @author Last Modified By JIA
  * @version Revision: 0
- *          Date: 2022/1/16 1:43
+ * Date: 2022/1/16 1:43
  */
 
 public class MainActivity extends AppCompatActivity {
@@ -39,5 +41,12 @@ public class MainActivity extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_main);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
+
+        DisplayMetrics dm = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(dm);
+        float dpWidth = dm.widthPixels / (dm.xdpi) * 160;
+        float dpHeight = dm.heightPixels / (dm.ydpi) * 160;
+        WayfindingApp.setDpWidth(dpWidth);
+        WayfindingApp.setDpHeight(dpHeight);
     }
 }
