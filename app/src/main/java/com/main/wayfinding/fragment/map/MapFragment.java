@@ -158,7 +158,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 // hide the soft keyboard after clicking on an item
                 InputMethodManager manager = ((InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE));
                 if (manager != null)
-                    manager.hideSoftInputFromWindow(view.findFocus().getWindowToken(), 0);
+                    manager.hideSoftInputFromWindow(getView().findFocus().getWindowToken(), 0);
                 searchBox.clearFocus();
             }
         });
