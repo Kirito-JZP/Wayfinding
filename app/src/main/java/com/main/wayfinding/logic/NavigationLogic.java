@@ -65,6 +65,7 @@ public class NavigationLogic {
 
     public void findRoute(LatLng orig, LatLng dest) {
         try {
+            map.clear();
             DirectionsResult result = getDirections(orig, dest).await();
             // TODO: there can be more than one route
             double max_lat = result.routes[0].bounds.northeast.lat;
