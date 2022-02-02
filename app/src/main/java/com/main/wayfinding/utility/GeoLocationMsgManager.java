@@ -10,11 +10,10 @@ import com.google.android.gms.maps.model.LatLng;
 import com.main.wayfinding.dto.LocationDto;
 
 import java.io.IOException;
-import java.util.List;
 import java.util.Locale;
 
 /**
- * Description
+ * Class for location information management.
  *
  * @author JIA
  * @author Last Modified By JIA

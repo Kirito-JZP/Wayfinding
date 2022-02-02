@@ -23,25 +23,7 @@ public class LocationDto {
     // the following properties only apply to google maps apis
     private String gmPlaceID;
     private LatLngBounds gmViewPort;
-
-    public LatLngBounds getGmViewPort() {
-        return gmViewPort;
-    }
-
-    public LocationDto setGmViewPort(LatLngBounds gmViewPort) {
-        this.gmViewPort = gmViewPort;
-        return this;
-    }
-
-    public String getGmPlaceID() {
-        return gmPlaceID;
-    }
-
-    public LocationDto setGmPlaceID(String gmPlaceID) {
-        this.gmPlaceID = gmPlaceID;
-        return this;
-    }
-
+    private String gmImgUrl;
 
     public String getName() {
         return name;
@@ -104,5 +86,31 @@ public class LocationDto {
     public LocationDto setPostalCode(String postalCode) {
         this.postalCode = postalCode;
         return this;
+    }
+
+    public LatLngBounds getGmViewPort() {
+        return gmViewPort;
+    }
+
+    public LocationDto setGmViewPort(LatLngBounds gmViewPort) {
+        this.gmViewPort = gmViewPort;
+        return this;
+    }
+
+    public String getGmPlaceID() {
+        return gmPlaceID;
+    }
+
+    public LocationDto setGmPlaceID(String gmPlaceID) {
+        this.gmPlaceID = gmPlaceID;
+        return this;
+    }
+
+    public String getGmImgUrl() {
+        return gmImgUrl;
+    }
+
+    public void setGmImgUrl(String gmImgUrl) {
+        this.gmImgUrl = gmImgUrl;
     }
 }
