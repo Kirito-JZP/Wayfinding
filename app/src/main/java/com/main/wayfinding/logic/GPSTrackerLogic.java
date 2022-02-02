@@ -19,10 +19,10 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 
 /**
- * Description
+ * Class for GPS tracking
  *
- * @author jia72
- * @author Last Modified By jia72
+ * @author JIA
+ * @author Last Modified By JIA
  * @version Revision: 0
  * Date: 2022/1/29 0:58
  */
