@@ -262,7 +262,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         map.setOnMapClickListener(latLng -> {
             map.clear();
             map.addMarker(new MarkerOptions().position(latLng));
-            targetLocation = findLocationGeoMsg(getActivity(), latLng);
+            targetLocation = findLocationGeoMsg(latLng);
             new AlertDialog.Builder(getActivity())
                     .setTitle("Target Place")
                     .setMessage(targetLocation.getName() + "\n" + targetLocation.getAddress())
