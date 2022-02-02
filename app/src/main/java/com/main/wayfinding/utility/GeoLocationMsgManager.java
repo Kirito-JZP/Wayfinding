@@ -2,12 +2,12 @@ package com.main.wayfinding.utility;
 
 
 import com.google.android.gms.maps.model.LatLng;
-import com.google.maps.GeocodingApi;
-import com.google.maps.ImageResult;
+import com.google.maps.GeocodingApiRequest;
 import com.google.maps.PlacesApi;
 import com.google.maps.errors.ApiException;
 import com.google.maps.model.AddressComponent;
 import com.google.maps.model.GeocodingResult;
+import com.google.maps.model.LocationType;
 import com.google.maps.model.PlaceDetails;
 import com.main.wayfinding.WayfindingApp;
 import com.main.wayfinding.dto.LocationDto;
@@ -29,23 +29,20 @@ public class GeoLocationMsgManager {
 
     public static LocationDto findLocationGeoMsg(LatLng latLng) {
         try {
-            GeocodingResult[] results = GeocodingApi.reverseGeocode(WayfindingApp.getGeoApiContext(), LatLngConverter.convert(latLng)).await();
+            GeocodingResult[] results = reverseGeocode(latLng).await();
             if (results.length > 0) {
                 String placeId = results[0].placeId;
                 PlaceDetails details = PlacesApi.placeDetails(WayfindingApp.getGeoApiContext(), placeId).await();
-                if (details.photos.length > 0) {
-                    ImageResult photo = PlacesApi.photo(WayfindingApp.getGeoApiContext(), details.photos[0].photoReference).await();
-                    // TODO: concatenate url and store it
-                }
                 List<AddressComponent> comps = Arrays.stream(details.addressComponents).filter(comp -> Arrays.stream(comp.types).anyMatch(t -> t.toString().equals("administrative_area_level_1"))).collect(Collectors.toList());
                 String city = comps.isEmpty() ? "" : comps.get(0).longName;
                 comps = Arrays.stream(details.addressComponents).filter(comp -> Arrays.stream(comp.types).anyMatch(t -> t.toString().equals("country"))).collect(Collectors.toList());
                 String country = comps.isEmpty() ? "" : comps.get(0).longName;
                 comps = Arrays.stream(details.addressComponents).filter(comp -> Arrays.stream(comp.types).anyMatch(t -> t.toString().equals("postal_code"))).collect(Collectors.toList());
                 String postalCode = comps.isEmpty() ? "" : comps.get(0).longName;
-                String imageUrl = details.photos.length == 0 ? "" : "https://maps.googleapis.com/maps/api/place/photo?photo_reference=" + details.photos[0].photoReference + "&maxheight=500&maxwidth=500&key=" + WayfindingApp.getKey();
+                String imageUrl = (details.photos != null && details.photos.length != 0) ? "https://maps.googleapis.com/maps/api/place/photo?photo_reference=" + details.photos[0].photoReference + "&maxheight=500&maxwidth=500&key=" + WayfindingApp.getKey() : "";
                 return new LocationDto()
                         .setName(details.name)
+                        .setAddress(details.formattedAddress)
                         .setLatitude(details.geometry.location.lat)
                         .setLongitude(details.geometry.location.lng)
                         .setCity(city)
@@ -59,5 +56,12 @@ public class GeoLocationMsgManager {
             e.printStackTrace();
         }
         return null;
+    }
+
+    public static GeocodingApiRequest reverseGeocode(LatLng latlng) {
+        GeocodingApiRequest request = new GeocodingApiRequest(WayfindingApp.getGeoApiContext());
+        request.locationType(LocationType.ROOFTOP);
+        request.latlng(LatLngConverter.convert(latlng));
+        return request;
     }
 }
