@@ -5,6 +5,8 @@ import static com.main.wayfinding.utility.GeoLocationMsgManager.findLocationGeoM
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -42,6 +44,8 @@ import com.main.wayfinding.logic.GPSTrackerLogic;
 import com.main.wayfinding.logic.NavigationLogic;
 import com.main.wayfinding.utility.AutocompleteHandler;
 
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -51,7 +55,7 @@ import java.util.List;
  * @author JIA
  * @author Last Modified By JIA
  * @version Revision: 0
- * Date: 2022/1/30 19:50
+ * Date: 2022/2/2 19:50
  */
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
@@ -67,10 +71,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private Handler UIHandler;
     private int autocompleteDelay = 500;
 
-    EditText searchBox;
-    ListView placesListView;
-    ScrollView autocompleteScrollView;
-    RelativeLayout rootLayout;
+    // Components
+    private EditText departureText;
+    private EditText destinationText;
+    private ImageView addImage;
+    private ImageView exchangeImage;
+    private ImageView publicImage;
+    private ImageView walkImage;
+    private ImageView cyclingImage;
+    private ImageView navigate;
+    private ImageView position;
+    private ListView placesListView;
+    private ScrollView autocompleteScrollView;
+    private RelativeLayout rootLayout;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -92,8 +105,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Map
         rootLayout = view.findViewById(R.id.map_root_layout);
-        searchBox = view.findViewById(R.id.input_search);
+
+        // TextView
+        departureText = view.findViewById(R.id.input_start);
+        destinationText = view.findViewById(R.id.input_search);
+
+        // ImageView
+        addImage = view.findViewById(R.id.add);
+        exchangeImage = view.findViewById(R.id.exchange);
+        publicImage = view.findViewById(R.id.public_img);
+        walkImage = view.findViewById(R.id.walk_img);
+        cyclingImage = view.findViewById(R.id.cycling_img);
+        navigate = view.findViewById(R.id.navigate);
+        position = view.findViewById(R.id.position);
+
+        // ListView
         placesListView = view.findViewById(R.id.places_listview);
         autocompleteScrollView = view.findViewById(R.id.autocomplete_scrollview);
 
@@ -102,8 +130,42 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         UIHandler = new Handler();
         locationList = new ArrayList<>();
 
+        addImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // TODO
+            }
+        });
+
+        exchangeImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // TODO
+            }
+        });
+
+        publicImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // TODO
+            }
+        });
+
+        walkImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // TODO
+            }
+        });
+
+        cyclingImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // TODO
+            }
+        });
+
         // Get current location after clicking the position button
-        ImageView position = view.findViewById(R.id.position);
         position.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -119,15 +181,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
 
         // Do way finding after clicking the navigate button
-        ImageView navigate = view.findViewById(R.id.navigate);
         navigate.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO: start navigation
+                // TODO
             }
         });
+
         // listener for delayed trigger
-        searchBox.addTextChangedListener(new TextWatcher() {
+        destinationText.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
             }
@@ -154,21 +216,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 LocationDto location = locationList.get(i);
                 navigation.findRoute(currentLocation, new LatLng(location.getLatitude(), location.getLongitude()));
                 placesListView.setAdapter(null);
-                searchBox.setText(location.getName());
+                destinationText.setText(location.getName());
                 // hide the soft keyboard after clicking on an item
-                InputMethodManager manager = ((InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE));
+                InputMethodManager manager = ((InputMethodManager) getContext()
+                        .getSystemService(Context.INPUT_METHOD_SERVICE));
                 if (manager != null)
                     manager.hideSoftInputFromWindow(getView().findFocus().getWindowToken(), 0);
-                searchBox.clearFocus();
+                destinationText.clearFocus();
             }
         });
 
         // listener to change the visibility of the places list
-        searchBox.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        destinationText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
                 if (b) {
-                    placesListView.setAdapter(new LocationAdapter(getContext(), R.layout.autocomplete_location_item, locationList));
+                    placesListView.setAdapter(new LocationAdapter(getContext(),
+                            R.layout.autocomplete_location_item, locationList));
                     autocompleteScrollView.setVisibility(View.VISIBLE);
                 } else {
                     placesListView.setAdapter(null);
@@ -242,7 +306,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 );
             }
             // pass the results to original thread so that UI elements can be updated
-            UIHandler.post(() -> placesListView.setAdapter(new LocationAdapter(getContext(), R.layout.autocomplete_location_item, locationList)));
+            UIHandler.post(() -> placesListView.setAdapter(new LocationAdapter(getContext(),
+                    R.layout.autocomplete_location_item, locationList)));
         }).start();
     }
 }

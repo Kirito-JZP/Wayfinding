@@ -112,13 +112,15 @@
         android:layout_marginLeft="350dp"
         android:layout_marginEnd="15dp"
         android:orientation="vertical">
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="50dp"
-            android:src="@drawable/addto"
-            />
 
         <ImageView
+            android:id="@+id/add"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:src="@drawable/addto" />
+
+        <ImageView
+            android:id="@+id/exchange"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="20dp"
@@ -169,14 +171,15 @@
                 android:layout_height="match_parent"
                 android:layout_marginLeft="10dp"
                 android:src="@drawable/publictransport"/>
+
             <TextView
-                android:layout_toRightOf="@+id/public_img"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="8dp"
-                android:textSize="15dp"
+                android:layout_toRightOf="@+id/public_img"
                 android:gravity="center_vertical"
-                android:text="Public"/>
+                android:text="Public"
+                android:textSize="15dp" />
         </RelativeLayout>
         <RelativeLayout
             android:layout_width="90dp"
@@ -191,14 +194,15 @@
                 android:layout_height="match_parent"
                 android:layout_marginLeft="10dp"
                 android:src="@drawable/walking"/>
+
             <TextView
-                android:layout_toRightOf="@+id/walk_img"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="10dp"
-                android:textSize="15dp"
+                android:layout_toRightOf="@+id/walk_img"
                 android:gravity="center_vertical"
-                android:text="Walk"/>
+                android:text="Walk"
+                android:textSize="15dp" />
         </RelativeLayout>
         <RelativeLayout
             android:layout_width="90dp"
@@ -213,14 +217,15 @@
                 android:layout_height="match_parent"
                 android:layout_marginLeft="10dp"
                 android:src="@drawable/cycling"/>
+
             <TextView
-                android:layout_toRightOf="@+id/cycling_img"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="5dp"
-                android:textSize="15dp"
+                positionandroid:layout_toRightOf="@+id/cycling_img"
                 android:gravity="center_vertical"
-                android:text="Cycling"/>
+                android:text="Cycling"
+                android:textSize="15dp" />
         </RelativeLayout>
     </RelativeLayout>
     <!-- bottom sheet -->
@@ -236,8 +241,8 @@
         tools:openDrawer="start">
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
-            android:layout_height="match_parent"
-            android:layout_width="match_parent">
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
 
             <FrameLayout
                 android:id="@+id/bottomsheet"

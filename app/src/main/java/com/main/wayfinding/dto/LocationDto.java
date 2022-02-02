@@ -2,6 +2,9 @@ package com.main.wayfinding.dto;
 
 import com.google.android.gms.maps.model.LatLngBounds;
 
+import java.util.Date;
+import java.util.LinkedList;
+
 /**
  * Entity for storing loaction information
  *
@@ -19,6 +22,7 @@ public class LocationDto {
     private String country;
     private String address;
     private String postalCode;
+    private Date date;
 
     // the following properties only apply to google maps apis
     private String gmPlaceID;
@@ -112,5 +116,13 @@ public class LocationDto {
 
     public void setGmImgUrl(String gmImgUrl) {
         this.gmImgUrl = gmImgUrl;
+    }
+
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
     }
 }
