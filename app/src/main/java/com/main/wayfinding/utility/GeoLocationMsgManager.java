@@ -78,4 +78,11 @@ public class GeoLocationMsgManager {
         request.latlng(LatLngConverter.convert(latlng));
         return request;
     }
+
+    public static GeocodingApiRequest reverseGeocode(LatLng latlng) {
+        GeocodingApiRequest request = new GeocodingApiRequest(WayfindingApp.getGeoApiContext());
+        request.locationType(LocationType.ROOFTOP);
+        request.latlng(LatLngConverter.convert(latlng));
+        return request;
+    }
 }
