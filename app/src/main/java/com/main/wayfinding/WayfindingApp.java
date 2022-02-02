@@ -13,6 +13,7 @@ public class WayfindingApp extends Application {
         context = new GeoApiContext.Builder()
                 .apiKey(getString(R.string.google_maps_key))
                 .build();
+        key = getString(R.string.google_maps_key);
     }
 
     public static GeoApiContext getGeoApiContext() {
@@ -36,7 +37,16 @@ public class WayfindingApp extends Application {
         WayfindingApp.dpHeight = dpHeight;
     }
 
+    public static String getKey() {
+        return key;
+    }
+
+    public static void setKey(String key) {
+        WayfindingApp.key = key;
+    }
+
     private static GeoApiContext context;
     private static float dpHeight;
     private static float dpWidth;
+    private static String key;
 }

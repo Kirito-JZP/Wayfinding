@@ -3,7 +3,6 @@ package com.main.wayfinding.dto;
 import com.google.android.gms.maps.model.LatLngBounds;
 
 import java.util.Date;
-import java.util.LinkedList;
 
 /**
  * Entity for storing loaction information
@@ -114,8 +113,9 @@ public class LocationDto {
         return gmImgUrl;
     }
 
-    public void setGmImgUrl(String gmImgUrl) {
+    public LocationDto setGmImgUrl(String gmImgUrl) {
         this.gmImgUrl = gmImgUrl;
+        return this;
     }
 
     public Date getDate() {
