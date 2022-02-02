@@ -117,14 +117,14 @@
             android:id="@+id/add"
             android:layout_width="match_parent"
             android:layout_height="50dp"
-            android:src="@drawable/addto" />
+            android:src="@drawable/ic_add" />
 
         <ImageView
             android:id="@+id/exchange"
             android:layout_width="match_parent"
             android:layout_height="50dp"
             android:layout_marginTop="20dp"
-            android:src="@drawable/exchange" />
+            android:src="@drawable/ic_exchange" />
     </LinearLayout>
 
     <!--  navigate & user position button  -->
