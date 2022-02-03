@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -31,9 +32,9 @@ import com.main.wayfinding.logic.AccountLogic;
  * Define the fragment used for displaying and changing user info
  *
  * @author Gang
- * @author Last Modified By Gang
+ * @author Last Modified By hu
  * @version Revision: 0
- * Date: 2022/1/18 16:06
+ * Date: 2022/2/3 21:58
  */
 public class AccountFragment extends Fragment {
     private FragmentAccountBinding binding;
@@ -107,7 +108,13 @@ public class AccountFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 View view2 = View.inflate(getContext(), R.layout.fragment_account2, null);
-                new AlertDialog.Builder(getActivity()).setView(view2).show();
+                AlertDialog dialog = new AlertDialog.Builder(getActivity()).setView(view2).show();
+
+                // set dialogue transparent
+                WindowManager.LayoutParams lp=dialog.getWindow().getAttributes();
+                lp.alpha=1.0f;
+                dialog.getWindow().setAttributes(lp);
+
             }
         });
     }

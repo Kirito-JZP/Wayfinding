@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:map="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -13,7 +13,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Create Account"
-        android:textColor="@color/white"
+        android:textColor="@color/purple_500"
         android:textSize="30dp" />
 
     <ImageView
@@ -29,9 +29,10 @@
     <ScrollView
         android:id="@+id/userdetails"
         android:layout_width="match_parent"
-        android:layout_height="350dp"
+        android:layout_height="339dp"
         android:layout_below="@+id/touxiang"
-        android:layout_marginLeft="88dp">
+        android:layout_marginLeft="80dp"
+        android:layout_marginRight="80dp">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -45,8 +46,7 @@
                 android:ems="10"
                 android:hint="username"
                 android:inputType="textPersonName"
-                android:minHeight="48dp"
-                />
+                android:minHeight="48dp" />
 
             <EditText
                 android:id="@+id/fullname"
@@ -100,6 +100,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/userdetails"
         android:layout_marginTop="1dp"
+        android:gravity="center"
         android:text="Agree with Term and Conditions" />
 
     <Button
