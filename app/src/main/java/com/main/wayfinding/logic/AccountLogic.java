@@ -41,6 +41,7 @@ public class AccountLogic {
                 } else {
                     TextView status = view.findViewById(R.id.tip);
                     status.setText("Sign up failed");
+                    System.out.println(task.getException());
                 }
             }
         });
@@ -57,6 +58,7 @@ public class AccountLogic {
                 }else {
                     TextView status = view.findViewById(R.id.tip);
                     status.setText("Authentication failed.");
+                    System.out.println(task.getException());
                 }
             }
         });
