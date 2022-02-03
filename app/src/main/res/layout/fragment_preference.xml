@@ -14,16 +14,29 @@
         tools:layout_editor_absoluteY="1dp"
         tools:ignore="MissingConstraints">
 
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="match_parent"
+            android:layout_height="65dp"
+            android:text="Recently Saved" />
+
         <ImageView
             android:id="@+id/imageView7"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_width="427dp"
+            android:layout_height="140dp"
             android:src="@drawable/cafe" />
+
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="match_parent"
+            android:layout_height="74dp"
+            android:text="Nearby Saved" />
 
         <ImageView
             android:id="@+id/imageView8"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="155dp"
             android:src="@drawable/guinness" />
+
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

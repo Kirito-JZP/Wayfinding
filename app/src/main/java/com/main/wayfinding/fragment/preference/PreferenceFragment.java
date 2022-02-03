@@ -32,22 +32,15 @@ public class PreferenceFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_preference, container, false);
-        //ImageView imageView=(ImageView) rootView.findViewById(R.id.image2);
         ImageView imageView1 = (ImageView) rootView.findViewById(R.id.imageView7);
-        // Inflate the layout for this fragment
-        //imageView.setImageResource(R.drawable.cafe);
 
         imageView1.setImageResource(R.drawable.cafe);
 
-//        TextView tv= (TextView)rootView.findViewById(R.id.textView2);
-//        tv.setText("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
-//
-//        ImageView imageView2=(ImageView) rootView.findViewById(R.id.image8);
-//        // Inflate the layout for this fragment
-//        //imageView.setImageResource(R.drawable.cafe);
-//
-//        imageView2.setImageResource(R.drawable.guinness);
-//        container.addView(imageView2);
+        TextView recentlySaved = (TextView)rootView.findViewById(R.id.textView3);
+        recentlySaved.setText("Recently Saved");
+
+        TextView nearBy = (TextView)rootView.findViewById(R.id.textView4);
+        nearBy.setText("Nearby Saved");
 
         ImageView imageView2 = (ImageView) rootView.findViewById(R.id.imageView8);
         imageView2.setImageResource(R.drawable.guinness);
