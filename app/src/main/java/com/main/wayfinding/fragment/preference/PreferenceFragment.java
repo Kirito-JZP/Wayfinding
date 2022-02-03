@@ -1,13 +1,18 @@
 package com.main.wayfinding.fragment.preference;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.main.wayfinding.R;
@@ -22,19 +27,31 @@ import com.main.wayfinding.databinding.FragmentPreferenceBinding;
  * Date: 2022/1/18 16:06
  */
 public class PreferenceFragment extends Fragment {
-    private FragmentPreferenceBinding binding;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        View rootView =inflater.inflate(R.layout.preference_image, container, false);
-        ImageView imageView=(ImageView) rootView.findViewById(R.id.image);
+        View rootView = inflater.inflate(R.layout.fragment_preference, container, false);
+        //ImageView imageView=(ImageView) rootView.findViewById(R.id.image2);
+        ImageView imageView1 = (ImageView) rootView.findViewById(R.id.imageView7);
         // Inflate the layout for this fragment
-        imageView.setImageResource(R.drawable.cafe);
+        //imageView.setImageResource(R.drawable.cafe);
+
+        imageView1.setImageResource(R.drawable.cafe);
+
+//        TextView tv= (TextView)rootView.findViewById(R.id.textView2);
+//        tv.setText("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+//
+//        ImageView imageView2=(ImageView) rootView.findViewById(R.id.image8);
+//        // Inflate the layout for this fragment
+//        //imageView.setImageResource(R.drawable.cafe);
+//
+//        imageView2.setImageResource(R.drawable.guinness);
+//        container.addView(imageView2);
+
+        ImageView imageView2 = (ImageView) rootView.findViewById(R.id.imageView8);
+        imageView2.setImageResource(R.drawable.guinness);
+
         return rootView;
-    }
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
     }
 }
