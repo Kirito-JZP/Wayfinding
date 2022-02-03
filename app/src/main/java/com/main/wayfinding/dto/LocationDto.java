@@ -25,7 +25,7 @@ public class LocationDto {
 
     // the following properties only apply to google maps apis
     private String gmPlaceID;
-    private LatLngBounds gmViewPort;
+
     private String gmImgUrl;
 
     public String getName() {
@@ -88,15 +88,6 @@ public class LocationDto {
 
     public LocationDto setPostalCode(String postalCode) {
         this.postalCode = postalCode;
-        return this;
-    }
-
-    public LatLngBounds getGmViewPort() {
-        return gmViewPort;
-    }
-
-    public LocationDto setGmViewPort(LatLngBounds gmViewPort) {
-        this.gmViewPort = gmViewPort;
         return this;
     }
 
