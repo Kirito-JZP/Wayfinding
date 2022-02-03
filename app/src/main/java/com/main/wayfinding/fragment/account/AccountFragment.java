@@ -1,10 +1,15 @@
 package com.main.wayfinding.fragment.account;
 
+import static com.main.wayfinding.utility.GeoLocationMsgManager.findLocationGeoMsg;
+
 import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -14,6 +19,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.main.wayfinding.R;
@@ -45,6 +52,7 @@ public class AccountFragment extends Fragment {
         super.onCreate(savedInstanceState);
         auth = FirebaseAuth.getInstance();
         accountLogic = new AccountLogic();
+
     }
 
     @Override
@@ -70,13 +78,12 @@ public class AccountFragment extends Fragment {
                 EditText passwordComponent = getView().findViewById(R.id.password);
                 String username = usernameComponent.getText().toString();
                 String password = passwordComponent.getText().toString();
-                accountLogic.login(username,password);
-                //jump failed
-                //getActivity().setContentView(R.layout.fragment_account3);
-//                mainLayout = findViewById(R.id.account1);
-                //LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
-                //View buttonLayout = layoutInflater.inflate(R.layout.fragment_account3, null);
-                //container.addView(buttonLayout);
+//                accountLogic.login(username,password);
+                //
+                // jump using dialogue
+                View view2 = View.inflate(getContext(), R.layout.fragment_account3, null);
+                new AlertDialog.Builder(getActivity()).setView(view2).show();
+
             }
         });
         view.findViewById(R.id.register).setOnClickListener(new View.OnClickListener() {
@@ -96,6 +103,13 @@ public class AccountFragment extends Fragment {
                 reload();
             }
         });
+        view.findViewById(R.id.register).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                View view2 = View.inflate(getContext(), R.layout.fragment_account2, null);
+                new AlertDialog.Builder(getActivity()).setView(view2).show();
+            }
+        });
     }
 
     public void reload(){
@@ -108,5 +122,6 @@ public class AccountFragment extends Fragment {
             status.setText("Not logged in");
         }
     }
+
 
 }
