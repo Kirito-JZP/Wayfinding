@@ -32,18 +32,38 @@ public class PreferenceFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_preference, container, false);
-        ImageView imageView1 = (ImageView) rootView.findViewById(R.id.imageView7);
+
+        TextView recentlySaved = (TextView)rootView.findViewById(R.id.textView4);
+        recentlySaved.setText("Recently Saved");
+
+        ImageView imageView1 = (ImageView) rootView.findViewById(R.id.imageView3);
 
         imageView1.setImageResource(R.drawable.cafe);
 
-        TextView recentlySaved = (TextView)rootView.findViewById(R.id.textView3);
-        recentlySaved.setText("Recently Saved");
+        TextView country = (TextView)rootView.findViewById(R.id.textView9);
+        country.setText("Country");
 
-        TextView nearBy = (TextView)rootView.findViewById(R.id.textView4);
-        nearBy.setText("Nearby Saved");
+        TextView name = (TextView)rootView.findViewById(R.id.textView10);
+        name.setText("Name");
 
-        ImageView imageView2 = (ImageView) rootView.findViewById(R.id.imageView8);
+        TextView address = (TextView)rootView.findViewById(R.id.textView11);
+        address.setText("Address");
+
+        TextView nearbySaved = (TextView)rootView.findViewById(R.id.textView12);
+        nearbySaved.setText("Nearby Saved");
+
+        ImageView imageView2 = (ImageView) rootView.findViewById(R.id.imageView4);
         imageView2.setImageResource(R.drawable.guinness);
+
+        TextView country1 = (TextView)rootView.findViewById(R.id.textView11);
+        country1.setText("Country");
+
+        TextView name1 = (TextView)rootView.findViewById(R.id.textView11);
+        address.setText("Name");
+
+        TextView address1 = (TextView)rootView.findViewById(R.id.textView11);
+        address.setText("Address");
+
 
         return rootView;
     }
