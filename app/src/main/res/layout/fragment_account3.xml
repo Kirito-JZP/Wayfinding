@@ -6,13 +6,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/account_bg2"
+    android:id="@+id/account3"
     >
 
     <TextView
         android:id="@+id/textView3"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Create Account"
+        android:text="Account details"
         android:textColor="@color/white"
         android:textSize="30dp" />
 
@@ -103,12 +104,11 @@
         android:text="Agree with Term and Conditions" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/buttonback"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/checkBox"
-        android:text="Create account"
-        android:textColor="#FFFFFF"
-         />
+        android:layout_below="@id/userdetails"
+        android:text="back"
+        android:textColor="#FFFFFF" />
 
 </RelativeLayout>

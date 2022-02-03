@@ -28,20 +28,36 @@ import java.util.stream.Collectors;
 public class GeoLocationMsgManager {
 
     public static LocationDto findLocationGeoMsg(LatLng latLng) {
+        LocationDto result = new LocationDto();
         try {
             GeocodingResult[] results = reverseGeocode(latLng).await();
             if (results.length > 0) {
                 String placeId = results[0].placeId;
-                PlaceDetails details = PlacesApi.placeDetails(WayfindingApp.getGeoApiContext(), placeId).await();
-                List<AddressComponent> comps = Arrays.stream(details.addressComponents).filter(comp -> Arrays.stream(comp.types).anyMatch(t -> t.toString().equals("administrative_area_level_1"))).collect(Collectors.toList());
+                PlaceDetails details = PlacesApi.placeDetails(
+                        WayfindingApp.getGeoApiContext(), placeId
+                ).await();
+                List<AddressComponent> comps = Arrays.stream(details.addressComponents)
+                        .filter(comp -> Arrays.stream(comp.types)
+                                .anyMatch(t -> t.toString().equals("administrative_area_level_1"))
+                        ).collect(Collectors.toList());
                 String city = comps.isEmpty() ? "" : comps.get(0).longName;
-                comps = Arrays.stream(details.addressComponents).filter(comp -> Arrays.stream(comp.types).anyMatch(t -> t.toString().equals("country"))).collect(Collectors.toList());
+                comps = Arrays.stream(details.addressComponents)
+                        .filter(comp -> Arrays.stream(comp.types)
+                                .anyMatch(t -> t.toString().equals("country")))
+                        .collect(Collectors.toList());
                 String country = comps.isEmpty() ? "" : comps.get(0).longName;
-                comps = Arrays.stream(details.addressComponents).filter(comp -> Arrays.stream(comp.types).anyMatch(t -> t.toString().equals("postal_code"))).collect(Collectors.toList());
+                comps = Arrays.stream(details.addressComponents)
+                        .filter(comp -> Arrays.stream(comp.types)
+                                .anyMatch(t -> t.toString().equals("postal_code")))
+                        .collect(Collectors.toList());
                 String postalCode = comps.isEmpty() ? "" : comps.get(0).longName;
-                String imageUrl = (details.photos != null && details.photos.length != 0) ? "https://maps.googleapis.com/maps/api/place/photo?photo_reference=" + details.photos[0].photoReference + "&maxheight=500&maxwidth=500&key=" + WayfindingApp.getKey() : "";
-                return new LocationDto()
-                        .setName(details.name)
+                String imageUrl = (details.photos != null && details.photos.length != 0) ?
+                        "https://maps.googleapis.com/maps/api/place/photo?photo_reference="
+                                + details.photos[0].photoReference
+                                + "&maxheight=500&maxwidth=500&key="
+                                + WayfindingApp.getKey()
+                        : "";
+                result = result.setName(details.name)
                         .setAddress(details.formattedAddress)
                         .setLatitude(details.geometry.location.lat)
                         .setLongitude(details.geometry.location.lng)
@@ -49,13 +65,11 @@ public class GeoLocationMsgManager {
                         .setCountry(country)
                         .setPostalCode(postalCode)
                         .setGmImgUrl(imageUrl);
-            } else {
-                return null;
             }
         } catch (IOException | InterruptedException | ApiException e) {
             e.printStackTrace();
         }
-        return null;
+        return result;
     }
 
     public static GeocodingApiRequest reverseGeocode(LatLng latlng) {
