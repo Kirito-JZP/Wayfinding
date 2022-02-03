@@ -12,7 +12,7 @@
 
     <TextView
         android:id="@+id/autocomplete_location_name"
-        android:layout_width="350dp"
+        android:layout_width="30dp"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@+id/hint_position_img"
@@ -21,15 +21,17 @@
 
     <TextView
         android:id="@+id/autocomplete_location_address"
-        android:layout_width="350dp"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/autocomplete_location_name"
         android:layout_toRightOf="@+id/hint_position_img"
         android:textSize="12dp" />
+
     <ImageView
         android:id="@+id/get_hint"
-        android:layout_width="30dp"
-        android:layout_height="30dp"
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:layout_marginTop="7dp"
         android:layout_toRightOf="@+id/autocomplete_location_address"
-        android:src="@drawable/ic_apply_hint"/>
+        android:src="@drawable/ic_apply_hint" />
 </RelativeLayout>
