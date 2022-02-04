@@ -44,6 +44,8 @@ import com.main.wayfinding.logic.GPSTrackerLogic;
 import com.main.wayfinding.logic.NavigationLogic;
 import com.main.wayfinding.utility.AutocompleteHandler;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -280,24 +282,32 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
         // Add map click listener
         map.setOnMapClickListener(latLng -> {
-            map.clear();
-            map.addMarker(new MarkerOptions().position(latLng));
             targetLocation = findLocationGeoMsg(latLng);
-            new AlertDialog.Builder(getActivity())
+            // Only when the location exists in the map, change the maker.
+            if (StringUtils.isNotEmpty(targetLocation.getName())) {
+                map.clear();
+                map.addMarker(new MarkerOptions().position(latLng));
+                new AlertDialog.Builder(getActivity())
                     .setTitle("Target Place")
                     .setMessage(targetLocation.getName() + "\n" + targetLocation.getAddress())
-                    .setPositiveButton("Set", new DialogInterface.OnClickListener() {
+                    .setPositiveButton("Set as departure", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             //Do nothing
                         }
                     })
-                    .setNegativeButton("Close", new DialogInterface.OnClickListener() {
+                    .setNegativeButton("Set as destination", new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int which) {
+                            //Do nothing
+                        }
+                    })
+                    .setNeutralButton("Close", new DialogInterface.OnClickListener() {
                         public void onClick(DialogInterface dialog, int which) {
                             //Do nothing
                         }
                     })
                     .show();
-;            });
+            }
+        });
 
         // Add map marker click listener
         map.setOnMarkerClickListener(marker -> {
