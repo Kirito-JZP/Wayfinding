@@ -11,14 +11,11 @@
     >
 
 
-
     <ImageView
         android:id="@+id/touxiang"
         android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_marginLeft="0dp"
+        android:layout_height="161dp"
 
-        android:layout_marginRight="0dp"
         android:layout_marginTop="50dp"
         android:src="@drawable/ic_baseline_account_circle_24" />
 
@@ -91,45 +88,50 @@
         </LinearLayout>
     </ScrollView>
 
+    <Button
+        android:id="@+id/logout"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/userdetails"
+        android:layout_centerHorizontal="true"
+        android:text="@string/sign_out" />
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/userdetails"
+        android:layout_below="@id/logout"
         android:gravity="center"
-        android:id="@+id/buttonlist">
+        android:id="@+id/buttonlist"
+        android:layout_marginTop="20dp">
+
+        <Button
+            android:id="@+id/register"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="164dp"
+            android:layout_toRightOf="@+id/login"
+            android:text="@string/sign_up" />
+
         <Button
             android:id="@+id/login"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/login" />
 
-        <Button
-            android:id="@+id/register"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/login"
-            android:text="@string/sign_up" />
-
-        <Button
-            android:id="@+id/logout"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_toRightOf="@+id/register"
-            android:text="@string/sign_out" />
+        <TextView
+            android:id="@+id/tip"
+            android:layout_width="230dp"
+            android:layout_height="67dp"
+            android:layout_marginTop="2dp"
+            android:layout_marginLeft="90dp"
+            android:text="not log in "
+            android:textSize="34sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
 
     </RelativeLayout>
 
-
-    <TextView
-        android:id="@+id/tip"
-        android:layout_width="230dp"
-        android:layout_height="67dp"
-        android:layout_below="@+id/buttonlist"
-        android:text="not log in "
-        android:textSize="34sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
 
 </RelativeLayout>

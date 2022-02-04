@@ -1,27 +1,17 @@
 package com.main.wayfinding.fragment.account;
 
-import static com.main.wayfinding.utility.GeoLocationMsgManager.findLocationGeoMsg;
-
 import android.app.AlertDialog;
-import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.main.wayfinding.R;
@@ -82,7 +72,7 @@ public class AccountFragment extends Fragment {
 //                accountLogic.login(username,password);
                 //
                 // jump using dialogue
-                View view2 = View.inflate(getContext(), R.layout.fragment_account3, null);
+                View view2 = View.inflate(getContext(), R.layout.fragment_accountlogin, null);
                 new AlertDialog.Builder(getActivity()).setView(view2).show();
 
             }
@@ -107,7 +97,7 @@ public class AccountFragment extends Fragment {
         view.findViewById(R.id.register).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                View view2 = View.inflate(getContext(), R.layout.fragment_account2, null);
+                View view2 = View.inflate(getContext(), R.layout.fragment_accountcreate, null);
                 AlertDialog dialog = new AlertDialog.Builder(getActivity()).setView(view2).show();
 
                 // set dialogue transparent
