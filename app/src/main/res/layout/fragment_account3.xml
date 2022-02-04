@@ -9,106 +9,54 @@
     android:id="@+id/account3"
     >
 
-    <TextView
-        android:id="@+id/textView3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Account details"
-        android:textColor="@color/white"
-        android:textSize="30dp" />
 
     <ImageView
         android:id="@+id/touxiang"
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:layout_marginLeft="0dp"
-        android:layout_below="@+id/textView3"
+        android:layout_marginTop="50dp"
         android:layout_marginRight="0dp"
         android:src="@drawable/ic_baseline_account_circle_24" />
-
-
-    <ScrollView
-        android:id="@+id/userdetails"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="350dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/loginlist"
         android:layout_below="@+id/touxiang"
-        android:layout_marginLeft="88dp">
+        android:layout_marginLeft="50dp"
+        android:layout_marginRight="50dp">
 
-        <LinearLayout
+        <EditText
+            android:id="@+id/username"
+            style="@style/Widget.AppCompat.AutoCompleteTextView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:drawableLeft="@drawable/ic_baseline_email_24"
+            android:ems="10"
+            android:hint="@string/email"
+            android:inputType="textPersonName"
+            android:minHeight="70dp"
+            android:visibility="visible" />
 
-            <EditText
-                android:id="@+id/username"
-                android:layout_width="232dp"
-                android:layout_height="50dp"
-                android:ems="10"
-                android:hint="username"
-                android:inputType="textPersonName"
-                android:minHeight="48dp"
-                />
-
-            <EditText
-                android:id="@+id/fullname"
-                android:layout_width="232dp"
-                android:layout_height="50dp"
-                android:ems="10"
-                android:hint="fullname"
-                android:inputType="textPersonName"
-                android:minHeight="70dp" />
-
-            <EditText
-                android:id="@+id/country"
-                android:layout_width="232dp"
-                android:layout_height="50dp"
-                android:ems="10"
-                android:hint="country"
-                android:minHeight="70dp" />
-
-            <EditText
-                android:id="@+id/email"
-                android:layout_width="232dp"
-                android:layout_height="50dp"
-                android:ems="10"
-                android:hint="@string/email"
-                android:inputType="textEmailAddress"
-                android:minHeight="70dp" />
-
-            <EditText
-                android:id="@+id/phonenumber"
-                android:layout_width="232dp"
-                android:layout_height="50dp"
-                android:ems="10"
-                android:hint="phone number"
-                android:inputType="phone"
-                android:minHeight="70dp" />
-
-            <EditText
-                android:id="@+id/password"
-                android:layout_width="232dp"
-                android:layout_height="50dp"
-                android:ems="10"
-                android:hint="@string/password"
-                android:inputType="textPassword"
-                android:minHeight="70dp" />
-        </LinearLayout>
-    </ScrollView>
-
-    <CheckBox
-        android:id="@+id/checkBox"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/userdetails"
-        android:layout_marginTop="1dp"
-        android:text="Agree with Term and Conditions" />
+        <EditText
+            android:id="@+id/password"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_below="@id/username"
+            android:drawableLeft="@drawable/ic_baseline_lock_24"
+            android:ems="10"
+            android:hint="@string/password"
+            android:inputType="textPassword"
+            android:minHeight="70dp" />
+    </RelativeLayout>
 
     <Button
-        android:id="@+id/buttonback"
+        android:id="@+id/login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/userdetails"
-        android:text="back"
-        android:textColor="#FFFFFF" />
+        android:text="@string/login"
+        android:layout_below="@id/loginlist"/>
+
+
 
 </RelativeLayout>

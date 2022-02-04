@@ -8,47 +8,95 @@
     android:orientation="vertical"
     android:background="@drawable/account_bg2"
     tools:context=".fragment.account.AccountFragment"
-    android:id="@+id/account1"
     >
 
-    <EditText
-        android:id="@+id/username"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/touxiang"
-        android:drawableLeft="@drawable/ic_baseline_email_24"
-        android:ems="10"
-        android:hint="@string/email"
-        android:inputType="textPersonName"
-        android:minHeight="70dp" />
+
 
     <ImageView
         android:id="@+id/touxiang"
         android:layout_width="match_parent"
         android:layout_height="80dp"
         android:layout_marginLeft="0dp"
-        android:layout_marginTop="50dp"
+
         android:layout_marginRight="0dp"
+        android:layout_marginTop="50dp"
         android:src="@drawable/ic_baseline_account_circle_24" />
 
-    <EditText
-        android:id="@+id/password"
+
+    <ScrollView
+        android:id="@+id/userdetails"
+        android:layout_width="match_parent"
+        android:layout_height="339dp"
+        android:layout_below="@+id/touxiang"
+        android:layout_marginLeft="80dp"
+        android:layout_marginRight="80dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <EditText
+                android:id="@+id/username"
+                android:layout_width="232dp"
+                android:layout_height="50dp"
+                android:ems="10"
+                android:hint="username"
+                android:inputType="textPersonName"
+                android:minHeight="48dp" />
+
+            <EditText
+                android:id="@+id/fullname"
+                android:layout_width="232dp"
+                android:layout_height="50dp"
+                android:ems="10"
+                android:hint="fullname"
+                android:inputType="textPersonName"
+                android:minHeight="70dp" />
+
+            <EditText
+                android:id="@+id/country"
+                android:layout_width="232dp"
+                android:layout_height="50dp"
+                android:ems="10"
+                android:hint="country"
+                android:minHeight="70dp" />
+
+            <EditText
+                android:id="@+id/email"
+                android:layout_width="232dp"
+                android:layout_height="50dp"
+                android:ems="10"
+                android:hint="@string/email"
+                android:inputType="textEmailAddress"
+                android:minHeight="70dp" />
+
+            <EditText
+                android:id="@+id/phonenumber"
+                android:layout_width="232dp"
+                android:layout_height="50dp"
+                android:ems="10"
+                android:hint="phone number"
+                android:inputType="phone"
+                android:minHeight="70dp" />
+
+            <EditText
+                android:id="@+id/password"
+                android:layout_width="232dp"
+                android:layout_height="50dp"
+                android:ems="10"
+                android:hint="@string/password"
+                android:inputType="textPassword"
+                android:minHeight="70dp" />
+        </LinearLayout>
+    </ScrollView>
+
+    <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_below="@id/username"
-        android:drawableLeft="@drawable/ic_baseline_lock_24"
-        android:ems="10"
-        android:hint="@string/password"
-        android:inputType="textPassword"
-        android:minHeight="70dp" />
-
-    <LinearLayout
-        android:id="@+id/button3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/password"
-        android:orientation="horizontal">
-
+        android:layout_below="@id/userdetails"
+        android:gravity="center"
+        android:id="@+id/buttonlist">
         <Button
             android:id="@+id/login"
             android:layout_width="wrap_content"
@@ -59,25 +107,29 @@
             android:id="@+id/register"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/login"
             android:text="@string/sign_up" />
 
         <Button
             android:id="@+id/logout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_toRightOf="@+id/register"
             android:text="@string/sign_out" />
 
-    </LinearLayout>
+    </RelativeLayout>
+
+
     <TextView
         android:id="@+id/tip"
         android:layout_width="230dp"
         android:layout_height="67dp"
+        android:layout_below="@+id/buttonlist"
         android:text="not log in "
         android:textSize="34sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:layout_below="@+id/button3"/>
+        app:layout_constraintTop_toTopOf="parent" />
 
 </RelativeLayout>
