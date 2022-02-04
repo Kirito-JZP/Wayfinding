@@ -71,10 +71,6 @@ public class AccountFragment extends Fragment {
                 String password = passwordComponent.getText().toString();
 //                accountLogic.login(username,password);
                 //
-                // jump using dialogue
-                View view2 = View.inflate(getContext(), R.layout.fragment_accountlogin, null);
-                new AlertDialog.Builder(getActivity()).setView(view2).show();
-
             }
         });
         view.findViewById(R.id.register).setOnClickListener(new View.OnClickListener() {
@@ -92,6 +88,14 @@ public class AccountFragment extends Fragment {
             public void onClick(View view) {
                 accountLogic.signOut();
                 reload();
+            }
+        });
+        // jump by dialogue
+        view.findViewById(R.id.login).setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view){
+                View view2 = View.inflate(getContext(), R.layout.fragment_accountlogin, null);
+                new AlertDialog.Builder(getActivity()).setView(view2).show();
             }
         });
         view.findViewById(R.id.register).setOnClickListener(new View.OnClickListener() {
