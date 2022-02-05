@@ -237,10 +237,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 LocationDto location = locationList.get(i);
                 navigation.findRoute(convert(currentLocation), convert(location));
                 placesListView.setAdapter(null);
-                targetLocation = new LocationDto();
-                targetLocation.setName(location.getName());
-                targetLocation.setLatitude(location.getLatitude());
-
+                targetLocation = location;
                 destinationText.setText(targetLocation.getName());
                 // hide the soft keyboard after clicking on an item
                 InputMethodManager manager = ((InputMethodManager) getContext()
