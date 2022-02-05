@@ -5,8 +5,12 @@
     <string name="title_preference">Preference</string>
     <string name="title_account">Account</string>
     <string name="email">Email</string>
-    <string name="password">Password</string>
+    <string name="password">Password****</string>
     <string name="login">Login</string>
     <string name="sign_up">Sign Up</string>
     <string name="sign_out">Sign Out</string>
+    <string name="phonenumber">PhoneNumber</string>
+    <string name="country">Country</string>
+    <string name="fullname">FullName</string>
+    <string name="username">UserName</string>
 </resources>
