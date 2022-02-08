@@ -16,7 +16,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.main.wayfinding.R;
 import com.main.wayfinding.databinding.FragmentAccountBinding;
-import com.main.wayfinding.logic.AccountLogic;
+import com.main.wayfinding.logic.AuthLogic;
 
 /**
  * Define the fragment used for displaying and changing user info
@@ -29,7 +29,7 @@ import com.main.wayfinding.logic.AccountLogic;
 public class AccountFragment extends Fragment {
     private FragmentAccountBinding binding;
     private FirebaseAuth auth;
-    private AccountLogic accountLogic;
+    private AuthLogic accountLogic;
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentAccountBinding.inflate(inflater, container, false);
@@ -42,7 +42,7 @@ public class AccountFragment extends Fragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         auth = FirebaseAuth.getInstance();
-        accountLogic = new AccountLogic();
+        accountLogic = new AuthLogic();
 
     }
 
@@ -69,7 +69,8 @@ public class AccountFragment extends Fragment {
                 EditText passwordComponent = getView().findViewById(R.id.password);
                 String username = usernameComponent.getText().toString();
                 String password = passwordComponent.getText().toString();
-//                accountLogic.login(username,password);
+                accountLogic.login(username,password);
+                System.out.println("login");
                 //
             }
         });

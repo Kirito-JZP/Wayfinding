@@ -18,11 +18,11 @@ import com.main.wayfinding.R;
  * @version Revision: 0
  * Date: 2022/1/28 18:40
  */
-public class AccountLogic {
+public class AuthLogic {
     private FirebaseAuth auth;
     private View view;
 
-    public AccountLogic() {
+    public AuthLogic() {
         this.auth = FirebaseAuth.getInstance();
     }
 
