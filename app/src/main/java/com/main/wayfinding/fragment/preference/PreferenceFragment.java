@@ -59,10 +59,34 @@ public class PreferenceFragment extends Fragment {
         country1.setText("Country");
 
         TextView name1 = (TextView)rootView.findViewById(R.id.textView11);
-        address.setText("Name");
+        name1.setText("Name");
 
         TextView address1 = (TextView)rootView.findViewById(R.id.textView11);
         address.setText("Address");
+
+        ImageView imageView3 = (ImageView) rootView.findViewById(R.id.imageView5);
+        imageView3.setImageResource(R.drawable.cafe);
+
+        TextView country2 = (TextView)rootView.findViewById(R.id.textView20);
+        country2.setText("Country");
+
+        TextView name2 = (TextView)rootView.findViewById(R.id.textView21);
+        name2.setText("Name");
+
+        TextView address2 = (TextView)rootView.findViewById(R.id.textView22);
+        address2.setText("Address");
+
+        ImageView imageView4 = (ImageView) rootView.findViewById(R.id.imageView6);
+        imageView3.setImageResource(R.drawable.cafe);
+
+        TextView country3 = (TextView)rootView.findViewById(R.id.textView23);
+        country3.setText("Country");
+
+        TextView name3 = (TextView)rootView.findViewById(R.id.textView24);
+        name3.setText("Name");
+
+        TextView address3 = (TextView)rootView.findViewById(R.id.textView25);
+        address3.setText("Address");
 
 
         return rootView;
