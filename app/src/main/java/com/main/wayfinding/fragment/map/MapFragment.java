@@ -347,20 +347,24 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      */
     private void resetCurrentPosition(Location location) {
         // Add a marker in current location and move the camera
+        currentLocation = new LocationDto();
+        currentLocation.setName(YOUR_LOCATION);
         if (gps.isLocateEnabled()) {
             // reset Dto
-            currentLocation = new LocationDto();
-            currentLocation.setName(YOUR_LOCATION);
             currentLocation.setLatitude(location.getLatitude());
             currentLocation.setLongitude(location.getLongitude());
             // reset view text
             departureText.setText(currentLocation.getName());
-            // reset map
-            map.clear();
-            map.addMarker(new MarkerOptions().position(convert(currentLocation))
-                    .title("current location"));
-            map.moveCamera(CameraUpdateFactory.newLatLng(convert(currentLocation)));
+        } else {
+            // reset Dto
+            currentLocation.setLatitude(53);
+            currentLocation.setLongitude(-6);
         }
+        // reset map
+        map.clear();
+        map.addMarker(new MarkerOptions().position(convert(currentLocation))
+                .title("current location"));
+        map.moveCamera(CameraUpdateFactory.newLatLng(convert(currentLocation)));
     }
 
 }
