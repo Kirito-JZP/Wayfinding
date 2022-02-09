@@ -14,12 +14,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
 import com.main.wayfinding.R;
 import com.main.wayfinding.databinding.FragmentAccountBinding;
 import com.main.wayfinding.dto.UserDto;
 import com.main.wayfinding.logic.AuthLogic;
+import com.main.wayfinding.logic.DB.UserDBLogic;
 
 /**
  * Define the fragment used for displaying and changing user info
@@ -39,6 +43,9 @@ public class AccountFragment extends Fragment {
         binding = FragmentAccountBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
         accountLogic.setView(root);
+
+
+
         return root;
     }
 
@@ -160,6 +167,21 @@ public class AccountFragment extends Fragment {
             TextView status = getView().findViewById(R.id.tip);
             status.setText("Not logged in");
         }
+
+        new UserDBLogic().select(new OnCompleteListener<DataSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if(task.isSuccessful()){
+                    UserDto userDto = task.getResult().getValue(UserDto.class);
+                    System.out.println(userDto.getFirstName());
+                    System.out.println(userDto.getSurname());
+                    System.out.println(userDto.getCountry());
+                    System.out.println(userDto.getPhoneNumber());
+                }else {
+                    System.out.println(task.getException());
+                }
+            }
+        });
     }
 
 

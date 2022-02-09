@@ -14,6 +14,9 @@ public class UserDto {
     private String country;
     private String phoneNumber;
 
+    public UserDto() {
+    }
+
     public UserDto(String firstName, String surname, String country, String phoneNumber) {
         this.firstName = firstName;
         this.surname = surname;

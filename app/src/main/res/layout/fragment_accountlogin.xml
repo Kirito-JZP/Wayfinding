@@ -34,7 +34,8 @@
             android:ems="10"
             android:hint="@string/email"
             android:inputType="textPersonName"
-            android:minHeight="70dp" />
+            android:minHeight="70dp"
+            android:text="tester@gmail.com" />
 
         <EditText
             android:id="@+id/password"
@@ -45,7 +46,8 @@
             android:ems="10"
             android:hint="@string/password"
             android:inputType="textPassword"
-            android:minHeight="70dp" />
+            android:minHeight="70dp"
+            android:text="test123" />
     </RelativeLayout>
 
     <Button

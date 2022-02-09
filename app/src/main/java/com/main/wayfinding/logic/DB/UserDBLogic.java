@@ -1,7 +1,10 @@
 package com.main.wayfinding.logic.DB;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.main.wayfinding.dto.UserDto;
@@ -39,6 +42,13 @@ public class UserDBLogic {
         String uid = getUid();
         if (uid!=null){
             userNode.child(uid).setValue(userDto);
+        }
+    }
+
+    public void select(OnCompleteListener<DataSnapshot> callback){
+        String uid = getUid();
+        if (uid!=null){
+            userNode.child(uid).get().addOnCompleteListener(callback);
         }
     }
 

@@ -33,6 +33,9 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.maps.model.PlacesSearchResult;
@@ -40,7 +43,9 @@ import com.main.wayfinding.R;
 import com.main.wayfinding.adapter.LocationAdapter;
 import com.main.wayfinding.databinding.FragmentMapBinding;
 import com.main.wayfinding.dto.LocationDto;
+import com.main.wayfinding.dto.UserDto;
 import com.main.wayfinding.logic.DB.LocationDBLogic;
+import com.main.wayfinding.logic.DB.UserDBLogic;
 import com.main.wayfinding.logic.GPSTrackerLogic;
 import com.main.wayfinding.logic.NavigationLogic;
 import com.main.wayfinding.utility.AutocompleteHandler;
@@ -149,13 +154,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 location.setDate(new Date());
                 location.setGmPlaceID("ChIJ3Y7HLZsOZ0gRZ2FxjA3-ACc");
                 location.setGmImgUrl("https://maps.googleapis.com/maps/api/place/photo?photo_reference=Aap_uED4R2CIRg3z3FfzI0JXC_hT9_8fUSMeXu6cI7rL3qsYV8tJOJfrEGTxx3xnvRam_SAvzIkgdukmcQcrV3j_DmNfzRkX3VVIPHOmeYVjiWDn_Xc89L69AKC-f4sFch6BQlXYGSJM2wZpFErQnndYTo5JyQwM7aZAMr1WHF3p2OJE1XTz&maxheight=500&maxwidth=500&key=AIzaSyCw22dPUG1-s666qK4gTyemXQXnWEIoqic");
-
-                FirebaseDatabase database = FirebaseDatabase.getInstance("https://wayfinding-90556-default-rtdb.europe-west1.firebasedatabase.app/");
-                DatabaseReference ref = database.getReference("aaaa/bbb");
-                ref.child("ccc").setValue("Test");
-                System.out.println("finish");
-                LocationDBLogic locationDBLogic = new LocationDBLogic();
-                locationDBLogic.insert();
 
 
 
