@@ -54,13 +54,14 @@ public class AccountFragment extends Fragment {
         super.onCreate(savedInstanceState);
         auth = FirebaseAuth.getInstance();
         accountLogic = new AuthLogic();
-
+        System.out.println("CCC");
     }
 
     @Override
     public void onStart() {
         super.onStart();
         reload();
+        System.out.println("SSS");
     }
 
     @Override

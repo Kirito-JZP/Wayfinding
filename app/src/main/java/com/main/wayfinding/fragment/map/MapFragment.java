@@ -38,6 +38,7 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.maps.model.PlacesSearchResult;
 import com.main.wayfinding.R;
 import com.main.wayfinding.adapter.LocationAdapter;
@@ -54,7 +55,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Define the fragment used for displaying map and dynamic Sustainable way-finding
@@ -66,7 +70,9 @@ import java.util.List;
  */
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
-    /** Constant string */
+    /**
+     * Constant string
+     */
     private static final String YOUR_LOCATION = "Your location";
 
     private GoogleMap map;
@@ -91,9 +97,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private ImageView cyclingImage;
     private ImageView navigate;
     private ImageView position;
-    private ImageView departureTextClear;
-    private ImageView destinationTextClear;
-
     private ListView placesListView;
     private ScrollView autocompleteScrollView;
     private RelativeLayout rootLayout;
@@ -133,8 +136,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         cyclingImage = view.findViewById(R.id.cycling_img);
         navigate = view.findViewById(R.id.navigate);
         position = view.findViewById(R.id.position);
-        departureTextClear = view.findViewById(R.id.clear_departure);
-        destinationTextClear = view.findViewById(R.id.clear_destination);
 
         // ListView
         placesListView = view.findViewById(R.id.places_listview);
@@ -160,6 +161,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 location.setGmPlaceID("ChIJ3Y7HLZsOZ0gRZ2FxjA3-ACc");
                 location.setGmImgUrl("https://maps.googleapis.com/maps/api/place/photo?photo_reference=Aap_uED4R2CIRg3z3FfzI0JXC_hT9_8fUSMeXu6cI7rL3qsYV8tJOJfrEGTxx3xnvRam_SAvzIkgdukmcQcrV3j_DmNfzRkX3VVIPHOmeYVjiWDn_Xc89L69AKC-f4sFch6BQlXYGSJM2wZpFErQnndYTo5JyQwM7aZAMr1WHF3p2OJE1XTz&maxheight=500&maxwidth=500&key=AIzaSyCw22dPUG1-s666qK4gTyemXQXnWEIoqic");
 
+                new LocationDBLogic().insert(location);
+
             }
         });
 
@@ -171,34 +174,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     LocationDto temp = currentLocation;
                     currentLocation = targetLocation;
                     targetLocation = temp;
-                    if (currentLocation != null) {
-                        departureText.setText(currentLocation.getName());
-                    } else {
-                        departureText.setText("");
-                    }
-                    if (targetLocation != null) {
-                        destinationText.setText(targetLocation.getName());
-                    } else {
-                        destinationText.setText("");
-                    }
-
+                    departureText.setText(currentLocation.getName());
+                    destinationText.setText(targetLocation.getName());
                 }
-            }
-        });
-
-        departureTextClear.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                currentLocation = new LocationDto();
-                departureText.setText("");
-            }
-        });
-
-        destinationTextClear.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                targetLocation = new LocationDto();
-                destinationText.setText("");
             }
         });
 
@@ -283,8 +261,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         destinationText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
-                for(int i=0; i<locationList.size();i++){
-                    System.out.println("+++++++++++++++++++"+locationList.get(i).getAddress()+"+++++++++++++++++++++");
+                for (int i = 0; i < locationList.size(); i++) {
+                    System.out.println("+++++++++++++++++++" + locationList.get(i).getAddress() + "+++++++++++++++++++++");
                 }
 
                 if (b) {
@@ -317,26 +295,26 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 map.clear();
                 map.addMarker(new MarkerOptions().position(latLng));
                 new AlertDialog.Builder(getActivity())
-                    .setTitle("Target Place")
-                    .setMessage(locationDto.getName() + "\n" + locationDto.getAddress())
-                    .setPositiveButton("Set as departure", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            currentLocation = locationDto;
-                            departureText.setText(currentLocation.getName());
-                        }
-                    })
-                    .setNegativeButton("Set as destination", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            targetLocation = locationDto;
-                            destinationText.setText(targetLocation.getName());
-                        }
-                    })
-                    .setNeutralButton("Close", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            //Do nothing
-                        }
-                    })
-                    .show();
+                        .setTitle("Target Place")
+                        .setMessage(locationDto.getName() + "\n" + locationDto.getAddress())
+                        .setPositiveButton("Set as departure", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                currentLocation = locationDto;
+                                departureText.setText(currentLocation.getName());
+                            }
+                        })
+                        .setNegativeButton("Set as destination", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                targetLocation = locationDto;
+                                destinationText.setText(targetLocation.getName());
+                            }
+                        })
+                        .setNeutralButton("Close", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                //Do nothing
+                            }
+                        })
+                        .show();
             }
         });
 

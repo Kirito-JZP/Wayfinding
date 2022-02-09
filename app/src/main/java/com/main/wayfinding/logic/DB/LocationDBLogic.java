@@ -1,9 +1,14 @@
 package com.main.wayfinding.logic.DB;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.main.wayfinding.dto.LocationDto;
+
+import java.util.ArrayList;
 
 /**
  * Database operation for location node
@@ -34,9 +39,20 @@ public class LocationDBLogic {
 
     }
 
-    public void insert(){
-
-
+    public void insert(LocationDto locationDto){
+        String uid = getUid();
+        if (uid!=null){
+            locationNode.child(uid).child(locationNode.child(uid).push().getKey()).setValue(locationDto);
+        }
+        System.out.println("Completed!");
     }
+
+    public void select(OnCompleteListener<DataSnapshot> callback){
+        String uid = getUid();
+        if (uid!=null){
+            locationNode.child(uid).get().addOnCompleteListener(callback);
+        }
+    }
+
 
 }
