@@ -13,7 +13,6 @@ public class UserDto {
     private String firstName;
     private String surname;
     private String country;
-    private String email;
     private String phoneNumber;
 
     public void setFirstName(String firstName) {
@@ -26,10 +25,6 @@ public class UserDto {
 
     public void setCountry(String country) {
         this.country = country;
-    }
-
-    public void setEmail(String email) {
-        this.email = email;
     }
 
     public void setPhoneNumber(String phoneNumber) {
@@ -46,10 +41,6 @@ public class UserDto {
 
     public String getCountry() {
         return country;
-    }
-
-    public String getEmail() {
-        return email;
     }
 
     public String getPhoneNumber() {
