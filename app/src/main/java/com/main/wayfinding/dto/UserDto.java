@@ -3,31 +3,21 @@ package com.main.wayfinding.dto;
 /**
  * Define the entity class used for storing user info
  *
- * @author JIA
- * @author Last Modified By JIA
+ * @author Gang
+ * @author Last Modified By Gang
  * @version Revision: 0
- * Date: 2022/1/16 1:42
+ * Date: 2022/02/09 1:42
  */
 public class UserDto {
-    // TODO
     private String firstName;
     private String surname;
     private String country;
     private String phoneNumber;
 
-    public void setFirstName(String firstName) {
+    public UserDto(String firstName, String surname, String country, String phoneNumber) {
         this.firstName = firstName;
-    }
-
-    public void setSurname(String surname) {
         this.surname = surname;
-    }
-
-    public void setCountry(String country) {
         this.country = country;
-    }
-
-    public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
 
