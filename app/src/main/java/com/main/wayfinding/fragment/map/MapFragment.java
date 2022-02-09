@@ -91,6 +91,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private ImageView cyclingImage;
     private ImageView navigate;
     private ImageView position;
+    private ImageView departureTextClear;
+    private ImageView destinationTextClear;
+
     private ListView placesListView;
     private ScrollView autocompleteScrollView;
     private RelativeLayout rootLayout;
@@ -130,6 +133,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         cyclingImage = view.findViewById(R.id.cycling_img);
         navigate = view.findViewById(R.id.navigate);
         position = view.findViewById(R.id.position);
+        departureTextClear = view.findViewById(R.id.clear_departure);
+        destinationTextClear = view.findViewById(R.id.clear_destination);
 
         // ListView
         placesListView = view.findViewById(R.id.places_listview);
@@ -155,7 +160,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 location.setGmPlaceID("ChIJ3Y7HLZsOZ0gRZ2FxjA3-ACc");
                 location.setGmImgUrl("https://maps.googleapis.com/maps/api/place/photo?photo_reference=Aap_uED4R2CIRg3z3FfzI0JXC_hT9_8fUSMeXu6cI7rL3qsYV8tJOJfrEGTxx3xnvRam_SAvzIkgdukmcQcrV3j_DmNfzRkX3VVIPHOmeYVjiWDn_Xc89L69AKC-f4sFch6BQlXYGSJM2wZpFErQnndYTo5JyQwM7aZAMr1WHF3p2OJE1XTz&maxheight=500&maxwidth=500&key=AIzaSyCw22dPUG1-s666qK4gTyemXQXnWEIoqic");
 
-
             }
         });
 
@@ -167,9 +171,34 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     LocationDto temp = currentLocation;
                     currentLocation = targetLocation;
                     targetLocation = temp;
-                    departureText.setText(currentLocation.getName());
-                    destinationText.setText(targetLocation.getName());
+                    if (currentLocation != null) {
+                        departureText.setText(currentLocation.getName());
+                    } else {
+                        departureText.setText("");
+                    }
+                    if (targetLocation != null) {
+                        destinationText.setText(targetLocation.getName());
+                    } else {
+                        destinationText.setText("");
+                    }
+
                 }
+            }
+        });
+
+        departureTextClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                currentLocation = new LocationDto();
+                departureText.setText("");
+            }
+        });
+
+        destinationTextClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                targetLocation = new LocationDto();
+                destinationText.setText("");
             }
         });
 
