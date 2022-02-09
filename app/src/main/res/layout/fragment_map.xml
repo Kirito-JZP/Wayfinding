@@ -46,6 +46,14 @@
             android:singleLine="true"
             android:textColor="#000"
             android:textSize="15dp" />
+        <ImageView
+            android:id="@+id/clear_departure"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="280dp"
+            android:src="@drawable/ic_clear"
+            />
     </RelativeLayout>
     <RelativeLayout
         android:id="@+id/Layout_search"
@@ -79,7 +87,14 @@
             android:minHeight="48dp"
             android:singleLine="true"
             android:textSize="15dp" />
-
+        <ImageView
+            android:id="@+id/clear_destination"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="280dp"
+            android:src="@drawable/ic_clear"
+            />
     </RelativeLayout>
 
     <!--add to preference & exchange button-->
@@ -253,7 +268,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="450dp"
                 android:background="@drawable/bottomsheetrounded"
-                map:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+                map:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+                >
 
                 <ImageView
                     android:layout_width="70dp"
