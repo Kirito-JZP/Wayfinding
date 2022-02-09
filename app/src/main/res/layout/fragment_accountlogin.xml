@@ -50,13 +50,13 @@
     </RelativeLayout>
 
     <Button
-        android:id="@+id/login"
+        android:id="@+id/confirm"
         android:layout_width="232dp"
         android:layout_height="wrap_content"
         android:layout_below="@id/loginlist"
         android:layout_marginTop="5dp"
         android:layout_centerHorizontal="true"
-        android:text="@string/login" />
+        android:text="@string/confirm" />
 
 
 </RelativeLayout>

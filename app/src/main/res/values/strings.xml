@@ -11,6 +11,9 @@
     <string name="sign_out">Sign Out</string>
     <string name="phonenumber">PhoneNumber</string>
     <string name="country">Country</string>
-    <string name="fullname">FullName</string>
     <string name="username">UserName</string>
+    <string name="surname">Surname</string>
+    <string name="first_name">First Name</string>
+    <string name="phone_number">Phone Number</string>
+    <string name="confirm">Confirm</string>
 </resources>
