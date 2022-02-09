@@ -18,6 +18,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.main.wayfinding.R;
 import com.main.wayfinding.databinding.FragmentAccountBinding;
+import com.main.wayfinding.dto.UserDto;
 import com.main.wayfinding.logic.AuthLogic;
 
 /**
@@ -65,23 +66,6 @@ public class AccountFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        view.findViewById(R.id.register).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                EditText usernameComponent = getView().findViewById(R.id.username);
-                EditText passwordComponent = getView().findViewById(R.id.password);
-                String username = usernameComponent.getText().toString();
-                String password = passwordComponent.getText().toString();
-                accountLogic.signUp(username, password);
-            }
-        });
-        view.findViewById(R.id.logout).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                accountLogic.signOut();
-                reload();
-            }
-        });
         // jump by dialogue
         view.findViewById(R.id.login).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -99,12 +83,12 @@ public class AccountFragment extends Fragment {
                         String username = usernameComponent.getText().toString();
                         String password = passwordComponent.getText().toString();
                         //验证字符串规格（邮箱格式是否正确，密码最少多少位，复杂程度等）
-                        if(username.length()>0&&password.length()>0){
+                        if (username.length() > 0 && password.length() > 0) {
                             accountLogic.login(username, password);
                             //关闭dialoglogin
                             dialoglogin.dismiss();
 
-                        }else{
+                        } else {
                             //反馈问题
                             //如请填写账号密码等
                         }
@@ -120,12 +104,49 @@ public class AccountFragment extends Fragment {
             public void onClick(View view) {
                 View view2 = View.inflate(getContext(), R.layout.fragment_accountcreate, null);
                 AlertDialog dialog = new AlertDialog.Builder(getActivity()).setView(view2).show();
-
                 // set dialogue transparent
                 WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
                 lp.alpha = 1.0f;
                 dialog.getWindow().setAttributes(lp);
 
+                view2.findViewById(R.id.register).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        EditText usernameComponent = view2.findViewById(R.id.username);
+                        EditText passwordComponent = view2.findViewById(R.id.password);
+                        EditText firstNameComponent = view2.findViewById(R.id.firstName);
+                        EditText surnameComponent = view2.findViewById(R.id.surname);
+                        EditText countryComponent = view2.findViewById(R.id.country);
+                        EditText phoneNumberComponent = view2.findViewById(R.id.phoneNumber);
+                        String username = usernameComponent.getText().toString();
+                        String password = passwordComponent.getText().toString();
+                        UserDto userDto = new UserDto(
+                                firstNameComponent.getText().toString(),
+                                surnameComponent.getText().toString(),
+                                countryComponent.getText().toString(),
+                                phoneNumberComponent.getText().toString());
+                        //验证字符串规格（邮箱格式是否正确，密码最少多少位，复杂程度等）
+                        if (username.length() > 0 && password.length() > 0) {
+                            accountLogic.signUp(username, password, userDto);
+                            //关闭dialoglogin
+                        } else {
+                            //反馈问题
+                            //如请填写账号密码等
+                        }
+
+
+                    }
+                });
+
+
+            }
+        });
+
+        view.findViewById(R.id.logout).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                accountLogic.signOut();
+                reload();
             }
         });
     }
