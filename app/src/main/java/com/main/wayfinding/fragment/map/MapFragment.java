@@ -156,9 +156,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 location.setGmImgUrl("https://maps.googleapis.com/maps/api/place/photo?photo_reference=Aap_uED4R2CIRg3z3FfzI0JXC_hT9_8fUSMeXu6cI7rL3qsYV8tJOJfrEGTxx3xnvRam_SAvzIkgdukmcQcrV3j_DmNfzRkX3VVIPHOmeYVjiWDn_Xc89L69AKC-f4sFch6BQlXYGSJM2wZpFErQnndYTo5JyQwM7aZAMr1WHF3p2OJE1XTz&maxheight=500&maxwidth=500&key=AIzaSyCw22dPUG1-s666qK4gTyemXQXnWEIoqic");
 
 
-
-
-
             }
         });
 
