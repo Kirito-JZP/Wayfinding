@@ -259,6 +259,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         destinationText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
+                for(int i=0; i<locationList.size();i++){
+                    System.out.println("+++++++++++++++++++"+locationList.get(i).getAddress()+"+++++++++++++++++++++");
+                }
+
                 if (b) {
                     placesListView.setAdapter(new LocationAdapter(getContext(),
                             R.layout.autocomplete_location_item, locationList));
