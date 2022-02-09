@@ -1,6 +1,7 @@
 package com.main.wayfinding.utility;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.main.wayfinding.dto.LocationDto;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,4 +30,9 @@ public class LatLngConverter {
     public static com.google.maps.model.LatLng convert(LatLng ll) {
         return new com.google.maps.model.LatLng(ll.latitude, ll.longitude);
     }
+
+    public static LatLng convert(LocationDto locationDto) {
+        return new LatLng(locationDto.getLatitude(), locationDto.getLongitude());
+    }
+
 }

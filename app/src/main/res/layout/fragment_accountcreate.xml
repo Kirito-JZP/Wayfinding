@@ -18,11 +18,10 @@
 
     <ImageView
         android:id="@+id/touxiang"
-        android:layout_width="match_parent"
-        android:layout_height="80dp"
-        android:layout_marginLeft="0dp"
-        android:layout_below="@+id/textView3"
-        android:layout_marginRight="0dp"
+        android:layout_width="383dp"
+        android:layout_height="144dp"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="50dp"
         android:src="@drawable/ic_baseline_account_circle_24" />
 
 
@@ -96,20 +95,21 @@
 
     <CheckBox
         android:id="@+id/checkBox"
-        android:layout_width="match_parent"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:layout_below="@+id/userdetails"
+        android:layout_centerHorizontal="true"
         android:layout_marginTop="1dp"
-        android:gravity="center"
         android:text="Agree with Term and Conditions" />
 
     <Button
         android:id="@+id/button"
-        android:layout_width="match_parent"
+        android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:layout_below="@id/checkBox"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="50dp"
         android:text="Create account"
-        android:textColor="#FFFFFF"
-         />
+        android:textColor="#FFFFFF" />
 
 </RelativeLayout>
