@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -86,7 +87,10 @@ public class AccountFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 View view2 = View.inflate(getContext(), R.layout.fragment_accountlogin, null);
-                new AlertDialog.Builder(getActivity()).setView(view2).show();
+
+                AlertDialog dialoglogin = new AlertDialog.Builder(getActivity()).setView(view2).show();
+
+
                 view2.findViewById(R.id.confirm).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -97,7 +101,9 @@ public class AccountFragment extends Fragment {
                         //验证字符串规格（邮箱格式是否正确，密码最少多少位，复杂程度等）
                         if(username.length()>0&&password.length()>0){
                             accountLogic.login(username, password);
-                            //关闭dialog
+                            //关闭dialoglogin
+                            dialoglogin.dismiss();
+
                         }else{
                             //反馈问题
                             //如请填写账号密码等
