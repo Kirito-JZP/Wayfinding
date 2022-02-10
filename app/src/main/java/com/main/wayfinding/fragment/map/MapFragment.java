@@ -33,20 +33,12 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
 import com.google.maps.model.PlacesSearchResult;
 import com.main.wayfinding.R;
 import com.main.wayfinding.adapter.LocationAdapter;
 import com.main.wayfinding.databinding.FragmentMapBinding;
 import com.main.wayfinding.dto.LocationDto;
-import com.main.wayfinding.dto.UserDto;
 import com.main.wayfinding.logic.DB.LocationDBLogic;
-import com.main.wayfinding.logic.DB.UserDBLogic;
 import com.main.wayfinding.logic.GPSTrackerLogic;
 import com.main.wayfinding.logic.NavigationLogic;
 import com.main.wayfinding.utility.AutocompleteHandler;
@@ -55,10 +47,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+
+import javadz.beanutils.BeanUtils;
+import javadz.beanutils.ConvertUtils;
 
 /**
  * Define the fragment used for displaying map and dynamic Sustainable way-finding
@@ -220,7 +212,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View view) {
                 targetLocation = new LocationDto();
-                departureText.setText("");
+                destinationText.setText("");
             }
         });
 
@@ -457,13 +449,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     convert(startLocation != null ? startLocation : currentLocation));
             destLocationList.clear();
             for (PlacesSearchResult place : places) {
-                destLocationList.add(new LocationDto()
-                        .setGmPlaceID(place.placeId)
-                        .setName(place.name)
-                        .setAddress(place.vicinity)
-                        .setLongitude(place.geometry.location.lng)
-                        .setLatitude(place.geometry.location.lat)
-                );
+                LocationDto location = new LocationDto();
+                location.setGmPlaceID(place.placeId);
+                location.setName(place.name);
+                location.setAddress(place.vicinity);
+                location.setLongitude(place.geometry.location.lng);
+                location.setLatitude(place.geometry.location.lat);
+                destLocationList.add(location);
             }
             // pass the results to original thread so that UI elements can be updated
             UIHandler.post(() -> destPlacesListView.setAdapter(new LocationAdapter(getContext(),
@@ -477,13 +469,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     convert(targetLocation != null ? targetLocation : currentLocation));
             deptLocationList.clear();
             for (PlacesSearchResult place : places) {
-                deptLocationList.add(new LocationDto()
-                        .setGmPlaceID(place.placeId)
-                        .setName(place.name)
-                        .setAddress(place.vicinity)
-                        .setLongitude(place.geometry.location.lng)
-                        .setLatitude(place.geometry.location.lat)
-                );
+                LocationDto location = new LocationDto();
+                location.setGmPlaceID(place.placeId);
+                location.setName(place.name);
+                location.setAddress(place.vicinity);
+                location.setLongitude(place.geometry.location.lng);
+                location.setLatitude(place.geometry.location.lat);
+                deptLocationList.add(location);
             }
             // pass the results to original thread so that UI elements can be updated
             UIHandler.post(() -> deptPlacesListView.setAdapter(new LocationAdapter(getContext(),
@@ -500,6 +492,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         // Add a marker in current location and move the camera
         currentLocation = new LocationDto();
         currentLocation.setName(YOUR_LOCATION);
+        currentLocation.setDate(new Date());
         if (gps.isLocateEnabled()) {
             // reset Dto
             currentLocation.setLatitude(location.getLatitude());
@@ -510,6 +503,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             // reset Dto
             currentLocation.setLatitude(53);
             currentLocation.setLongitude(-6);
+        }
+        try {
+            startLocation = new LocationDto();
+            BeanUtils.copyProperties(startLocation, currentLocation);
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error occurs while doing dto copy");
         }
         // reset map
         map.clear();

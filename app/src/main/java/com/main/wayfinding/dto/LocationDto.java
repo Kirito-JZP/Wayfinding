@@ -25,88 +25,62 @@ public class LocationDto {
 
     // the following properties only apply to google maps apis
     private String gmPlaceID;
-
     private String gmImgUrl;
 
     public String getName() {
         return name;
     }
 
-    public LocationDto setName(String name) {
+    public void setName(String name) {
         this.name = name;
-        return this;
     }
 
     public double getLatitude() {
         return latitude;
     }
 
-    public LocationDto setLatitude(double latitude) {
+    public void setLatitude(double latitude) {
         this.latitude = latitude;
-        return this;
     }
 
     public double getLongitude() {
         return longitude;
     }
 
-    public LocationDto setLongitude(double longitude) {
+    public void setLongitude(double longitude) {
         this.longitude = longitude;
-        return this;
     }
 
     public String getCity() {
         return city;
     }
 
-    public LocationDto setCity(String city) {
+    public void setCity(String city) {
         this.city = city;
-        return this;
     }
 
     public String getCountry() {
         return country;
     }
 
-    public LocationDto setCountry(String country) {
+    public void setCountry(String country) {
         this.country = country;
-        return this;
     }
 
     public String getAddress() {
         return address;
     }
 
-    public LocationDto setAddress(String address) {
+    public void setAddress(String address) {
         this.address = address;
-        return this;
     }
 
     public String getPostalCode() {
         return postalCode;
     }
 
-    public LocationDto setPostalCode(String postalCode) {
+    public void setPostalCode(String postalCode) {
         this.postalCode = postalCode;
-        return this;
-    }
-
-    public String getGmPlaceID() {
-        return gmPlaceID;
-    }
-
-    public LocationDto setGmPlaceID(String gmPlaceID) {
-        this.gmPlaceID = gmPlaceID;
-        return this;
-    }
-
-    public String getGmImgUrl() {
-        return gmImgUrl;
-    }
-
-    public LocationDto setGmImgUrl(String gmImgUrl) {
-        this.gmImgUrl = gmImgUrl;
-        return this;
     }
 
     public Date getDate() {
@@ -116,4 +90,21 @@ public class LocationDto {
     public void setDate(Date date) {
         this.date = date;
     }
+
+    public String getGmPlaceID() {
+        return gmPlaceID;
+    }
+
+    public void setGmPlaceID(String gmPlaceID) {
+        this.gmPlaceID = gmPlaceID;
+    }
+
+    public String getGmImgUrl() {
+        return gmImgUrl;
+    }
+
+    public void setGmImgUrl(String gmImgUrl) {
+        this.gmImgUrl = gmImgUrl;
+    }
+
 }
