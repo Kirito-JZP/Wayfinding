@@ -16,6 +16,8 @@ import com.google.maps.model.DirectionsRoute;
 import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlacesSearchResponse;
 import com.google.maps.model.PlacesSearchResult;
+import com.google.maps.model.TransitMode;
+import com.google.maps.model.TravelMode;
 import com.main.wayfinding.WayfindingApp;
 import com.main.wayfinding.utility.LatLngConverter;
 
@@ -91,6 +93,34 @@ public class NavigationLogic {
         }
     }
 
+    public void findRoute(LatLng orig, LatLng dest, String mode) {
+        try {
+            map.clear();
+            DirectionsResult result = getDirections(orig, dest, mode).await();
+            // TODO: there can be more than one route
+            double max_lat = result.routes[0].bounds.northeast.lat;
+            double min_lat = result.routes[0].bounds.southwest.lat;
+            double max_lng = result.routes[0].bounds.northeast.lng;
+            double min_lng = result.routes[0].bounds.southwest.lng;
+            for (DirectionsRoute route : result.routes) {
+                map.addPolyline(new PolylineOptions()
+                        .clickable(true)
+                        .addAll(LatLngConverter.convert(route.overviewPolyline.decodePath())));
+                max_lat = Math.max(max_lat, route.bounds.northeast.lat);
+                min_lat = Math.min(min_lat, route.bounds.southwest.lat);
+                max_lng = Math.max(max_lng, route.bounds.northeast.lng);
+                min_lng = Math.min(min_lng, route.bounds.southwest.lng);
+            }
+            LatLngBounds bounds = new LatLngBounds(new LatLng(min_lat, min_lng), new LatLng(max_lat, max_lng));
+            map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 50));
+            // TODO: customise line style
+        } catch (ZeroResultsException e) {
+            // TODO: notify users if there are no routes available
+        } catch (InterruptedException | ApiException | IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public LatLng queryLatLng(String placeID) {
         try {
             PlaceDetails detail = PlacesApi.placeDetails(WayfindingApp.getGeoApiContext(), placeID).await();
@@ -129,5 +159,26 @@ public class NavigationLogic {
 
     private DirectionsApiRequest getDirections(LatLng orig, LatLng dest) {
         return new DirectionsApiRequest(WayfindingApp.getGeoApiContext()).origin(LatLngConverter.convert(orig)).destination(LatLngConverter.convert(dest));
+    }
+
+    private DirectionsApiRequest getDirections(LatLng orig, LatLng dest, String mode) {
+        TravelMode travelMode = TravelMode.UNKNOWN;
+        switch (mode) {
+            case "walking":
+                travelMode = TravelMode.WALKING;
+                break;
+            case "driving":
+                travelMode = TravelMode.DRIVING;
+                break;
+            case "bicycling":
+                travelMode = TravelMode.BICYCLING;
+                break;
+            case "transit":
+                travelMode = TravelMode.TRANSIT;
+                break;
+            default:
+                travelMode = TravelMode.WALKING;
+        }
+        return new DirectionsApiRequest(WayfindingApp.getGeoApiContext()).origin(LatLngConverter.convert(orig)).destination(LatLngConverter.convert(dest)).mode(travelMode);
     }
 }

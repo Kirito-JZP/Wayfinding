@@ -61,7 +61,9 @@ import java.util.List;
  */
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
-    /** Constant string */
+    /**
+     * Constant string
+     */
     private static final String YOUR_LOCATION = "Your location";
 
     private GoogleMap map;
@@ -69,12 +71,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private GPSTrackerLogic gps;
     private NavigationLogic navigation;
     private LocationDto currentLocation;
+    private LocationDto startLocation;
     private LocationDto targetLocation;
-    private List<LocationDto> locationList;
-    private String keyword;
+    private List<LocationDto> destLocationList;
+    private List<LocationDto> deptLocationList;
+    private String destinationKeyword;
+    private String departureKeyword;
     private AutocompleteHandler autocompleteHandler;
     private Handler UIHandler;
     private int autocompleteDelay = 500;
+    private String mode = "walking";
 
     // Components
     private EditText departureText;
@@ -86,8 +92,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private ImageView cyclingImage;
     private ImageView navigate;
     private ImageView position;
-    private ListView placesListView;
-    private ScrollView autocompleteScrollView;
+    private ListView destPlacesListView;
+    private ListView deptPlacesListView;
+    private ScrollView destScrollView;
+    private ScrollView deptScrollView;
     private RelativeLayout rootLayout;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -127,13 +135,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         position = view.findViewById(R.id.position);
 
         // ListView
-        placesListView = view.findViewById(R.id.places_listview);
-        autocompleteScrollView = view.findViewById(R.id.autocomplete_scrollview);
+        destPlacesListView = view.findViewById(R.id.dest_places_listview);
+        deptPlacesListView = view.findViewById(R.id.dept_places_listview);
+        destScrollView = view.findViewById(R.id.dest_scrollview);
+        deptScrollView = view.findViewById(R.id.dept_scrollview);
 
         autocompleteHandler = new AutocompleteHandler();
         autocompleteHandler.setFragment(this);
         UIHandler = new Handler();
-        locationList = new ArrayList<>();
+        destLocationList = new ArrayList<>();
+        deptLocationList = new ArrayList<>();
 
         addImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -148,17 +159,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 location.setPostalCode("D22 HW63");
                 location.setDate(new Date());
                 location.setGmPlaceID("ChIJ3Y7HLZsOZ0gRZ2FxjA3-ACc");
-                location.setGmImgUrl("https://maps.googleapis.com/maps/api/place/photo?photo_reference=Aap_uED4R2CIRg3z3FfzI0JXC_hT9_8fUSMeXu6cI7rL3qsYV8tJOJfrEGTxx3xnvRam_SAvzIkgdukmcQcrV3j_DmNfzRkX3VVIPHOmeYVjiWDn_Xc89L69AKC-f4sFch6BQlXYGSJM2wZpFErQnndYTo5JyQwM7aZAMr1WHF3p2OJE1XTz&maxheight=500&maxwidth=500&key=AIzaSyCw22dPUG1-s666qK4gTyemXQXnWEIoqic");
+                location.setGmImgUrl("https://maps.googleapis" +
+                        ".com/maps/api/place/photo?photo_reference" +
+                        "=Aap_uED4R2CIRg3z3FfzI0JXC_hT9_8fUSMeXu6cI7rL3qsYV8tJOJfrEGTxx3xnvRam_SAvzIkgdukmcQcrV3j_DmNfzRkX3VVIPHOmeYVjiWDn_Xc89L69AKC-f4sFch6BQlXYGSJM2wZpFErQnndYTo5JyQwM7aZAMr1WHF3p2OJE1XTz&maxheight=500&maxwidth=500&key=AIzaSyCw22dPUG1-s666qK4gTyemXQXnWEIoqic");
 
-                FirebaseDatabase database = FirebaseDatabase.getInstance("https://wayfinding-90556-default-rtdb.europe-west1.firebasedatabase.app/");
+                FirebaseDatabase database = FirebaseDatabase.getInstance("https://wayfinding" +
+                        "-90556-default-rtdb.europe-west1.firebasedatabase.app/");
                 DatabaseReference ref = database.getReference("aaaa/bbb");
                 ref.child("ccc").setValue("Test");
                 System.out.println("finish");
                 LocationDBLogic locationDBLogic = new LocationDBLogic();
                 locationDBLogic.insert();
-
-
-
 
 
             }
@@ -168,11 +179,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View view) {
                 // Exchange the departure and the destination
-                if (currentLocation != null || targetLocation != null) {
-                    LocationDto temp = currentLocation;
-                    currentLocation = targetLocation;
+                if (startLocation != null || targetLocation != null) {
+                    LocationDto temp = startLocation;
+                    startLocation = targetLocation;
                     targetLocation = temp;
-                    departureText.setText(currentLocation.getName());
+                    departureText.setText(startLocation.getName());
                     destinationText.setText(targetLocation.getName());
                 }
             }
@@ -181,21 +192,42 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         publicImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO
+                mode = "transit";
+                if (startLocation != null && targetLocation != null) {
+                    navigation.findRoute(
+                            convert(startLocation),
+                            convert(targetLocation),
+                            mode.equals("") ? "walking" : mode
+                    );
+                }
             }
         });
 
         walkImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO
+                mode = "walking";
+                if (startLocation != null && targetLocation != null) {
+                    navigation.findRoute(
+                            convert(startLocation),
+                            convert(targetLocation),
+                            mode.equals("") ? "walking" : mode
+                    );
+                }
             }
         });
 
         cyclingImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // TODO
+                mode = "bicycling";
+                if (startLocation != null && targetLocation != null) {
+                    navigation.findRoute(
+                            convert(startLocation),
+                            convert(targetLocation),
+                            mode.equals("") ? "walking" : mode
+                    );
+                }
             }
         });
 
@@ -224,26 +256,51 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                keyword = charSequence.toString().trim();
-                if (autocompleteHandler.hasMessages(AutocompleteHandler.TRIGGER_MSG)) {
-                    autocompleteHandler.removeMessages(AutocompleteHandler.TRIGGER_MSG);
+                if (getView().findFocus() == destinationText) {
+                    destinationKeyword = charSequence.toString().trim();
+                    if (autocompleteHandler.hasMessages(AutocompleteHandler.TRIGGER_DEST_MSG)) {
+                        autocompleteHandler.removeMessages(AutocompleteHandler.TRIGGER_DEST_MSG);
+                    }
+                    Message msg = new Message();
+                    msg.what = AutocompleteHandler.TRIGGER_DEST_MSG;
+                    autocompleteHandler.sendMessageDelayed(msg, autocompleteDelay);
                 }
-                Message msg = new Message();
-                msg.what = AutocompleteHandler.TRIGGER_MSG;
-                autocompleteHandler.sendMessageDelayed(msg, autocompleteDelay);
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
             }
         });
+
+        departureText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (getView().findFocus() == departureText) {
+                    departureKeyword = charSequence.toString().trim();
+                    if(autocompleteHandler.hasMessages(AutocompleteHandler.TRIGGER_DEPT_MSG)) {
+                        autocompleteHandler.removeMessages(AutocompleteHandler.TRIGGER_DEPT_MSG);
+                    }
+                    Message msg = new Message();
+                    msg.what = AutocompleteHandler.TRIGGER_DEPT_MSG;
+                    autocompleteHandler.sendMessageDelayed(msg, autocompleteDelay);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
+
         // click on a place in the candidate places
-        placesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        destPlacesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                LocationDto location = locationList.get(i);
-                navigation.findRoute(convert(currentLocation), convert(location));
-                placesListView.setAdapter(null);
+                LocationDto location = destLocationList.get(i);
+                destPlacesListView.setAdapter(null);
                 targetLocation = location;
                 destinationText.setText(targetLocation.getName());
                 // hide the soft keyboard after clicking on an item
@@ -252,6 +309,28 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 if (manager != null)
                     manager.hideSoftInputFromWindow(getView().findFocus().getWindowToken(), 0);
                 destinationText.clearFocus();
+                if (startLocation != null && targetLocation != null && StringUtils.isNotEmpty(mode)) {
+                    navigation.findRoute(convert(startLocation), convert(targetLocation), mode);
+                }
+            }
+        });
+
+        deptPlacesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                LocationDto location = deptLocationList.get(i);
+                deptPlacesListView.setAdapter(null);
+                startLocation = location;
+                departureText.setText(startLocation.getName());
+                // hide the soft keyboard after clicking on an item
+                InputMethodManager manager = ((InputMethodManager) getContext()
+                        .getSystemService(Context.INPUT_METHOD_SERVICE));
+                if (manager != null)
+                    manager.hideSoftInputFromWindow(getView().findFocus().getWindowToken(), 0);
+                departureText.clearFocus();
+                if (startLocation != null && targetLocation != null && StringUtils.isNotEmpty(mode)) {
+                    navigation.findRoute(convert(startLocation), convert(targetLocation), mode);
+                }
             }
         });
 
@@ -260,12 +339,26 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onFocusChange(View view, boolean b) {
                 if (b) {
-                    placesListView.setAdapter(new LocationAdapter(getContext(),
-                            R.layout.autocomplete_location_item, locationList));
-                    autocompleteScrollView.setVisibility(View.VISIBLE);
+                    destPlacesListView.setAdapter(new LocationAdapter(getContext(),
+                            R.layout.autocomplete_location_item, destLocationList));
+                    destScrollView.setVisibility(View.VISIBLE);
                 } else {
-                    placesListView.setAdapter(null);
-                    autocompleteScrollView.setVisibility(View.INVISIBLE);
+                    destPlacesListView.setAdapter(null);
+                    destScrollView.setVisibility(View.INVISIBLE);
+                }
+            }
+        });
+
+        departureText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean b) {
+                if (b) {
+                    deptPlacesListView.setAdapter(new LocationAdapter(getContext(),
+                            R.layout.autocomplete_location_item, deptLocationList));
+                    deptScrollView.setVisibility(View.VISIBLE);
+                } else {
+                    deptPlacesListView.setAdapter(null);
+                    deptScrollView.setVisibility(View.INVISIBLE);
                 }
             }
         });
@@ -289,26 +382,28 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 map.clear();
                 map.addMarker(new MarkerOptions().position(latLng));
                 new AlertDialog.Builder(getActivity())
-                    .setTitle("Target Place")
-                    .setMessage(locationDto.getName() + "\n" + locationDto.getAddress())
-                    .setPositiveButton("Set as departure", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            currentLocation = locationDto;
-                            departureText.setText(currentLocation.getName());
-                        }
-                    })
-                    .setNegativeButton("Set as destination", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            targetLocation = locationDto;
-                            destinationText.setText(targetLocation.getName());
-                        }
-                    })
-                    .setNeutralButton("Close", new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int which) {
-                            //Do nothing
-                        }
-                    })
-                    .show();
+                        .setTitle("Target Place")
+                        .setMessage(locationDto.getName() + "\n" + locationDto.getAddress())
+                        .setPositiveButton("Set as departure",
+                                new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                startLocation = locationDto;
+                                departureText.setText(locationDto.getName());
+                            }
+                        })
+                        .setNegativeButton("Set as destination",
+                                new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                targetLocation = locationDto;
+                                destinationText.setText(targetLocation.getName());
+                            }
+                        })
+                        .setNeutralButton("Close", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int which) {
+                                //Do nothing
+                            }
+                        })
+                        .show();
             }
         });
 
@@ -321,12 +416,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
     }
 
-    public void queryAutocomplete() {
+    public void queryDestAutocomplete() {
         new Thread(() -> {
-            PlacesSearchResult[] places = navigation.nearbySearchQuery(keyword, convert(currentLocation));
-            locationList.clear();
+            PlacesSearchResult[] places = navigation.nearbySearchQuery(destinationKeyword,
+                    convert(startLocation != null ? startLocation : currentLocation));
+            destLocationList.clear();
             for (PlacesSearchResult place : places) {
-                locationList.add(new LocationDto()
+                destLocationList.add(new LocationDto()
                         .setGmPlaceID(place.placeId)
                         .setName(place.name)
                         .setAddress(place.vicinity)
@@ -335,8 +431,28 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 );
             }
             // pass the results to original thread so that UI elements can be updated
-            UIHandler.post(() -> placesListView.setAdapter(new LocationAdapter(getContext(),
-                    R.layout.autocomplete_location_item, locationList)));
+            UIHandler.post(() -> destPlacesListView.setAdapter(new LocationAdapter(getContext(),
+                    R.layout.autocomplete_location_item, destLocationList)));
+        }).start();
+    }
+
+    public void queryDeptAutocomplete() {
+        new Thread(() -> {
+            PlacesSearchResult[] places = navigation.nearbySearchQuery(departureKeyword,
+                    convert(targetLocation != null ? targetLocation : currentLocation));
+            deptLocationList.clear();
+            for (PlacesSearchResult place : places) {
+                deptLocationList.add(new LocationDto()
+                        .setGmPlaceID(place.placeId)
+                        .setName(place.name)
+                        .setAddress(place.vicinity)
+                        .setLongitude(place.geometry.location.lng)
+                        .setLatitude(place.geometry.location.lat)
+                );
+            }
+            // pass the results to original thread so that UI elements can be updated
+            UIHandler.post(() -> deptPlacesListView.setAdapter(new LocationAdapter(getContext(),
+                    R.layout.autocomplete_location_item, deptLocationList)));
         }).start();
     }
 
