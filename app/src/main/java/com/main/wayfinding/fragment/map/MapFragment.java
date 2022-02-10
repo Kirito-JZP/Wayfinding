@@ -155,22 +155,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         addImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                LocationDto location = new LocationDto();
-                location.setName("Test");
-                location.setLatitude(253.678);
-                location.setLongitude(345.879);
-                location.setCity("Dublin");
-                location.setCountry("Ireland");
-                location.setAddress("19 Robinhood Rd, Robinhood, Dublin, Ireland");
-                location.setPostalCode("D22 HW63");
-                location.setDate(new Date());
-                location.setGmPlaceID("ChIJ3Y7HLZsOZ0gRZ2FxjA3-ACc");
-                location.setGmImgUrl("https://maps.googleapis" +
-                        ".com/maps/api/place/photo?photo_reference" +
-                        "=Aap_uED4R2CIRg3z3FfzI0JXC_hT9_8fUSMeXu6cI7rL3qsYV8tJOJfrEGTxx3xnvRam_SAvzIkgdukmcQcrV3j_DmNfzRkX3VVIPHOmeYVjiWDn_Xc89L69AKC-f4sFch6BQlXYGSJM2wZpFErQnndYTo5JyQwM7aZAMr1WHF3p2OJE1XTz&maxheight=500&maxwidth=500&key=AIzaSyCw22dPUG1-s666qK4gTyemXQXnWEIoqic");
-
-                new LocationDBLogic().insert(location);
-
+                new LocationDBLogic().insert(targetLocation);
             }
         });
 
