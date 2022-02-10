@@ -101,6 +101,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private ImageView cyclingImage;
     private ImageView navigate;
     private ImageView position;
+    private ImageView departureTextClear;
+    private ImageView destinationTextClear;
+
     private ListView destPlacesListView;
     private ListView deptPlacesListView;
     private ScrollView destScrollView;
@@ -142,6 +145,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         cyclingImage = view.findViewById(R.id.cycling_img);
         navigate = view.findViewById(R.id.navigate);
         position = view.findViewById(R.id.position);
+        departureTextClear = view.findViewById(R.id.clear_departure);
+        destinationTextClear = view.findViewById(R.id.clear_destination);
 
         // ListView
         destPlacesListView = view.findViewById(R.id.dest_places_listview);
@@ -182,12 +187,40 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             public void onClick(View view) {
                 // Exchange the departure and the destination
                 if (startLocation != null || targetLocation != null) {
+                    // Exchange content in dto
                     LocationDto temp = startLocation;
                     startLocation = targetLocation;
                     targetLocation = temp;
-                    departureText.setText(startLocation.getName());
-                    destinationText.setText(targetLocation.getName());
+
+                    // Exchange message in TextView
+                    if (startLocation != null) {
+                        departureText.setText(startLocation.getName());
+                    } else {
+                        departureText.setText("");
+                    }
+                    if (targetLocation != null) {
+                        destinationText.setText(targetLocation.getName());
+                    } else {
+                        destinationText.setText("");
+                    }
+
                 }
+            }
+        });
+
+        departureTextClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startLocation = new LocationDto();;
+                departureText.setText("");
+            }
+        });
+
+        destinationTextClear.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                targetLocation = new LocationDto();
+                departureText.setText("");
             }
         });
 
