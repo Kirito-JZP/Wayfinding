@@ -1,7 +1,14 @@
 package com.main.wayfinding.logic.DB;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.main.wayfinding.dto.LocationDto;
+
+import java.util.ArrayList;
 
 /**
  * Database operation for location node
@@ -13,19 +20,38 @@ import com.google.firebase.auth.FirebaseUser;
  */
 public class LocationDBLogic {
     private FirebaseAuth auth;
+    private DatabaseReference locationNode;
 
     public LocationDBLogic() {
         this.auth = FirebaseAuth.getInstance();
+        FirebaseDatabase database = FirebaseDatabase.getInstance("https://wayfinding-90556-default-rtdb.europe-west1.firebasedatabase.app/");
+        this.locationNode = database.getReference("location");
     }
 
-    public void insert(){
+    private String getUid(){
         FirebaseUser user = auth.getCurrentUser();
-        if(user==null){
+        if(user!=null){
+            return user.getUid();
+        }else{
             System.out.println("haven't log in");
-            return;
+            return null;
         }
-        System.out.println(user.getUid());
 
+    }
+
+    public void insert(LocationDto locationDto){
+        String uid = getUid();
+        if (uid!=null){
+            locationNode.child(uid).child(locationNode.child(uid).push().getKey()).setValue(locationDto);
+        }
+        System.out.println("Completed!");
+    }
+
+    public void select(OnCompleteListener<DataSnapshot> callback){
+        String uid = getUid();
+        if (uid!=null){
+            locationNode.child(uid).get().addOnCompleteListener(callback);
+        }
     }
 
 

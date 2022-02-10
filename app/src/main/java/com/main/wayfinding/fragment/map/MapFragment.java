@@ -33,14 +33,20 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.GenericTypeIndicator;
 import com.google.maps.model.PlacesSearchResult;
 import com.main.wayfinding.R;
 import com.main.wayfinding.adapter.LocationAdapter;
 import com.main.wayfinding.databinding.FragmentMapBinding;
 import com.main.wayfinding.dto.LocationDto;
+import com.main.wayfinding.dto.UserDto;
 import com.main.wayfinding.logic.DB.LocationDBLogic;
+import com.main.wayfinding.logic.DB.UserDBLogic;
 import com.main.wayfinding.logic.GPSTrackerLogic;
 import com.main.wayfinding.logic.NavigationLogic;
 import com.main.wayfinding.utility.AutocompleteHandler;
@@ -49,7 +55,10 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Define the fragment used for displaying map and dynamic Sustainable way-finding
@@ -163,14 +172,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         ".com/maps/api/place/photo?photo_reference" +
                         "=Aap_uED4R2CIRg3z3FfzI0JXC_hT9_8fUSMeXu6cI7rL3qsYV8tJOJfrEGTxx3xnvRam_SAvzIkgdukmcQcrV3j_DmNfzRkX3VVIPHOmeYVjiWDn_Xc89L69AKC-f4sFch6BQlXYGSJM2wZpFErQnndYTo5JyQwM7aZAMr1WHF3p2OJE1XTz&maxheight=500&maxwidth=500&key=AIzaSyCw22dPUG1-s666qK4gTyemXQXnWEIoqic");
 
-                FirebaseDatabase database = FirebaseDatabase.getInstance("https://wayfinding" +
-                        "-90556-default-rtdb.europe-west1.firebasedatabase.app/");
-                DatabaseReference ref = database.getReference("aaaa/bbb");
-                ref.child("ccc").setValue("Test");
-                System.out.println("finish");
-                LocationDBLogic locationDBLogic = new LocationDBLogic();
-                locationDBLogic.insert();
-
+                new LocationDBLogic().insert(location);
 
             }
         });
@@ -338,6 +340,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         destinationText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
+                for (int i = 0; i < locationList.size(); i++) {
+                    System.out.println("+++++++++++++++++++" + locationList.get(i).getAddress() + "+++++++++++++++++++++");
+                }
+
                 if (b) {
                     destPlacesListView.setAdapter(new LocationAdapter(getContext(),
                             R.layout.autocomplete_location_item, destLocationList));
@@ -463,20 +469,24 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      */
     private void resetCurrentPosition(Location location) {
         // Add a marker in current location and move the camera
+        currentLocation = new LocationDto();
+        currentLocation.setName(YOUR_LOCATION);
         if (gps.isLocateEnabled()) {
             // reset Dto
-            currentLocation = new LocationDto();
-            currentLocation.setName(YOUR_LOCATION);
             currentLocation.setLatitude(location.getLatitude());
             currentLocation.setLongitude(location.getLongitude());
             // reset view text
             departureText.setText(currentLocation.getName());
-            // reset map
-            map.clear();
-            map.addMarker(new MarkerOptions().position(convert(currentLocation))
-                    .title("current location"));
-            map.moveCamera(CameraUpdateFactory.newLatLng(convert(currentLocation)));
+        } else {
+            // reset Dto
+            currentLocation.setLatitude(53);
+            currentLocation.setLongitude(-6);
         }
+        // reset map
+        map.clear();
+        map.addMarker(new MarkerOptions().position(convert(currentLocation))
+                .title("current location"));
+        map.moveCamera(CameraUpdateFactory.newLatLng(convert(currentLocation)));
     }
 
 }

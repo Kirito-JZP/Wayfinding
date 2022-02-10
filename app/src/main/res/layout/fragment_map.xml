@@ -19,11 +19,11 @@
         android:id="@+id/Layout_start_location"
         android:layout_width="match_parent"
         android:layout_height="50dp"
+        android:layout_marginLeft="25dp"
         android:layout_marginTop="20dp"
-        android:layout_marginRight="60dp"
-        android:layout_marginLeft="30dp"
-        android:elevation="10dp"
-        android:background="@drawable/border">
+        android:layout_marginRight="50dp"
+        android:background="@drawable/border"
+        android:elevation="10dp">
 
         <ImageView
             android:id="@+id/start_img"
@@ -32,8 +32,7 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"
-            android:src="@drawable/location"
-            />
+            android:src="@drawable/location" />
 
         <EditText
             android:id="@+id/input_start"
@@ -47,6 +46,13 @@
             android:textColor="#000"
             android:textSize="15dp" />
 
+        <ImageView
+            android:id="@+id/clear_departure"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="280dp"
+            android:src="@drawable/ic_clear" />
     </RelativeLayout>
 
     <ScrollView
@@ -72,9 +78,9 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_below="@+id/Layout_start_location"
-        android:layout_marginLeft="30dp"
+        android:layout_marginLeft="25dp"
         android:layout_marginTop="20dp"
-        android:layout_marginRight="60dp"
+        android:layout_marginRight="50dp"
         android:background="@drawable/border"
         android:elevation="10dp">
 
@@ -100,6 +106,13 @@
             android:singleLine="true"
             android:textSize="15dp" />
 
+        <ImageView
+            android:id="@+id/clear_destination"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="280dp"
+            android:src="@drawable/ic_clear" />
     </RelativeLayout>
 
     <!--add to preference & exchange button-->
@@ -129,20 +142,23 @@
         android:layout_alignBottom="@+id/Layout_search"
         android:layout_marginStart="350dp"
         android:layout_marginLeft="350dp"
-        android:layout_marginEnd="12dp"
+        android:layout_marginEnd="10dp"
         android:orientation="vertical">
 
         <ImageView
             android:id="@+id/add"
-            android:layout_width="match_parent"
-            android:layout_height="55dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginLeft="2dp"
+            android:layout_marginTop="7dp"
             android:src="@drawable/ic_add" />
 
         <ImageView
             android:id="@+id/exchange"
-            android:layout_width="match_parent"
-            android:layout_height="55dp"
-            android:layout_marginTop="10dp"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_marginTop="40dp"
+            android:layout_marginLeft="2dp"
             android:src="@drawable/ic_exchange" />
     </LinearLayout>
 
@@ -271,7 +287,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="450dp"
                 android:background="@drawable/bottomsheetrounded"
-                map:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+                map:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
+                >
 
                 <ImageView
                     android:layout_width="70dp"

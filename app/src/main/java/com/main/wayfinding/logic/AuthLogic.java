@@ -9,6 +9,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.main.wayfinding.R;
+import com.main.wayfinding.dto.UserDto;
+import com.main.wayfinding.logic.DB.UserDBLogic;
 
 /**
  * Logics for account fragment
@@ -30,7 +32,7 @@ public class AuthLogic {
         this.view = view;
     }
 
-    public void signUp(String username, String password) {
+    public void signUp(String username, String password, UserDto userDto) {
         auth.createUserWithEmailAndPassword(username, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
             public void onComplete(@NonNull Task<AuthResult> task) {
@@ -38,6 +40,7 @@ public class AuthLogic {
                     FirebaseUser currentUser = auth.getCurrentUser();
                     TextView status = view.findViewById(R.id.tip);
                     status.setText(currentUser.getEmail());
+                    new UserDBLogic().insert(userDto);
                 } else {
                     TextView status = view.findViewById(R.id.tip);
                     status.setText("Sign up failed");

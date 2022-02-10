@@ -43,16 +43,34 @@
                 android:layout_width="232dp"
                 android:layout_height="50dp"
                 android:ems="10"
-                android:hint="username"
-                android:inputType="textPersonName"
-                android:minHeight="48dp" />
+                android:hint="@string/email"
+                android:inputType="textEmailAddress"
+                android:minHeight="70dp" />
 
             <EditText
-                android:id="@+id/fullname"
+                android:id="@+id/password"
                 android:layout_width="232dp"
                 android:layout_height="50dp"
                 android:ems="10"
-                android:hint="fullname"
+                android:hint="@string/password"
+                android:inputType="textPassword"
+                android:minHeight="70dp" />
+
+            <EditText
+                android:id="@+id/firstName"
+                android:layout_width="232dp"
+                android:layout_height="50dp"
+                android:ems="10"
+                android:hint="@string/first_name"
+                android:inputType="textPersonName"
+                android:minHeight="70dp" />
+
+            <EditText
+                android:id="@+id/surname"
+                android:layout_width="232dp"
+                android:layout_height="50dp"
+                android:ems="10"
+                android:hint="@string/surname"
                 android:inputType="textPersonName"
                 android:minHeight="70dp" />
 
@@ -65,31 +83,14 @@
                 android:minHeight="70dp" />
 
             <EditText
-                android:id="@+id/email"
+                android:id="@+id/phoneNumber"
                 android:layout_width="232dp"
                 android:layout_height="50dp"
                 android:ems="10"
-                android:hint="@string/email"
-                android:inputType="textEmailAddress"
-                android:minHeight="70dp" />
-
-            <EditText
-                android:id="@+id/phonenumber"
-                android:layout_width="232dp"
-                android:layout_height="50dp"
-                android:ems="10"
-                android:hint="phone number"
+                android:hint="@string/phone_number"
                 android:inputType="phone"
                 android:minHeight="70dp" />
 
-            <EditText
-                android:id="@+id/password"
-                android:layout_width="232dp"
-                android:layout_height="50dp"
-                android:ems="10"
-                android:hint="@string/password"
-                android:inputType="textPassword"
-                android:minHeight="70dp" />
         </LinearLayout>
     </ScrollView>
 
@@ -103,7 +104,7 @@
         android:text="Agree with Term and Conditions" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/register"
         android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:layout_below="@id/checkBox"

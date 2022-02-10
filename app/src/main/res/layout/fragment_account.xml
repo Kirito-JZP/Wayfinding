@@ -22,8 +22,8 @@
 
     <ScrollView
         android:id="@+id/userdetails"
-        android:layout_width="match_parent"
-        android:layout_height="339dp"
+        android:layout_width="255dp"
+        android:layout_height="286dp"
         android:layout_below="@+id/touxiang"
         android:layout_marginLeft="80dp"
         android:layout_marginRight="80dp">
@@ -34,70 +34,60 @@
             android:orientation="vertical">
 
             <TextView
-                android:id="@+id/username"
-                android:text="@string/username"
+                android:id="@+id/firstName"
                 android:layout_width="match_parent"
-                android:textSize="20dp"
-                android:gravity="center_horizontal"
                 android:layout_height="30dp"
                 android:layout_marginTop="20dp"
+                android:background="@drawable/border"
                 android:elevation="10dp"
-                android:background="@drawable/border"/>
+                android:gravity="center_horizontal"
+                android:text="@string/first_name"
+                android:textSize="20dp" />
 
             <TextView
-                android:id="@+id/fullname"
-                android:text="@string/fullname"
+                android:id="@+id/surname"
                 android:layout_width="match_parent"
-                android:textSize="20dp"
-                android:gravity="center_horizontal"
                 android:layout_height="30dp"
                 android:layout_marginTop="20dp"
+                android:background="@drawable/border"
                 android:elevation="10dp"
-                android:background="@drawable/border" />
+                android:gravity="center_horizontal"
+                android:text="@string/surname"
+                android:textSize="20dp" />
 
             <TextView
                 android:id="@+id/country"
-                android:text="@string/country"
                 android:layout_width="match_parent"
-                android:textSize="20dp"
-                android:gravity="center_horizontal"
                 android:layout_height="30dp"
                 android:layout_marginTop="20dp"
+                android:background="@drawable/border"
                 android:elevation="10dp"
-                android:background="@drawable/border" />
+                android:gravity="center_horizontal"
+                android:text="@string/country"
+                android:textSize="20dp" />
 
             <TextView
                 android:id="@+id/email"
-                android:text="@string/email"
                 android:layout_width="match_parent"
-                android:textSize="20dp"
-                android:gravity="center_horizontal"
                 android:layout_height="30dp"
                 android:layout_marginTop="20dp"
+                android:background="@drawable/border"
                 android:elevation="10dp"
-                android:background="@drawable/border" />
+                android:gravity="center_horizontal"
+                android:text="@string/email"
+                android:textSize="20dp" />
 
             <TextView
                 android:id="@+id/phonenumber"
-                android:text="@string/phonenumber"
                 android:layout_width="match_parent"
-                android:textSize="20dp"
-                android:gravity="center_horizontal"
                 android:layout_height="30dp"
                 android:layout_marginTop="20dp"
+                android:background="@drawable/border"
                 android:elevation="10dp"
-                android:background="@drawable/border" />
+                android:gravity="center_horizontal"
+                android:text="@string/phone_number"
+                android:textSize="20dp" />
 
-            <TextView
-                android:id="@+id/password"
-                android:text="@string/password"
-                android:layout_width="match_parent"
-                android:textSize="20dp"
-                android:gravity="center_horizontal"
-                android:layout_height="30dp"
-                android:layout_marginTop="20dp"
-                android:elevation="10dp"
-                android:background="@drawable/border" />
         </LinearLayout>
     </ScrollView>
 

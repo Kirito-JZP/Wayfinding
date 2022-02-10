@@ -35,7 +35,7 @@
             android:hint="@string/email"
             android:inputType="textPersonName"
             android:minHeight="70dp"
-             />
+            android:text="tester@gmail.com" />
 
         <EditText
             android:id="@+id/password"
@@ -46,17 +46,18 @@
             android:ems="10"
             android:hint="@string/password"
             android:inputType="textPassword"
-            android:minHeight="70dp" />
+            android:minHeight="70dp"
+            android:text="test123" />
     </RelativeLayout>
 
     <Button
-        android:id="@+id/login"
+        android:id="@+id/confirm"
         android:layout_width="232dp"
         android:layout_height="wrap_content"
         android:layout_below="@id/loginlist"
         android:layout_marginTop="5dp"
         android:layout_centerHorizontal="true"
-        android:text="@string/login" />
+        android:text="@string/confirm" />
 
 
 </RelativeLayout>
