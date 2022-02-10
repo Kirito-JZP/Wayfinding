@@ -9,6 +9,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.main.wayfinding.dto.UserDto;
 
+import java.util.HashMap;
+
 /**
  * Database operation for user node
  *
@@ -50,6 +52,10 @@ public class UserDBLogic {
         if (uid!=null){
             userNode.child(uid).get().addOnCompleteListener(callback);
         }
+    }
+
+    public void update(UserDto userDto){
+        insert(userDto);
     }
 
 }
