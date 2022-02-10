@@ -44,7 +44,6 @@ public class LocationDBLogic {
         if (uid!=null){
             locationNode.child(uid).child(locationNode.child(uid).push().getKey()).setValue(locationDto);
         }
-        System.out.println("Completed!");
     }
 
     public void select(OnCompleteListener<DataSnapshot> callback){
@@ -54,5 +53,10 @@ public class LocationDBLogic {
         }
     }
 
-
+    public void delete(String locationID){
+        String uid = getUid();
+        if (uid!=null){
+            locationNode.child(uid).child(locationID).removeValue();
+        }
+    }
 }

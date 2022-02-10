@@ -120,6 +120,7 @@ public class PreferenceFragment extends Fragment {
     }
 
     public void reload() {
+        //example for iterate locations stored in database
         FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser != null) {
             new LocationDBLogic().select(new OnCompleteListener<DataSnapshot>() {
@@ -128,14 +129,16 @@ public class PreferenceFragment extends Fragment {
                     if (task.isSuccessful()) {
                         HashMap<String, LocationDto> map = task.getResult().getValue(new GenericTypeIndicator<HashMap<String, LocationDto>>() {
                         });
-                        Iterator<Map.Entry<String, LocationDto>> it1 = map.entrySet().iterator();
-                        while (it1.hasNext()) {
-                            System.out.println(it1.next().getValue().getDate());
+                        //key: locationID
+                        //value: LocationDto Object
+                        Iterator<Map.Entry<String, LocationDto>> iterator = map.entrySet().iterator();
+                        while (iterator.hasNext()) {
+                            System.out.println(iterator.next().getValue().getDate());
                         }
-                        Iterator<LocationDto> it2 = map.values().iterator();
-                        while (it2.hasNext()) {
-                            System.out.println(it2.next().getDate());
-                        }
+                        //example for delete location
+                        //new LocationDBLogic().delete("-MvVkRv0fWWEHa1SOqWs");
+
+
 
                     } else {
                         System.out.println(task.getException());
