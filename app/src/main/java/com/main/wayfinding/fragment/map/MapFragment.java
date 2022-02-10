@@ -155,6 +155,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         addImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                targetLocation.setDate(new Date());
                 new LocationDBLogic().insert(targetLocation);
             }
         });
