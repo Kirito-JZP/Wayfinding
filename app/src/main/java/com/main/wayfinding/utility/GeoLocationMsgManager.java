@@ -57,14 +57,14 @@ public class GeoLocationMsgManager {
                                 + "&maxheight=500&maxwidth=500&key="
                                 + WayfindingApp.getKey()
                         : "";
-                result = result.setName(details.name)
-                        .setAddress(details.formattedAddress)
-                        .setLatitude(details.geometry.location.lat)
-                        .setLongitude(details.geometry.location.lng)
-                        .setCity(city)
-                        .setCountry(country)
-                        .setPostalCode(postalCode)
-                        .setGmImgUrl(imageUrl);
+                result.setName(details.name);
+                result.setAddress(details.formattedAddress);
+                result.setLatitude(details.geometry.location.lat);
+                result.setLongitude(details.geometry.location.lng);
+                result.setCity(city);
+                result.setCountry(country);
+                result.setPostalCode(postalCode);
+                result.setGmImgUrl(imageUrl);;
             }
         } catch (IOException | InterruptedException | ApiException e) {
             e.printStackTrace();

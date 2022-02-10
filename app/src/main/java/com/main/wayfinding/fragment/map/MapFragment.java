@@ -457,13 +457,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     convert(startLocation != null ? startLocation : currentLocation));
             destLocationList.clear();
             for (PlacesSearchResult place : places) {
-                destLocationList.add(new LocationDto()
-                        .setGmPlaceID(place.placeId)
-                        .setName(place.name)
-                        .setAddress(place.vicinity)
-                        .setLongitude(place.geometry.location.lng)
-                        .setLatitude(place.geometry.location.lat)
-                );
+                LocationDto location = new LocationDto();
+                location.setGmPlaceID(place.placeId);
+                location.setName(place.name);
+                location.setAddress(place.vicinity);
+                location.setLongitude(place.geometry.location.lng);
+                location.setLatitude(place.geometry.location.lat);
+                destLocationList.add(location);
             }
             // pass the results to original thread so that UI elements can be updated
             UIHandler.post(() -> destPlacesListView.setAdapter(new LocationAdapter(getContext(),
@@ -477,13 +477,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     convert(targetLocation != null ? targetLocation : currentLocation));
             deptLocationList.clear();
             for (PlacesSearchResult place : places) {
-                deptLocationList.add(new LocationDto()
-                        .setGmPlaceID(place.placeId)
-                        .setName(place.name)
-                        .setAddress(place.vicinity)
-                        .setLongitude(place.geometry.location.lng)
-                        .setLatitude(place.geometry.location.lat)
-                );
+                LocationDto location = new LocationDto();
+                location.setGmPlaceID(place.placeId);
+                location.setName(place.name);
+                location.setAddress(place.vicinity);
+                location.setLongitude(place.geometry.location.lng);
+                location.setLatitude(place.geometry.location.lat);
+                deptLocationList.add(location);
             }
             // pass the results to original thread so that UI elements can be updated
             UIHandler.post(() -> deptPlacesListView.setAdapter(new LocationAdapter(getContext(),
