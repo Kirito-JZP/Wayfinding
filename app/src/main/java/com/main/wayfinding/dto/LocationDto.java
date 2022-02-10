@@ -13,6 +13,20 @@ import java.util.Date;
  * Date: 2022/1/28 22:10
  */
 public class LocationDto {
+
+    private String name;
+    private double latitude;
+    private double longitude;
+    private String city;
+    private String country;
+    private String address;
+    private String postalCode;
+    private Date date;
+
+    // the following properties only apply to google maps apis
+    private String gmPlaceID;
+    private String gmImgUrl;
+
     public String getName() {
         return name;
     }
@@ -93,16 +107,4 @@ public class LocationDto {
         this.gmImgUrl = gmImgUrl;
     }
 
-    private String name;
-    private double latitude;
-    private double longitude;
-    private String city;
-    private String country;
-    private String address;
-    private String postalCode;
-    private Date date;
-
-    // the following properties only apply to google maps apis
-    private String gmPlaceID;
-    private String gmImgUrl;
 }
