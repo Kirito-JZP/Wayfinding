@@ -35,9 +35,9 @@ import java.util.Map;
  * Define the fragment used for saving user preference(home, work or favourite places)
  *
  * @author JIA
- * @author Last Modified By JIA
+ * @author Last Modified By Sahil
  * @version Revision: 0
- * Date: 2022/1/18 16:06
+ * Date: 2022/2/10 17:31
  */
 public class PreferenceFragment extends Fragment {
     private FirebaseAuth auth;
@@ -50,57 +50,37 @@ public class PreferenceFragment extends Fragment {
         TextView recentlySaved = (TextView) rootView.findViewById(R.id.textView4);
         recentlySaved.setText("Recently Saved");
 
-        ImageView imageView1 = (ImageView) rootView.findViewById(R.id.imageView3);
+        ImageView image1 = (ImageView) rootView.findViewById(R.id.image1);
 
-        imageView1.setImageResource(R.drawable.cafe);
+        TextView textAddress1 = (TextView) rootView.findViewById(R.id.textAddress1);
+        TextView textCountry1 = (TextView) rootView.findViewById(R.id.textCountry1);
 
-        TextView country = (TextView) rootView.findViewById(R.id.textView9);
-        country.setText("Country");
+        ImageView image2 = (ImageView) rootView.findViewById(R.id.image2);
+        TextView textName2 = (TextView) rootView.findViewById(R.id.textName2);
+        TextView textAddress2 = (TextView) rootView.findViewById(R.id.textAddress2);
+        TextView textCountry2 = (TextView) rootView.findViewById(R.id.textCountry2);
 
-        TextView name = (TextView) rootView.findViewById(R.id.textView10);
-        name.setText("Name");
+        ImageView image3 = (ImageView) rootView.findViewById(R.id.image3);
+        TextView textName3 = (TextView) rootView.findViewById(R.id.textName3);
+        TextView textAddress3 = (TextView) rootView.findViewById(R.id.textAddress3);
+        TextView textCountry3 = (TextView) rootView.findViewById(R.id.textCountry3);
 
-        TextView address = (TextView) rootView.findViewById(R.id.textView11);
-        address.setText("Address");
+        ImageView image4 = (ImageView) rootView.findViewById(R.id.image4);
+        TextView textName4 = (TextView) rootView.findViewById(R.id.textName4);
+        TextView textAddress4 = (TextView) rootView.findViewById(R.id.textAddress4);
+        TextView textCountry4 = (TextView) rootView.findViewById(R.id.textCountry4);
 
-        TextView nearbySaved = (TextView) rootView.findViewById(R.id.textView12);
-        nearbySaved.setText("Nearby Saved");
+        ImageView image5 = (ImageView) rootView.findViewById(R.id.image5);
+        TextView textName5 = (TextView) rootView.findViewById(R.id.textName5);
+        TextView textAddress5 = (TextView) rootView.findViewById(R.id.textAddress5);
+        TextView textCountry5 = (TextView) rootView.findViewById(R.id.textCountry5);
 
-        ImageView imageView2 = (ImageView) rootView.findViewById(R.id.imageView4);
-        imageView2.setImageResource(R.drawable.guinness);
+        ImageView image6 = (ImageView) rootView.findViewById(R.id.image6);
+        TextView textName6 = (TextView) rootView.findViewById(R.id.textName6);
+        TextView textAddress6 = (TextView) rootView.findViewById(R.id.textAddress6);
+        TextView textCountry6 = (TextView) rootView.findViewById(R.id.textCountry6);
 
-        TextView country1 = (TextView) rootView.findViewById(R.id.textView11);
-        country1.setText("Country");
 
-        TextView name1 = (TextView) rootView.findViewById(R.id.textView11);
-        name1.setText("Name");
-
-        TextView address1 = (TextView) rootView.findViewById(R.id.textView11);
-        address.setText("Address");
-
-        ImageView imageView3 = (ImageView) rootView.findViewById(R.id.imageView5);
-        imageView3.setImageResource(R.drawable.cafe);
-
-        TextView country2 = (TextView) rootView.findViewById(R.id.textView20);
-        country2.setText("Country");
-
-        TextView name2 = (TextView) rootView.findViewById(R.id.textView21);
-        name2.setText("Name");
-
-        TextView address2 = (TextView) rootView.findViewById(R.id.textView22);
-        address2.setText("Address");
-
-        ImageView imageView4 = (ImageView) rootView.findViewById(R.id.imageView6);
-        imageView3.setImageResource(R.drawable.cafe);
-
-        TextView country3 = (TextView) rootView.findViewById(R.id.textView23);
-        country3.setText("Country");
-
-        TextView name3 = (TextView) rootView.findViewById(R.id.textView24);
-        name3.setText("Name");
-
-        TextView address3 = (TextView) rootView.findViewById(R.id.textView25);
-        address3.setText("Address");
 
 
         return rootView;
@@ -123,9 +103,37 @@ public class PreferenceFragment extends Fragment {
         //example for iterate locations stored in database
         FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser != null) {
+            View view = getView();
             new LocationDBLogic().select(new OnCompleteListener<DataSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DataSnapshot> task) {
+
+                    TextView textName1 = view.findViewById(R.id.textName1);
+                    TextView textAddress1 = view.findViewById(R.id.textAddress1);
+                    TextView textCountry1 = view.findViewById(R.id.textCountry1);
+                    ImageView image1 = view.findViewById(R.id.image1);
+
+                    TextView textName2 = view.findViewById(R.id.textName2);
+                    TextView textAddress2 = view.findViewById(R.id.textAddress2);
+                    TextView textCountry2 = view.findViewById(R.id.textCountry2);
+
+                    TextView textName3 = view.findViewById(R.id.textName3);
+                    TextView textAddress3 = view.findViewById(R.id.textAddress3);
+                    TextView textCountry3 = view.findViewById(R.id.textCountry3);
+
+                    TextView textName4 = view.findViewById(R.id.textName4);
+                    TextView textAddress4 = view.findViewById(R.id.textAddress4);
+                    TextView textCountry4 = view.findViewById(R.id.textCountry4);
+
+                    TextView textName5 = view.findViewById(R.id.textName5);
+                    TextView textAddress5 = view.findViewById(R.id.textAddress5);
+                    TextView textCountry5 = view.findViewById(R.id.textCountry5);
+
+                    TextView textName6 = view.findViewById(R.id.textName6);
+                    TextView textAddress6 = view.findViewById(R.id.textAddress6);
+                    TextView textCountry6 = view.findViewById(R.id.textCountry6);
+
+
                     if (task.isSuccessful()) {
                         HashMap<String, LocationDto> map = task.getResult().getValue(new GenericTypeIndicator<HashMap<String, LocationDto>>() {
                         });
@@ -133,7 +141,18 @@ public class PreferenceFragment extends Fragment {
                         //value: LocationDto Object
                         Iterator<Map.Entry<String, LocationDto>> iterator = map.entrySet().iterator();
                         while (iterator.hasNext()) {
-                            System.out.println(iterator.next().getValue().getDate());
+                            Map.Entry<String, LocationDto> next = iterator.next();
+                            String key = next.getKey();
+                            LocationDto object = next.getValue();
+
+
+                            textName1.setText(object.getName());
+                            textAddress1.setText(object.getCity());
+                            textCountry1.setText(object.getCountry());
+
+
+
+
                         }
                         //example for delete location
                         //new LocationDBLogic().delete("-MvVkRv0fWWEHa1SOqWs");
