@@ -267,15 +267,13 @@
         </RelativeLayout>
     </RelativeLayout>
     <!-- bottom sheet -->
+    <!-- bottom sheet -->
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="250dp"
+        android:layout_height="300dp"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="0dp"
-        android:layout_marginEnd="0dp"
-        android:layout_marginBottom="0dp"
         tools:openDrawer="start">
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -285,19 +283,119 @@
             <FrameLayout
                 android:id="@+id/bottomsheet"
                 android:layout_width="match_parent"
-                android:layout_height="450dp"
+                android:layout_height="550dp"
                 android:background="@drawable/bottomsheetrounded"
-                map:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior"
-                >
+                map:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
                 <ImageView
                     android:layout_width="70dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center|top"
                     android:scaleType="centerCrop"
-                    android:src="@drawable/ic_remove"></ImageView>
+                    android:src="@drawable/ic_remove" />
 
-                <!--自己定义的布局-->
+                <TextView
+                    android:id="@+id/click_location_name"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="50dp"
+                    android:layout_marginTop="50dp"
+                    android:layout_marginRight="50dp"
+                    android:text=" "
+                    android:textSize="20dp" />
+
+                <TextView
+                    android:id="@+id/click_location_detail"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="50dp"
+                    android:layout_marginTop="90dp"
+                    android:layout_marginRight="50dp"
+                    android:text=" "
+                    android:textSize="15dp" />
+
+                <RelativeLayout
+                    android:id="@+id/set_departure_btn"
+                    android:layout_width="115dp"
+                    android:layout_height="45dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginTop="180dp"
+                    android:background="@drawable/border"
+                    android:backgroundTint="#1a73e8"
+                    android:elevation="5dp">
+
+                    <ImageView
+                        android:id="@+id/set_departure"
+                        android:layout_width="20dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="10dp"
+                        android:src="@drawable/ic_departure" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="5dp"
+                        android:layout_toRightOf="@+id/set_departure"
+                        android:gravity="center_vertical"
+                        android:text="Set departure"
+                        android:textColor="@color/white"
+                        android:textSize="15dp" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:id="@+id/set_destination_btn"
+                    android:layout_width="120dp"
+                    android:layout_height="45dp"
+                    android:layout_marginLeft="155dp"
+                    android:layout_marginTop="180dp"
+                    android:background="@drawable/border"
+                    android:backgroundTint="#1a73e8"
+                    android:elevation="5dp">
+
+                    <ImageView
+                        android:id="@+id/set_destination"
+                        android:layout_width="20dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="10dp"
+                        android:src="@drawable/ic_destination" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="5dp"
+                        android:layout_toRightOf="@+id/set_destination"
+                        android:gravity="center_vertical"
+                        android:text="Set destination"
+                        android:textColor="@color/white"
+                        android:textSize="15dp" />
+                </RelativeLayout>
+
+                <RelativeLayout
+                    android:layout_width="90dp"
+                    android:layout_height="45dp"
+                    android:layout_marginLeft="300dp"
+                    android:layout_marginTop="180dp"
+                    android:background="@drawable/border"
+                    android:backgroundTint="#1a73e8"
+                    android:elevation="3dp">
+
+                    <ImageView
+                        android:id="@+id/close"
+                        android:layout_width="20dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="10dp"
+                        android:src="@drawable/ic_closesheet" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="5dp"
+                        android:layout_toRightOf="@+id/close"
+                        android:gravity="center_vertical"
+                        android:text="Close"
+                        android:textColor="@color/white"
+                        android:textSize="15dp" />
+                </RelativeLayout>
 
             </FrameLayout>
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
