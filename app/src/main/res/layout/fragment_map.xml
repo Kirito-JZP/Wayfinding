@@ -297,7 +297,7 @@
                     android:id="@+id/location_img"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
-                    android:layout_marginTop="30dp"
+                    android:layout_marginTop="50dp"
                     android:layout_marginLeft="30dp"
                     android:src="@drawable/ic_location_unavaliable" />
                 <TextView
@@ -306,25 +306,25 @@
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="150dp"
                     android:layout_marginTop="50dp"
-                    android:layout_marginRight="50dp"
+                    android:layout_marginRight="20dp"
                     android:text=" "
                     android:textSize="20dp" />
-
+2
                 <TextView
                     android:id="@+id/click_location_detail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="150dp"
-                    android:layout_marginTop="90dp"
-                    android:layout_marginRight="50dp"
+                    android:layout_marginTop="100dp"
+                    android:layout_marginRight="20dp"
                     android:text=" "
                     android:textSize="15dp" />
 
                 <RelativeLayout
                     android:id="@+id/set_departure_btn"
-                    android:layout_width="115dp"
+                    android:layout_width="120dp"
                     android:layout_height="45dp"
-                    android:layout_marginLeft="55dp"
+                    android:layout_marginLeft="30dp"
                     android:layout_marginTop="180dp"
                     android:background="@drawable/border"
                     android:backgroundTint="#1a73e8"
@@ -344,6 +344,7 @@
                         android:layout_toRightOf="@+id/set_departure"
                         android:gravity="center_vertical"
                         android:text="Set departure"
+                        android:textStyle="bold"
                         android:textColor="@color/white"
                         android:textSize="15dp" />
                 </RelativeLayout>
@@ -352,7 +353,7 @@
                     android:id="@+id/set_destination_btn"
                     android:layout_width="120dp"
                     android:layout_height="45dp"
-                    android:layout_marginLeft="235dp"
+                    android:layout_marginLeft="250dp"
                     android:layout_marginTop="180dp"
                     android:background="@drawable/border"
                     android:backgroundTint="#1a73e8"
@@ -368,10 +369,11 @@
                     <TextView
                         android:layout_width="match_parent"
                         android:layout_height="match_parent"
-                        android:layout_marginLeft="5dp"
+                        android:layout_marginLeft="6dp"
                         android:layout_toRightOf="@+id/set_destination"
                         android:gravity="center_vertical"
                         android:text="Set destination"
+                        android:textStyle="bold"
                         android:textColor="@color/white"
                         android:textSize="15dp" />
                 </RelativeLayout>
