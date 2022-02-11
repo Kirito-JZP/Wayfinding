@@ -6,7 +6,10 @@ import static com.main.wayfinding.utility.LatLngConverter.convert;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.location.Location;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -48,6 +51,9 @@ import org.apache.commons.lang3.StringUtils;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+
+import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -101,6 +107,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private ImageView position;
     private ImageView departureTextClear;
     private ImageView destinationTextClear;
+    private ImageView locationImg;
     private TextView selectLocationName;
     private TextView selectLocationDetail;
     private ListView destPlacesListView;
@@ -150,7 +157,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         selectLocationDetail =view.findViewById(R.id.click_location_detail);
         setDeparture = view.findViewById(R.id.set_departure_btn);
         setDestination = view.findViewById(R.id.set_destination_btn);
-        //bottomsheet
+        locationImg = view.findViewById(R.id.location_img);
+
+        //bottom sheet
         bottomsheet = view.findViewById(R.id.bottomsheet);
 
         // ListView
@@ -411,13 +420,34 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 if (sheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED) {
                     sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+
+                    if (StringUtils.isNotEmpty(locationDto.getGmImgUrl())) {
+                        new Thread(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    // resolving the string into url
+                                    URL url = new URL(locationDto.getGmImgUrl());
+                                    // Open the input stream
+                                    InputStream inputStream = url.openStream();
+                                    // Convert the online source to bitmap picture
+                                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                                    locationImg.setImageBitmap(bitmap);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }).start();
+                    } else {
+                        locationImg.setImageResource(R.drawable.ic_location_unavaliable);
+                    }
                     selectLocationName.setText(locationDto.getName());
                     selectLocationDetail.setText(locationDto.getAddress());
 
                     setDeparture.setOnClickListener(new View.OnClickListener() {
                         public void onClick(View v) {
-                            currentLocation = locationDto;
-                            departureText.setText(currentLocation.getName());
+                            startLocation = locationDto;
+                            departureText.setText(startLocation.getName());
                         }
                     });
                     setDestination.setOnClickListener(new View.OnClickListener() {
