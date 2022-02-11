@@ -408,7 +408,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 map.clear();
                 map.addMarker(new MarkerOptions().position(latLng));
                 BottomSheetBehavior<FrameLayout> sheetBehavior = BottomSheetBehavior.from(bottomsheet);
-
+                sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                 if (sheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED) {
                     sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
                     selectLocationName.setText(locationDto.getName());
