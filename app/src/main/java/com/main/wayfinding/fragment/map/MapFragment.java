@@ -42,9 +42,12 @@ import com.main.wayfinding.logic.DB.LocationDBLogic;
 import com.main.wayfinding.logic.GPSTrackerLogic;
 import com.main.wayfinding.logic.NavigationLogic;
 import com.main.wayfinding.utility.AutocompleteHandler;
-
+import android.widget.FrameLayout;
+import android.widget.TextView;
 import org.apache.commons.lang3.StringUtils;
-
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -78,6 +81,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private List<LocationDto> deptLocationList;
     private String destinationKeyword;
     private String departureKeyword;
+    private RelativeLayout setDeparture;
+    private RelativeLayout setDestination;
+    private FrameLayout bottomsheet;
     private AutocompleteHandler autocompleteHandler;
     private Handler UIHandler;
     private int autocompleteDelay = 500;
@@ -95,7 +101,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private ImageView position;
     private ImageView departureTextClear;
     private ImageView destinationTextClear;
-
+    private TextView selectLocationName;
+    private TextView selectLocationDetail;
     private ListView destPlacesListView;
     private ListView deptPlacesListView;
     private ScrollView destScrollView;
@@ -139,6 +146,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         position = view.findViewById(R.id.position);
         departureTextClear = view.findViewById(R.id.clear_departure);
         destinationTextClear = view.findViewById(R.id.clear_destination);
+        selectLocationName = view.findViewById(R.id.click_location_name);
+        selectLocationDetail =view.findViewById(R.id.click_location_detail);
+        setDeparture = view.findViewById(R.id.set_departure_btn);
+        setDestination = view.findViewById(R.id.set_destination_btn);
+        //bottomsheet
+        bottomsheet = view.findViewById(R.id.bottomsheet);
 
         // ListView
         destPlacesListView = view.findViewById(R.id.dest_places_listview);
@@ -394,29 +407,27 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             if (StringUtils.isNotEmpty(locationDto.getName())) {
                 map.clear();
                 map.addMarker(new MarkerOptions().position(latLng));
-                new AlertDialog.Builder(getActivity())
-                        .setTitle("Target Place")
-                        .setMessage(locationDto.getName() + "\n" + locationDto.getAddress())
-                        .setPositiveButton("Set as departure",
-                                new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                startLocation = locationDto;
-                                departureText.setText(locationDto.getName());
-                            }
-                        })
-                        .setNegativeButton("Set as destination",
-                                new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                targetLocation = locationDto;
-                                destinationText.setText(targetLocation.getName());
-                            }
-                        })
-                        .setNeutralButton("Close", new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int which) {
-                                //Do nothing
-                            }
-                        })
-                        .show();
+                BottomSheetBehavior<FrameLayout> sheetBehavior = BottomSheetBehavior.from(bottomsheet);
+
+                if (sheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED) {
+                    sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                    selectLocationName.setText(locationDto.getName());
+                    selectLocationDetail.setText(locationDto.getAddress());
+
+                    setDeparture.setOnClickListener(new View.OnClickListener() {
+                        public void onClick(View v) {
+                            currentLocation = locationDto;
+                            departureText.setText(currentLocation.getName());
+                        }
+                    });
+                    setDestination.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            targetLocation = locationDto;
+                            destinationText.setText(targetLocation.getName());
+                        }
+                    });
+                }
             }
         });
 
