@@ -2,6 +2,7 @@ package com.main.wayfinding.fragment.account;
 
 import android.app.AlertDialog;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,6 +26,9 @@ import com.main.wayfinding.dto.UserDto;
 import com.main.wayfinding.logic.AuthLogic;
 import com.main.wayfinding.logic.DB.UserDBLogic;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 /**
  * Define the fragment used for displaying and changing user info
  *
@@ -38,6 +42,8 @@ public class AccountFragment extends Fragment {
     private FirebaseAuth auth;
     private AuthLogic accountLogic;
 
+    public static Pattern p =
+            Pattern.compile("\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*");
 
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentAccountBinding.inflate(inflater, container, false);
@@ -91,7 +97,7 @@ public class AccountFragment extends Fragment {
                         String username = usernameComponent.getText().toString();
                         String password = passwordComponent.getText().toString();
                         //验证字符串规格（邮箱格式是否正确，密码最少多少位，复杂程度等）
-                        if (username.length() > 0 && password.length() > 0) {
+                        if (isEmail(username) && (password.length() > 6)) {
                             accountLogic.login(username, password);
                             //关闭dialoglogin
                             dialoglogin.dismiss();
@@ -99,6 +105,8 @@ public class AccountFragment extends Fragment {
                         } else {
                             //反馈问题
                             //如请填写账号密码等
+                            AlertDialog dialogError = new AlertDialog.Builder(getActivity()).
+                                    setTitle("Error Format! Please re-input!").show();
                         }
                     }
                 });
@@ -133,13 +141,17 @@ public class AccountFragment extends Fragment {
                                 surnameComponent.getText().toString(),
                                 countryComponent.getText().toString(),
                                 phoneNumberComponent.getText().toString());
-                        //验证字符串规格（邮箱格式是否正确，密码最少多少位，复杂程度等）
-                        if (username.length() > 0 && password.length() > 0) {
+                        //1.验证字符串规格（邮箱格式是否正确，密码最少6位等）
+                        if (isEmail(username) && (password.length() > 6)) {
                             accountLogic.signUp(username, password, userDto);
                             //关闭dialoglogin
+                            dialog.dismiss();
                         } else {
-                            //反馈问题
+                            //2.反馈问题
                             //如请填写账号密码等
+                            //额外文本框 控制显示提示信息
+                            AlertDialog dialogError = new AlertDialog.Builder(getActivity()).
+                                    setTitle("Error Format! Please re-input!").show();
                         }
 
 
@@ -174,15 +186,26 @@ public class AccountFragment extends Fragment {
             public void onComplete(@NonNull Task<DataSnapshot> task) {
                 if(task.isSuccessful()){
                     UserDto userDto = task.getResult().getValue(UserDto.class);
-                    System.out.println(userDto.getFirstName());
-                    System.out.println(userDto.getSurname());
-                    System.out.println(userDto.getCountry());
-                    System.out.println(userDto.getPhoneNumber());
+                    // 3 输出到layout
+                    TextView status = getView().findViewById(R.id.firstName);
+                    status.setText(userDto.getFirstName());
+                    TextView status2 = getView().findViewById(R.id.surname);
+                    status.setText(userDto.getSurname());
+                    TextView status3 = getView().findViewById(R.id.country);
+                    status.setText(userDto.getCountry());
+                    TextView status4 = getView().findViewById(R.id.phoneNumber);
+                    status.setText(userDto.getPhoneNumber());
                 }else {
                     System.out.println(task.getException());
                 }
             }
         });
+    }
+
+    public static boolean isEmail(String strEmail) {
+        Pattern pattern = Pattern .compile("\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*");
+        Matcher mc = pattern.matcher(strEmail);
+        return mc.matches();
     }
 
 
