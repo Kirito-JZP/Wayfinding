@@ -42,7 +42,8 @@ public class LocationDBLogic {
     public void insert(LocationDto locationDto){
         String uid = getUid();
         if (uid!=null){
-            locationNode.child(uid).child(locationNode.child(uid).push().getKey()).setValue(locationDto);
+            locationDto.setLocationId(locationNode.child(uid).push().getKey());
+            locationNode.child(uid).child(locationDto.getLocationId()).setValue(locationDto);
         }
     }
 

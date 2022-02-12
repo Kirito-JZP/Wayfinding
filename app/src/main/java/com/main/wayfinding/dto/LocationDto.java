@@ -13,7 +13,15 @@ import java.util.Date;
  * Date: 2022/1/28 22:10
  */
 public class LocationDto {
+    public String getLocationId() {
+        return locationId;
+    }
 
+    public void setLocationId(String locationId) {
+        this.locationId = locationId;
+    }
+
+    private String locationId;
     private String name;
     private double latitude;
     private double longitude;
