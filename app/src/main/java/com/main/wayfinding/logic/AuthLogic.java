@@ -31,7 +31,7 @@ public class AuthLogic {
     public void setView(View view) {
         this.view = view;
     }
-
+    //
     public void signUp(String username, String password, UserDto userDto) {
         auth.createUserWithEmailAndPassword(username, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
@@ -43,7 +43,7 @@ public class AuthLogic {
                     new UserDBLogic().insert(userDto);
                 } else {
                     TextView status = view.findViewById(R.id.tip);
-                    status.setText("Sign up failed");
+                    status.setText("Sign up failed"); // 改用dialog？
                     System.out.println(task.getException());
                 }
             }
@@ -60,7 +60,7 @@ public class AuthLogic {
                     status.setText(currentUser.getEmail());
                 }else {
                     TextView status = view.findViewById(R.id.tip);
-                    status.setText("Authentication failed.");
+                    status.setText("Failed.");
                     System.out.println(task.getException());
                 }
             }

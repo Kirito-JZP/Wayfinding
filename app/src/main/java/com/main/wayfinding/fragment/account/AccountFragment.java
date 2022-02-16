@@ -118,6 +118,8 @@ public class AccountFragment extends Fragment {
         view.findViewById(R.id.register).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+
                 View view2 = View.inflate(getContext(), R.layout.fragment_accountcreate, null);
                 AlertDialog dialog = new AlertDialog.Builder(getActivity()).setView(view2).show();
                 // set dialogue transparent
@@ -170,7 +172,7 @@ public class AccountFragment extends Fragment {
             }
         });
     }
-
+    //这里的text部分页注释掉
     public void reload() {
         FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser != null) {
@@ -178,7 +180,7 @@ public class AccountFragment extends Fragment {
             status.setText(currentUser.getEmail());
         } else {
             TextView status = getView().findViewById(R.id.tip);
-            status.setText("Not logged in");
+            status.setText(" "); // 暂时不提示
         }
 
         new UserDBLogic().select(new OnCompleteListener<DataSnapshot>() {
