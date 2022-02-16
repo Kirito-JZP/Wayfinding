@@ -83,7 +83,7 @@ public class PlaceManagerUtils {
                 result.setCountry(country);
                 result.setPostalCode(postalCode);
                 result.setGmImgUrl(imageUrl);
-                ;
+                result.setGmPlaceID(details.placeId);
             }
         } catch (IOException | InterruptedException | ApiException e) {
             e.printStackTrace();
@@ -185,6 +185,47 @@ public class PlaceManagerUtils {
         try {
             PlaceDetails detail = PlacesApi.placeDetails(WayfindingApp.getGeoApiContext(), placeID).await();
             return LatLngConverter.convert(detail.geometry.location);
+        } catch (ApiException | InterruptedException | IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static LocationDto queryDetail(String placeID) {
+        try {
+            PlaceDetails details = PlacesApi.placeDetails(WayfindingApp.getGeoApiContext(), placeID).await();
+            LocationDto location = new LocationDto();
+            List<AddressComponent> comps = Arrays.stream(details.addressComponents)
+                    .filter(comp -> Arrays.stream(comp.types)
+                            .anyMatch(t -> t.toString().equals("administrative_area_level_1"))
+                    ).collect(Collectors.toList());
+            String city = comps.isEmpty() ? "" : comps.get(0).longName;
+            comps = Arrays.stream(details.addressComponents)
+                    .filter(comp -> Arrays.stream(comp.types)
+                            .anyMatch(t -> t.toString().equals("country")))
+                    .collect(Collectors.toList());
+            String country = comps.isEmpty() ? "" : comps.get(0).longName;
+            comps = Arrays.stream(details.addressComponents)
+                    .filter(comp -> Arrays.stream(comp.types)
+                            .anyMatch(t -> t.toString().equals("postal_code")))
+                    .collect(Collectors.toList());
+            String postalCode = comps.isEmpty() ? "" : comps.get(0).longName;
+            String imageUrl = (details.photos != null && details.photos.length != 0) ?
+                    "https://maps.googleapis.com/maps/api/place/photo?photo_reference="
+                            + details.photos[0].photoReference
+                            + "&maxheight=500&maxwidth=500&key="
+                            + WayfindingApp.getKey()
+                    : "";
+            location.setName(details.name);
+            location.setAddress(details.formattedAddress);
+            location.setLatitude(details.geometry.location.lat);
+            location.setLongitude(details.geometry.location.lng);
+            location.setCity(city);
+            location.setCountry(country);
+            location.setPostalCode(postalCode);
+            location.setGmImgUrl(imageUrl);
+            location.setGmPlaceID(details.placeId);
+            return location;
         } catch (ApiException | InterruptedException | IOException e) {
             e.printStackTrace();
             return null;
