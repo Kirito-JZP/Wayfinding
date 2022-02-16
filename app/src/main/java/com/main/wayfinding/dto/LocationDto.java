@@ -114,5 +114,11 @@ public class LocationDto {
     public void setGmImgUrl(String gmImgUrl) {
         this.gmImgUrl = gmImgUrl;
     }
-
+    public int getsize(){
+        int size = 0;
+        while (this.locationId!=null){
+            size++;
+        }
+        return size;
+    }
 }

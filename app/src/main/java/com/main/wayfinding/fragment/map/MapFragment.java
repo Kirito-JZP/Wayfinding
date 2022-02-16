@@ -93,15 +93,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private Handler UIHandler;
     private int autocompleteDelay = 500;
     private String mode = "walking";
-
+    private RelativeLayout publicBtn;
+    private RelativeLayout walkBtn;
+    private RelativeLayout cycBtn;
     // Components
     private EditText departureText;
     private EditText destinationText;
     private ImageView addImage;
     private ImageView exchangeImage;
-    private ImageView publicImage;
-    private ImageView walkImage;
-    private ImageView cyclingImage;
+
     private ImageView navigate;
     private ImageView position;
     private ImageView departureTextClear;
@@ -145,9 +145,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         // ImageView
         addImage = view.findViewById(R.id.add);
         exchangeImage = view.findViewById(R.id.exchange);
-        publicImage = view.findViewById(R.id.public_img);
-        walkImage = view.findViewById(R.id.walk_img);
-        cyclingImage = view.findViewById(R.id.cycling_img);
+        publicBtn = view.findViewById(R.id.public_btn);
+        walkBtn = view.findViewById(R.id.walk_btn);
+        cycBtn = view.findViewById(R.id.cyc_btn);
         navigate = view.findViewById(R.id.navigate);
         position = view.findViewById(R.id.position);
         departureTextClear = view.findViewById(R.id.clear_departure);
@@ -224,7 +224,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
-        publicImage.setOnClickListener(new View.OnClickListener() {
+        publicBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mode = "transit";
@@ -238,7 +238,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
-        walkImage.setOnClickListener(new View.OnClickListener() {
+        walkBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mode = "walking";
@@ -252,7 +252,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
-        cyclingImage.setOnClickListener(new View.OnClickListener() {
+        cycBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mode = "bicycling";
