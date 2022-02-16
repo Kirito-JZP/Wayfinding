@@ -9,6 +9,7 @@ import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -80,7 +81,7 @@ public class AccountFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        // jump by dialogue
+        // jump by dialogue 登录检验
         view.findViewById(R.id.login).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -96,17 +97,18 @@ public class AccountFragment extends Fragment {
                         EditText passwordComponent = view2.findViewById(R.id.password);
                         String username = usernameComponent.getText().toString();
                         String password = passwordComponent.getText().toString();
+
                         //验证字符串规格（邮箱格式是否正确，密码最少多少位，复杂程度等）
-                        if (isEmail(username) && (password.length() > 6)) {
+                        if (TextUtils.isEmpty(username) || TextUtils.isEmpty(password)){
+                            AlertDialog dialogEmpty = new AlertDialog.Builder(getActivity()).
+                                    setTitle("Empty! Please input").show();
+                        }else if(!isEmail(username) && (password.length() < 6)){
+                            AlertDialog dialogError = new AlertDialog.Builder(getActivity()).
+                                    setTitle("Error Email Format or Password too short!").show();
+                        } else{
                             accountLogic.login(username, password);
                             //关闭dialoglogin
                             dialoglogin.dismiss();
-
-                        } else {
-                            //反馈问题
-                            //如请填写账号密码等
-                            AlertDialog dialogError = new AlertDialog.Builder(getActivity()).
-                                    setTitle("Error Format! Please re-input!").show();
                         }
                     }
                 });
@@ -118,15 +120,13 @@ public class AccountFragment extends Fragment {
         view.findViewById(R.id.register).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-
                 View view2 = View.inflate(getContext(), R.layout.fragment_accountcreate, null);
                 AlertDialog dialog = new AlertDialog.Builder(getActivity()).setView(view2).show();
                 // set dialogue transparent
                 WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
                 lp.alpha = 1.0f;
                 dialog.getWindow().setAttributes(lp);
-
+                // 注册验证
                 view2.findViewById(R.id.register).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -143,17 +143,34 @@ public class AccountFragment extends Fragment {
                                 surnameComponent.getText().toString(),
                                 countryComponent.getText().toString(),
                                 phoneNumberComponent.getText().toString());
+                        //获取单选框
+                        RadioButton checkbox = view2.findViewById(R.id.checkBox);
+
+
                         //1.验证字符串规格（邮箱格式是否正确，密码最少6位等）
-                        if (isEmail(username) && (password.length() > 6)) {
+                        // 非空验证
+                        if (TextUtils.isEmpty(username)||TextUtils.isEmpty(password)||
+                                TextUtils.isEmpty(userDto.getFirstName())||
+                                TextUtils.isEmpty(userDto.getSurname())||
+                                TextUtils.isEmpty(userDto.getCountry())||
+                                TextUtils.isEmpty(userDto.getPhoneNumber())){
+                            AlertDialog dialogEmpty = new AlertDialog.Builder(getActivity()).
+                                    setTitle("Empty! Please input").show();
+                        }else if(!checkbox.isChecked()){
+                            AlertDialog dialogCheckbox = new AlertDialog.Builder(getActivity()).
+                                    setTitle("Please agree with terms.").show();
+                        } else if(!isEmail(username)){
+                            AlertDialog dialogError = new AlertDialog.Builder(getActivity()).
+                                    setTitle("Error Email Format!").show();
+                        } else if (password.length() < 6){
+                            AlertDialog dialogError = new AlertDialog.Builder(getActivity()).
+                                    setTitle("Password too short!").show();
+                        }
+                        else {
+                            //登录
                             accountLogic.signUp(username, password, userDto);
                             //关闭dialoglogin
                             dialog.dismiss();
-                        } else {
-                            //2.反馈问题
-                            //如请填写账号密码等
-                            //额外文本框 控制显示提示信息
-                            AlertDialog dialogError = new AlertDialog.Builder(getActivity()).
-                                    setTitle("Error Format! Please re-input!").show();
                         }
 
 
@@ -189,14 +206,14 @@ public class AccountFragment extends Fragment {
                 if(task.isSuccessful()){
                     UserDto userDto = task.getResult().getValue(UserDto.class);
                     // 3 输出到layout
-                    TextView status = getView().findViewById(R.id.firstName);
-                    status.setText(userDto.getFirstName());
-                    TextView status2 = getView().findViewById(R.id.surname);
-                    status.setText(userDto.getSurname());
-                    TextView status3 = getView().findViewById(R.id.country);
-                    status.setText(userDto.getCountry());
-                    TextView status4 = getView().findViewById(R.id.phoneNumber);
-                    status.setText(userDto.getPhoneNumber());
+                    TextView status_fisrtname = getView().findViewById(R.id.firstName);
+                    status_fisrtname.setText(userDto.getFirstName());
+                    TextView status_surname = getView().findViewById(R.id.surname);
+                    status_surname.setText(userDto.getSurname());
+                    TextView status_country = getView().findViewById(R.id.country);
+                    status_country.setText(userDto.getCountry());
+                    TextView status_phone = getView().findViewById(R.id.phoneNumber);
+                    status_phone.setText(userDto.getPhoneNumber());
                 }else {
                     System.out.println(task.getException());
                 }
