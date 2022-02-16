@@ -15,7 +15,13 @@ import com.main.wayfinding.fragment.map.MapFragment;
  * @version Revision: 0
  * Date: 2022/1/30 0:28
  */
+
+
 public class AutocompleteHandler extends Handler {
+    public enum AutocompleteType {
+        DEST, DEPT
+    }
+
     public static final int TRIGGER_DEPT_MSG = 0;
     public static final int TRIGGER_DEST_MSG = 1;
     private MapFragment fragment;
@@ -34,10 +40,10 @@ public class AutocompleteHandler extends Handler {
         super.handleMessage(msg);
         switch (msg.what) {
             case TRIGGER_DEPT_MSG:
-                fragment.queryDeptAutocomplete();
+                fragment.queryAutocomplete(AutocompleteType.DEPT);
                 break;
             case TRIGGER_DEST_MSG:
-                fragment.queryDestAutocomplete();
+                fragment.queryAutocomplete(AutocompleteType.DEST);
                 break;
             default:
         }
