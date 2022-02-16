@@ -1,15 +1,12 @@
 package com.main.wayfinding.fragment.map;
 
-import static com.main.wayfinding.utility.GeoLocationMsgManager.findLocationGeoMsg;
+import static com.main.wayfinding.utility.PlaceManagerUtils.findLocationGeoMsg;
 import static com.main.wayfinding.utility.LatLngConverter.convert;
 
-import android.app.AlertDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -38,6 +35,7 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.model.PlacesSearchResult;
 import com.main.wayfinding.R;
+import com.main.wayfinding.WayfindingApp;
 import com.main.wayfinding.adapter.LocationAdapter;
 import com.main.wayfinding.databinding.FragmentMapBinding;
 import com.main.wayfinding.dto.LocationDto;
@@ -45,12 +43,14 @@ import com.main.wayfinding.logic.DB.LocationDBLogic;
 import com.main.wayfinding.logic.GPSTrackerLogic;
 import com.main.wayfinding.logic.NavigationLogic;
 import com.main.wayfinding.utility.AutocompleteHandler;
+
 import android.widget.FrameLayout;
 import android.widget.TextView;
+
 import org.apache.commons.lang3.StringUtils;
+
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
+import com.main.wayfinding.utility.PlaceManagerUtils;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -59,7 +59,6 @@ import java.util.Date;
 import java.util.List;
 
 import javadz.beanutils.BeanUtils;
-import javadz.beanutils.ConvertUtils;
 
 /**
  * Define the fragment used for displaying map and dynamic Sustainable way-finding
@@ -154,7 +153,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         departureTextClear = view.findViewById(R.id.clear_departure);
         destinationTextClear = view.findViewById(R.id.clear_destination);
         selectLocationName = view.findViewById(R.id.click_location_name);
-        selectLocationDetail =view.findViewById(R.id.click_location_detail);
+        selectLocationDetail = view.findViewById(R.id.click_location_detail);
         setDeparture = view.findViewById(R.id.set_departure_btn);
         setDestination = view.findViewById(R.id.set_destination_btn);
         locationImg = view.findViewById(R.id.location_img);
@@ -211,7 +210,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         departureTextClear.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startLocation = new LocationDto();;
+                startLocation = new LocationDto();
+                ;
                 departureText.setText("");
             }
         });
@@ -229,7 +229,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             public void onClick(View view) {
                 mode = "transit";
                 if (startLocation != null && targetLocation != null) {
-                    navigation.findRoute(
+                    PlaceManagerUtils.findRoute(
                             convert(startLocation),
                             convert(targetLocation),
                             mode.equals("") ? "walking" : mode
@@ -243,7 +243,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             public void onClick(View view) {
                 mode = "walking";
                 if (startLocation != null && targetLocation != null) {
-                    navigation.findRoute(
+                    PlaceManagerUtils.findRoute(
                             convert(startLocation),
                             convert(targetLocation),
                             mode.equals("") ? "walking" : mode
@@ -257,7 +257,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             public void onClick(View view) {
                 mode = "bicycling";
                 if (startLocation != null && targetLocation != null) {
-                    navigation.findRoute(
+                    PlaceManagerUtils.findRoute(
                             convert(startLocation),
                             convert(targetLocation),
                             mode.equals("") ? "walking" : mode
@@ -316,7 +316,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if (getView().findFocus() == departureText) {
                     departureKeyword = charSequence.toString().trim();
-                    if(autocompleteHandler.hasMessages(AutocompleteHandler.TRIGGER_DEPT_MSG)) {
+                    if (autocompleteHandler.hasMessages(AutocompleteHandler.TRIGGER_DEPT_MSG)) {
                         autocompleteHandler.removeMessages(AutocompleteHandler.TRIGGER_DEPT_MSG);
                     }
                     Message msg = new Message();
@@ -345,7 +345,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     manager.hideSoftInputFromWindow(getView().findFocus().getWindowToken(), 0);
                 destinationText.clearFocus();
                 if (startLocation != null && targetLocation != null && StringUtils.isNotEmpty(mode)) {
-                    navigation.findRoute(convert(startLocation), convert(targetLocation), mode);
+                    PlaceManagerUtils.findRoute(convert(startLocation), convert(targetLocation), mode);
                 }
             }
         });
@@ -364,7 +364,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     manager.hideSoftInputFromWindow(getView().findFocus().getWindowToken(), 0);
                 departureText.clearFocus();
                 if (startLocation != null && targetLocation != null && StringUtils.isNotEmpty(mode)) {
-                    navigation.findRoute(convert(startLocation), convert(targetLocation), mode);
+                    PlaceManagerUtils.findRoute(convert(startLocation), convert(targetLocation), mode);
                 }
             }
         });
@@ -402,7 +402,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         map = googleMap;
-        navigation = new NavigationLogic(googleMap);
+        PlaceManagerUtils.SetMap(googleMap);
 
         // Create GPS object
         gps = new GPSTrackerLogic(getParentFragment().getContext());
@@ -470,43 +470,34 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
     }
 
-    public void queryDestAutocomplete() {
+    public void queryAutocomplete(AutocompleteHandler.AutocompleteType type) {
         new Thread(() -> {
-            PlacesSearchResult[] places = navigation.nearbySearchQuery(destinationKeyword,
-                    convert(startLocation != null ? startLocation : currentLocation));
-            destLocationList.clear();
+            PlacesSearchResult[] places;
+            if (type == AutocompleteHandler.AutocompleteType.DEST) {
+                places = PlaceManagerUtils.nearbySearchQuery(destinationKeyword,
+                        convert(startLocation != null ? startLocation : currentLocation));
+                destLocationList.clear();
+            } else {
+                places = PlaceManagerUtils.nearbySearchQuery(departureKeyword,
+                        convert(targetLocation != null ? targetLocation : currentLocation));
+                deptLocationList.clear();
+            }
             for (PlacesSearchResult place : places) {
-                LocationDto location = new LocationDto();
-                location.setGmPlaceID(place.placeId);
-                location.setName(place.name);
-                location.setAddress(place.vicinity);
-                location.setLongitude(place.geometry.location.lng);
-                location.setLatitude(place.geometry.location.lat);
-                destLocationList.add(location);
+                LocationDto location = PlaceManagerUtils.queryDetail(place.placeId);
+                if (type == AutocompleteHandler.AutocompleteType.DEST) {
+                    destLocationList.add(location);
+                } else {
+                    deptLocationList.add(location);
+                }
             }
             // pass the results to original thread so that UI elements can be updated
-            UIHandler.post(() -> destPlacesListView.setAdapter(new LocationAdapter(getContext(),
-                    R.layout.autocomplete_location_item, destLocationList)));
-        }).start();
-    }
-
-    public void queryDeptAutocomplete() {
-        new Thread(() -> {
-            PlacesSearchResult[] places = navigation.nearbySearchQuery(departureKeyword,
-                    convert(targetLocation != null ? targetLocation : currentLocation));
-            deptLocationList.clear();
-            for (PlacesSearchResult place : places) {
-                LocationDto location = new LocationDto();
-                location.setGmPlaceID(place.placeId);
-                location.setName(place.name);
-                location.setAddress(place.vicinity);
-                location.setLongitude(place.geometry.location.lng);
-                location.setLatitude(place.geometry.location.lat);
-                deptLocationList.add(location);
+            if (type == AutocompleteHandler.AutocompleteType.DEST) {
+                UIHandler.post(() -> destPlacesListView.setAdapter(new LocationAdapter(getContext(),
+                        R.layout.autocomplete_location_item, destLocationList)));
+            } else {
+                UIHandler.post(() -> deptPlacesListView.setAdapter(new LocationAdapter(getContext(),
+                        R.layout.autocomplete_location_item, deptLocationList)));
             }
-            // pass the results to original thread so that UI elements can be updated
-            UIHandler.post(() -> deptPlacesListView.setAdapter(new LocationAdapter(getContext(),
-                    R.layout.autocomplete_location_item, deptLocationList)));
         }).start();
     }
 
