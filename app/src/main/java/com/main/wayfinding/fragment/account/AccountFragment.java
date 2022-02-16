@@ -118,45 +118,47 @@ public class AccountFragment extends Fragment {
         view.findViewById(R.id.register).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                View view2 = View.inflate(getContext(), R.layout.fragment_accountcreate, null);
-                AlertDialog dialog = new AlertDialog.Builder(getActivity()).setView(view2).show();
-                // set dialogue transparent
-                WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
-                lp.alpha = 1.0f;
-                dialog.getWindow().setAttributes(lp);
-
-                view2.findViewById(R.id.register).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        EditText usernameComponent = view2.findViewById(R.id.username);
-                        EditText passwordComponent = view2.findViewById(R.id.password);
-                        EditText firstNameComponent = view2.findViewById(R.id.firstName);
-                        EditText surnameComponent = view2.findViewById(R.id.surname);
-                        EditText countryComponent = view2.findViewById(R.id.country);
-                        EditText phoneNumberComponent = view2.findViewById(R.id.phoneNumber);
-                        String username = usernameComponent.getText().toString();
-                        String password = passwordComponent.getText().toString();
-                        UserDto userDto = new UserDto(
-                                firstNameComponent.getText().toString(),
-                                surnameComponent.getText().toString(),
-                                countryComponent.getText().toString(),
-                                phoneNumberComponent.getText().toString());
-                        //1.验证字符串规格（邮箱格式是否正确，密码最少6位等）
-                        if (isEmail(username) && (password.length() > 6)) {
-                            accountLogic.signUp(username, password, userDto);
-                            //关闭dialoglogin
-                            dialog.dismiss();
-                        } else {
-                            //2.反馈问题
-                            //如请填写账号密码等
-                            //额外文本框 控制显示提示信息
-                            AlertDialog dialogError = new AlertDialog.Builder(getActivity()).
-                                    setTitle("Error Format! Please re-input!").show();
-                        }
-
-
-                    }
-                });
+                 // 暂定该页功能都不要
+//                // 暂定废弃该页 所以该页功能都不要？
+//                View view2 = View.inflate(getContext(), R.layout.fragment_accountcreate, null);
+//                AlertDialog dialog = new AlertDialog.Builder(getActivity()).setView(view2).show();
+//                // set dialogue transparent
+//                WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
+//                lp.alpha = 1.0f;
+//                dialog.getWindow().setAttributes(lp);
+//
+//                view2.findViewById(R.id.register).setOnClickListener(new View.OnClickListener() {
+//                    @Override
+//                    public void onClick(View view) {
+//                        EditText usernameComponent = view2.findViewById(R.id.username);
+//                        EditText passwordComponent = view2.findViewById(R.id.password);
+//                        EditText firstNameComponent = view2.findViewById(R.id.firstName);
+//                        EditText surnameComponent = view2.findViewById(R.id.surname);
+//                        EditText countryComponent = view2.findViewById(R.id.country);
+//                        EditText phoneNumberComponent = view2.findViewById(R.id.phoneNumber);
+//                        String username = usernameComponent.getText().toString();
+//                        String password = passwordComponent.getText().toString();
+//                        UserDto userDto = new UserDto(
+//                                firstNameComponent.getText().toString(),
+//                                surnameComponent.getText().toString(),
+//                                countryComponent.getText().toString(),
+//                                phoneNumberComponent.getText().toString());
+//                        //1.验证字符串规格（邮箱格式是否正确，密码最少6位等）
+//                        if (isEmail(username) && (password.length() > 6)) {
+//                            accountLogic.signUp(username, password, userDto);
+//                            //关闭dialoglogin
+//                            dialog.dismiss();
+//                        } else {
+//                            //2.反馈问题
+//                            //如请填写账号密码等
+//                            //额外文本框 控制显示提示信息
+//                            AlertDialog dialogError = new AlertDialog.Builder(getActivity()).
+//                                    setTitle("Error Format! Please re-input!").show();
+//                        }
+//
+//
+//                    }
+//                });
 
 
             }
@@ -170,16 +172,16 @@ public class AccountFragment extends Fragment {
             }
         });
     }
-
+    //这里的text部分页注释掉
     public void reload() {
         FirebaseUser currentUser = auth.getCurrentUser();
-        if (currentUser != null) {
-            TextView status = getView().findViewById(R.id.tip);
-            status.setText(currentUser.getEmail());
-        } else {
-            TextView status = getView().findViewById(R.id.tip);
-            status.setText("Not logged in");
-        }
+//        if (currentUser != null) {
+//            TextView status = getView().findViewById(R.id.tip);
+//            status.setText(currentUser.getEmail());
+//        } else {
+//            TextView status = getView().findViewById(R.id.tip);
+//            status.setText("Not logged in");
+//        }
 
         new UserDBLogic().select(new OnCompleteListener<DataSnapshot>() {
             @Override

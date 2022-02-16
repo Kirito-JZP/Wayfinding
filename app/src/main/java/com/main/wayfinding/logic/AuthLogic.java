@@ -31,7 +31,7 @@ public class AuthLogic {
     public void setView(View view) {
         this.view = view;
     }
-
+    // 这段功能应该废弃
     public void signUp(String username, String password, UserDto userDto) {
         auth.createUserWithEmailAndPassword(username, password).addOnCompleteListener(new OnCompleteListener<AuthResult>() {
             @Override
@@ -60,7 +60,7 @@ public class AuthLogic {
                     status.setText(currentUser.getEmail());
                 }else {
                     TextView status = view.findViewById(R.id.tip);
-                    status.setText("Authentication failed.");
+                    status.setText("Failed.");
                     System.out.println(task.getException());
                 }
             }

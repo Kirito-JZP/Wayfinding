@@ -121,14 +121,14 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/login" />
-
+<!--     以下Text部分暂时只注释掉文本框内容 AuthLogic里有修改        -->
         <TextView
             android:id="@+id/tip"
-            android:layout_width="230dp"
+            android:layout_width="168dp"
             android:layout_height="67dp"
             android:layout_marginLeft="90dp"
             android:layout_marginTop="2dp"
-            android:text="not log in "
+            android:text="   "
             android:textSize="34sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
