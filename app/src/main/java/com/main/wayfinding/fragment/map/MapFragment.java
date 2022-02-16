@@ -202,7 +202,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     } else {
                         destinationText.setText("");
                     }
-
+                }
+                if (startLocation != null && targetLocation != null && StringUtils.isNotEmpty(mode)) {
+                    PlaceManagerUtils.findRoute(convert(startLocation), convert(targetLocation), mode);
                 }
             }
         });
@@ -272,6 +274,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             public void onClick(View view) {
                 Location location = gps.getLocation(getActivity());
                 resetCurrentPosition(location);
+                if (startLocation != null && targetLocation != null && StringUtils.isNotEmpty(mode)) {
+                    PlaceManagerUtils.findRoute(convert(startLocation), convert(targetLocation), mode);
+                }
             }
         });
 
