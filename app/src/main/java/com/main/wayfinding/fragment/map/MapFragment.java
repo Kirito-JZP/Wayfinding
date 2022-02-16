@@ -489,20 +489,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 deptLocationList.clear();
             }
             for (PlacesSearchResult place : places) {
-                LocationDto location = new LocationDto();
-                location.setGmPlaceID(place.placeId);
-                location.setName(place.name);
-                location.setAddress(place.vicinity);
-                location.setLongitude(place.geometry.location.lng);
-                location.setLatitude(place.geometry.location.lat);
-                if (place.photos != null) {
-                    location.setGmImgUrl("https://maps.googleapis.com/maps/api/place/photo?photo_reference="
-                            + place.photos[0].photoReference
-                            + "&maxheight=500&maxwidth=500&key="
-                            + WayfindingApp.getKey());
-                } else {
-                    location.setGmImgUrl("");
-                }
+                LocationDto location = PlaceManagerUtils.queryDetail(place.placeId);
                 if (type == AutocompleteHandler.AutocompleteType.DEST) {
                     destLocationList.add(location);
                 } else {
