@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RadioButton;
 import android.widget.TextView;
@@ -102,7 +103,7 @@ public class AccountFragment extends Fragment {
                         if (TextUtils.isEmpty(username) || TextUtils.isEmpty(password)){
                             AlertDialog dialogEmpty = new AlertDialog.Builder(getActivity()).
                                     setTitle("Empty! Please input").show();
-                        }else if(!isEmail(username) && (password.length() < 6)){
+                        }else if(!isEmail(username) || (password.length() < 6)){
                             AlertDialog dialogError = new AlertDialog.Builder(getActivity()).
                                     setTitle("Error Email Format or Password too short!").show();
                         } else{
@@ -144,7 +145,7 @@ public class AccountFragment extends Fragment {
                                 countryComponent.getText().toString(),
                                 phoneNumberComponent.getText().toString());
                         //获取单选框
-                        RadioButton checkbox = view2.findViewById(R.id.checkBox);
+                        CheckBox checkbox = view2.findViewById(R.id.checkBox);
 
 
                         //1.验证字符串规格（邮箱格式是否正确，密码最少6位等）
@@ -189,7 +190,7 @@ public class AccountFragment extends Fragment {
             }
         });
     }
-    //这里的text部分页注释掉
+    //这里的text部分bu 注释掉
     public void reload() {
         FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser != null) {
