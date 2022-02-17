@@ -94,7 +94,7 @@ public class PlaceManagerUtils {
     public static GeocodingApiRequest reverseGeocode(LatLng latlng) {
         GeocodingApiRequest request = new GeocodingApiRequest(WayfindingApp.getGeoApiContext());
         request.locationType(LocationType.ROOFTOP);
-        request.latlng(LatLngConverter.convert(latlng));
+        request.latlng(LatLngConverterUtils.convert(latlng));
         return request;
     }
 
@@ -109,7 +109,7 @@ public class PlaceManagerUtils {
             for (DirectionsRoute route : result.routes) {
                 PlaceManagerUtils.map.addPolyline(new PolylineOptions()
                         .clickable(true)
-                        .addAll(LatLngConverter.convert(route.overviewPolyline.decodePath())));
+                        .addAll(LatLngConverterUtils.convert(route.overviewPolyline.decodePath())));
                 max_lat = Math.max(max_lat, route.bounds.northeast.lat);
                 min_lat = Math.min(min_lat, route.bounds.southwest.lat);
                 max_lng = Math.max(max_lng, route.bounds.northeast.lng);
@@ -137,7 +137,7 @@ public class PlaceManagerUtils {
             for (DirectionsRoute route : result.routes) {
                 PlaceManagerUtils.map.addPolyline(new PolylineOptions()
                         .clickable(true)
-                        .addAll(LatLngConverter.convert(route.overviewPolyline.decodePath())));
+                        .addAll(LatLngConverterUtils.convert(route.overviewPolyline.decodePath())));
                 max_lat = Math.max(max_lat, route.bounds.northeast.lat);
                 min_lat = Math.min(min_lat, route.bounds.southwest.lat);
                 max_lng = Math.max(max_lng, route.bounds.northeast.lng);
@@ -165,7 +165,7 @@ public class PlaceManagerUtils {
             for (DirectionsRoute route : result.routes) {
                 PlaceManagerUtils.map.addPolyline(new PolylineOptions()
                         .clickable(true)
-                        .addAll(LatLngConverter.convert(route.overviewPolyline.decodePath())));
+                        .addAll(LatLngConverterUtils.convert(route.overviewPolyline.decodePath())));
                 max_lat = Math.max(max_lat, route.bounds.northeast.lat);
                 min_lat = Math.min(min_lat, route.bounds.southwest.lat);
                 max_lng = Math.max(max_lng, route.bounds.northeast.lng);
@@ -184,7 +184,7 @@ public class PlaceManagerUtils {
     public static LatLng queryLatLng(String placeID) {
         try {
             PlaceDetails detail = PlacesApi.placeDetails(WayfindingApp.getGeoApiContext(), placeID).await();
-            return LatLngConverter.convert(detail.geometry.location);
+            return LatLngConverterUtils.convert(detail.geometry.location);
         } catch (ApiException | InterruptedException | IOException e) {
             e.printStackTrace();
             return null;
@@ -235,7 +235,7 @@ public class PlaceManagerUtils {
     public static PlacesSearchResult[] nearbySearchQuery(String keyword, LatLng location) {
         NearbySearchRequest request = new NearbySearchRequest(WayfindingApp.getGeoApiContext());
         request.keyword(keyword);
-        request.location(LatLngConverter.convert(location));
+        request.location(LatLngConverterUtils.convert(location));
         request.radius(5000);
         try {
             return request.await().results;
@@ -248,7 +248,7 @@ public class PlaceManagerUtils {
     public static PlacesSearchResponse nearbySearchQuery(String keyword, LatLng location, int radius) {
         NearbySearchRequest request = new NearbySearchRequest(WayfindingApp.getGeoApiContext());
         request.keyword(keyword);
-        request.location(LatLngConverter.convert(location));
+        request.location(LatLngConverterUtils.convert(location));
         request.radius(radius);
         try {
             return request.await();
@@ -259,7 +259,7 @@ public class PlaceManagerUtils {
     }
 
     private static DirectionsApiRequest getDirections(LatLng orig, LatLng dest) {
-        return new DirectionsApiRequest(WayfindingApp.getGeoApiContext()).origin(LatLngConverter.convert(orig)).destination(LatLngConverter.convert(dest));
+        return new DirectionsApiRequest(WayfindingApp.getGeoApiContext()).origin(LatLngConverterUtils.convert(orig)).destination(LatLngConverterUtils.convert(dest));
     }
 
     private static DirectionsApiRequest getDirections(LatLng orig, LatLng dest, String mode) {
@@ -280,6 +280,6 @@ public class PlaceManagerUtils {
             default:
                 travelMode = TravelMode.WALKING;
         }
-        return new DirectionsApiRequest(WayfindingApp.getGeoApiContext()).origin(LatLngConverter.convert(orig)).destination(LatLngConverter.convert(dest)).mode(travelMode);
+        return new DirectionsApiRequest(WayfindingApp.getGeoApiContext()).origin(LatLngConverterUtils.convert(orig)).destination(LatLngConverterUtils.convert(dest)).mode(travelMode);
     }
 }
