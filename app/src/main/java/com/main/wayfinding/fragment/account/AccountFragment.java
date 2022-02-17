@@ -87,7 +87,7 @@ public class AccountFragment extends Fragment {
             public void onClick(View view) {
                 View loginView = View.inflate(getContext(), R.layout.fragment_accountlogin, null);
 
-                AlertDialog dialoglogin = new AlertDialog.Builder(getActivity()).setView(loginView).show();
+                AlertDialog dialogLogin = new AlertDialog.Builder(getActivity()).setView(loginView).show();
 
 
                 loginView.findViewById(R.id.confirm).setOnClickListener(new View.OnClickListener() {
@@ -111,7 +111,7 @@ public class AccountFragment extends Fragment {
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if(task.isSuccessful()){
                                         //关闭dialoglogin
-                                        dialoglogin.dismiss();
+                                        dialogLogin.dismiss();
                                         reload();
 
                                     }else {
@@ -139,11 +139,11 @@ public class AccountFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 View signUpView = View.inflate(getContext(), R.layout.fragment_accountcreate, null);
-                AlertDialog dialog = new AlertDialog.Builder(getActivity()).setView(signUpView).show();
+                AlertDialog dialogCreate = new AlertDialog.Builder(getActivity()).setView(signUpView).show();
                 // set dialogue transparent
-                WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
+                WindowManager.LayoutParams lp = dialogCreate.getWindow().getAttributes();
                 lp.alpha = 1.0f;
-                dialog.getWindow().setAttributes(lp);
+                dialogCreate.getWindow().setAttributes(lp);
                 // 注册验证
                 signUpView.findViewById(R.id.create_account).setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -198,7 +198,7 @@ public class AccountFragment extends Fragment {
                                 }
                             });
                             //关闭dialoglogin
-                            dialog.dismiss();
+                            dialogCreate.dismiss();
                         }
 
 
