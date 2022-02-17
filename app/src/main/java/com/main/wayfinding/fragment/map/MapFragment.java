@@ -1,7 +1,7 @@
 package com.main.wayfinding.fragment.map;
 
 import static com.main.wayfinding.utility.PlaceManagerUtils.findLocationGeoMsg;
-import static com.main.wayfinding.utility.LatLngConverter.convert;
+import static com.main.wayfinding.utility.LatLngConverterUtils.convert;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -35,14 +35,13 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.model.PlacesSearchResult;
 import com.main.wayfinding.R;
-import com.main.wayfinding.WayfindingApp;
 import com.main.wayfinding.adapter.LocationAdapter;
 import com.main.wayfinding.databinding.FragmentMapBinding;
 import com.main.wayfinding.dto.LocationDto;
 import com.main.wayfinding.logic.DB.LocationDBLogic;
 import com.main.wayfinding.logic.GPSTrackerLogic;
 import com.main.wayfinding.logic.NavigationLogic;
-import com.main.wayfinding.utility.AutocompleteHandler;
+import com.main.wayfinding.utility.AutoCompleteUtils;
 
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -89,7 +88,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private RelativeLayout setDeparture;
     private RelativeLayout setDestination;
     private FrameLayout bottomsheet;
-    private AutocompleteHandler autocompleteHandler;
+    private AutoCompleteUtils autoCompleteUtils;
     private Handler UIHandler;
     private int autocompleteDelay = 500;
     private String mode = "walking";
@@ -167,8 +166,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         destScrollView = view.findViewById(R.id.dest_scrollview);
         deptScrollView = view.findViewById(R.id.dept_scrollview);
 
-        autocompleteHandler = new AutocompleteHandler();
-        autocompleteHandler.setFragment(this);
+        autoCompleteUtils = new AutoCompleteUtils();
+        autoCompleteUtils.setFragment(this);
         UIHandler = new Handler();
         destLocationList = new ArrayList<>();
         deptLocationList = new ArrayList<>();
@@ -202,7 +201,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     } else {
                         destinationText.setText("");
                     }
-
+                }
+                if (startLocation != null && targetLocation != null && StringUtils.isNotEmpty(mode)) {
+                    PlaceManagerUtils.findRoute(convert(startLocation), convert(targetLocation), mode);
                 }
             }
         });
@@ -272,6 +273,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             public void onClick(View view) {
                 Location location = gps.getLocation(getActivity());
                 resetCurrentPosition(location);
+                if (startLocation != null && targetLocation != null && StringUtils.isNotEmpty(mode)) {
+                    PlaceManagerUtils.findRoute(convert(startLocation), convert(targetLocation), mode);
+                }
             }
         });
 
@@ -293,12 +297,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if (getView().findFocus() == destinationText) {
                     destinationKeyword = charSequence.toString().trim();
-                    if (autocompleteHandler.hasMessages(AutocompleteHandler.TRIGGER_DEST_MSG)) {
-                        autocompleteHandler.removeMessages(AutocompleteHandler.TRIGGER_DEST_MSG);
+                    if (autoCompleteUtils.hasMessages(AutoCompleteUtils.TRIGGER_DEST_MSG)) {
+                        autoCompleteUtils.removeMessages(AutoCompleteUtils.TRIGGER_DEST_MSG);
                     }
                     Message msg = new Message();
-                    msg.what = AutocompleteHandler.TRIGGER_DEST_MSG;
-                    autocompleteHandler.sendMessageDelayed(msg, autocompleteDelay);
+                    msg.what = AutoCompleteUtils.TRIGGER_DEST_MSG;
+                    autoCompleteUtils.sendMessageDelayed(msg, autocompleteDelay);
                 }
             }
 
@@ -316,12 +320,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 if (getView().findFocus() == departureText) {
                     departureKeyword = charSequence.toString().trim();
-                    if (autocompleteHandler.hasMessages(AutocompleteHandler.TRIGGER_DEPT_MSG)) {
-                        autocompleteHandler.removeMessages(AutocompleteHandler.TRIGGER_DEPT_MSG);
+                    if (autoCompleteUtils.hasMessages(AutoCompleteUtils.TRIGGER_DEPT_MSG)) {
+                        autoCompleteUtils.removeMessages(AutoCompleteUtils.TRIGGER_DEPT_MSG);
                     }
                     Message msg = new Message();
-                    msg.what = AutocompleteHandler.TRIGGER_DEPT_MSG;
-                    autocompleteHandler.sendMessageDelayed(msg, autocompleteDelay);
+                    msg.what = AutoCompleteUtils.TRIGGER_DEPT_MSG;
+                    autoCompleteUtils.sendMessageDelayed(msg, autocompleteDelay);
                 }
             }
 
@@ -477,10 +481,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
     }
 
-    public void queryAutocomplete(AutocompleteHandler.AutocompleteType type) {
+    public void queryAutocomplete(AutoCompleteUtils.AutocompleteType type) {
         new Thread(() -> {
             PlacesSearchResult[] places;
-            if (type == AutocompleteHandler.AutocompleteType.DEST) {
+            if (type == AutoCompleteUtils.AutocompleteType.DEST) {
                 places = PlaceManagerUtils.nearbySearchQuery(destinationKeyword,
                         convert(startLocation != null ? startLocation : currentLocation));
                 destLocationList.clear();
@@ -491,14 +495,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
             for (PlacesSearchResult place : places) {
                 LocationDto location = PlaceManagerUtils.queryDetail(place.placeId);
-                if (type == AutocompleteHandler.AutocompleteType.DEST) {
+                if (type == AutoCompleteUtils.AutocompleteType.DEST) {
                     destLocationList.add(location);
                 } else {
                     deptLocationList.add(location);
                 }
             }
             // pass the results to original thread so that UI elements can be updated
-            if (type == AutocompleteHandler.AutocompleteType.DEST) {
+            if (type == AutoCompleteUtils.AutocompleteType.DEST) {
                 UIHandler.post(() -> destPlacesListView.setAdapter(new LocationAdapter(getContext(),
                         R.layout.autocomplete_location_item, destLocationList)));
             } else {

@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -50,9 +51,6 @@ public class AccountFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentAccountBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        accountLogic.setView(root);
-
-
 
         return root;
     }
@@ -107,9 +105,18 @@ public class AccountFragment extends Fragment {
                             AlertDialog dialogError = new AlertDialog.Builder(getActivity()).
                                     setTitle("Error Email Format or Password too short!").show();
                         } else{
-                            accountLogic.login(username, password);
-                            //关闭dialoglogin
-                            dialoglogin.dismiss();
+                            accountLogic.login(username, password, new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if(task.isSuccessful()){
+                                        //关闭dialoglogin
+                                        dialoglogin.dismiss();
+                                    }else {
+                                        System.out.println(task.getException());
+                                    }
+                                }
+                            });
+
                         }
                     }
                 });
@@ -121,22 +128,22 @@ public class AccountFragment extends Fragment {
         view.findViewById(R.id.register).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                View view2 = View.inflate(getContext(), R.layout.fragment_accountcreate, null);
-                AlertDialog dialog = new AlertDialog.Builder(getActivity()).setView(view2).show();
+                View signUpView = View.inflate(getContext(), R.layout.fragment_accountcreate, null);
+                AlertDialog dialog = new AlertDialog.Builder(getActivity()).setView(signUpView).show();
                 // set dialogue transparent
                 WindowManager.LayoutParams lp = dialog.getWindow().getAttributes();
                 lp.alpha = 1.0f;
                 dialog.getWindow().setAttributes(lp);
                 // 注册验证
-                view2.findViewById(R.id.register).setOnClickListener(new View.OnClickListener() {
+                signUpView.findViewById(R.id.register).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        EditText usernameComponent = view2.findViewById(R.id.username);
-                        EditText passwordComponent = view2.findViewById(R.id.password);
-                        EditText firstNameComponent = view2.findViewById(R.id.firstName);
-                        EditText surnameComponent = view2.findViewById(R.id.surname);
-                        EditText countryComponent = view2.findViewById(R.id.country);
-                        EditText phoneNumberComponent = view2.findViewById(R.id.phoneNumber);
+                        EditText usernameComponent = signUpView.findViewById(R.id.username);
+                        EditText passwordComponent = signUpView.findViewById(R.id.password);
+                        EditText firstNameComponent = signUpView.findViewById(R.id.firstName);
+                        EditText surnameComponent = signUpView.findViewById(R.id.surname);
+                        EditText countryComponent = signUpView.findViewById(R.id.country);
+                        EditText phoneNumberComponent = signUpView.findViewById(R.id.phoneNumber);
                         String username = usernameComponent.getText().toString();
                         String password = passwordComponent.getText().toString();
                         UserDto userDto = new UserDto(
@@ -145,7 +152,7 @@ public class AccountFragment extends Fragment {
                                 countryComponent.getText().toString(),
                                 phoneNumberComponent.getText().toString());
                         //获取单选框
-                        CheckBox checkbox = view2.findViewById(R.id.checkBox);
+                        CheckBox checkbox = signUpView.findViewById(R.id.checkBox);
 
 
                         //1.验证字符串规格（邮箱格式是否正确，密码最少6位等）
@@ -169,7 +176,16 @@ public class AccountFragment extends Fragment {
                         }
                         else {
                             //登录
-                            accountLogic.signUp(username, password, userDto);
+                            accountLogic.signUp(username, password, new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if (task.isSuccessful()) {
+                                        new UserDBLogic().insert(userDto);
+                                    } else {
+                                        System.out.println(task.getException());
+                                    }
+                                }
+                            });
                             //关闭dialoglogin
                             dialog.dismiss();
                         }
@@ -194,32 +210,32 @@ public class AccountFragment extends Fragment {
     public void reload() {
         FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser != null) {
-            TextView status = getView().findViewById(R.id.tip);
-            status.setText(currentUser.getEmail());
+            // if logged in, query and render user information
+            new UserDBLogic().select(new OnCompleteListener<DataSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DataSnapshot> task) {
+                    if(task.isSuccessful()){
+                        UserDto userDto = task.getResult().getValue(UserDto.class);
+                        // 3 输出到layout
+                        TextView status_fisrtname = getView().findViewById(R.id.firstName);
+                        status_fisrtname.setText(userDto.getFirstName());
+                        TextView status_surname = getView().findViewById(R.id.surname);
+                        status_surname.setText(userDto.getSurname());
+                        TextView status_country = getView().findViewById(R.id.country);
+                        status_country.setText(userDto.getCountry());
+                        TextView status_phone = getView().findViewById(R.id.phoneNumber);
+                        status_phone.setText(userDto.getPhoneNumber());
+                    }else {
+                        System.out.println(task.getException());
+                    }
+                }
+            });
         } else {
-            TextView status = getView().findViewById(R.id.tip);
-            status.setText(" "); // 暂时不提示
+            //如果没登录
+            //...
         }
 
-        new UserDBLogic().select(new OnCompleteListener<DataSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DataSnapshot> task) {
-                if(task.isSuccessful()){
-                    UserDto userDto = task.getResult().getValue(UserDto.class);
-                    // 3 输出到layout
-                    TextView status_fisrtname = getView().findViewById(R.id.firstName);
-                    status_fisrtname.setText(userDto.getFirstName());
-                    TextView status_surname = getView().findViewById(R.id.surname);
-                    status_surname.setText(userDto.getSurname());
-                    TextView status_country = getView().findViewById(R.id.country);
-                    status_country.setText(userDto.getCountry());
-                    TextView status_phone = getView().findViewById(R.id.phoneNumber);
-                    status_phone.setText(userDto.getPhoneNumber());
-                }else {
-                    System.out.println(task.getException());
-                }
-            }
-        });
+
     }
 
     public static boolean isEmail(String strEmail) {
