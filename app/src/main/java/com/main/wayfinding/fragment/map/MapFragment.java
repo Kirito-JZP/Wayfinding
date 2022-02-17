@@ -391,6 +391,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     deptPlacesListView.setAdapter(new LocationAdapter(getContext(),
                             R.layout.autocomplete_location_item, deptLocationList));
                     deptScrollView.setVisibility(View.VISIBLE);
+                    deptScrollView.bringToFront();
                 } else {
                     deptPlacesListView.setAdapter(null);
                     deptScrollView.setVisibility(View.INVISIBLE);
