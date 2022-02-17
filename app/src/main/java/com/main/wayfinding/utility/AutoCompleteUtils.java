@@ -17,7 +17,7 @@ import com.main.wayfinding.fragment.map.MapFragment;
  */
 
 
-public class AutocompleteHandler extends Handler {
+public class AutoCompleteUtils extends Handler {
     public enum AutocompleteType {
         DEST, DEPT
     }

@@ -14,7 +14,7 @@ import java.util.List;
  * @version Revision: 0
  * Date: 2022/1/26 19:50
  */
-public class LatLngConverter {
+public class LatLngConverterUtils {
     public static LatLng convert(com.google.maps.model.LatLng ll) {
         return new LatLng(ll.lat, ll.lng);
     }
