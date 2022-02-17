@@ -1,5 +1,6 @@
 package com.main.wayfinding.fragment.account;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -111,8 +112,10 @@ public class AccountFragment extends Fragment {
                                     if(task.isSuccessful()){
                                         //关闭dialoglogin
                                         dialoglogin.dismiss();
+                                        reload();
                                     }else {
                                         System.out.println(task.getException());
+                                        System.out.println(task.getResult());
                                     }
                                 }
                             });
@@ -181,6 +184,7 @@ public class AccountFragment extends Fragment {
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
                                         new UserDBLogic().insert(userDto);
+                                        reload();
                                     } else {
                                         System.out.println(task.getException());
                                     }
@@ -207,8 +211,14 @@ public class AccountFragment extends Fragment {
         });
     }
     //这里的text部分bu 注释掉
+    @SuppressLint("SetTextI18n")
     public void reload() {
         FirebaseUser currentUser = auth.getCurrentUser();
+        TextView status_firstname = getView().findViewById(R.id.firstName);
+        TextView status_surname = getView().findViewById(R.id.surname);
+        TextView status_country = getView().findViewById(R.id.country);
+        TextView status_email = getView().findViewById(R.id.email);
+        TextView status_phone = getView().findViewById(R.id.phoneNumber);
         if (currentUser != null) {
             // if logged in, query and render user information
             new UserDBLogic().select(new OnCompleteListener<DataSnapshot>() {
@@ -217,22 +227,24 @@ public class AccountFragment extends Fragment {
                     if(task.isSuccessful()){
                         UserDto userDto = task.getResult().getValue(UserDto.class);
                         // 3 输出到layout
-                        TextView status_fisrtname = getView().findViewById(R.id.firstName);
-                        status_fisrtname.setText(userDto.getFirstName());
-                        TextView status_surname = getView().findViewById(R.id.surname);
+                        status_firstname.setText(userDto.getFirstName());
                         status_surname.setText(userDto.getSurname());
-                        TextView status_country = getView().findViewById(R.id.country);
                         status_country.setText(userDto.getCountry());
-                        TextView status_phone = getView().findViewById(R.id.phoneNumber);
+                        status_email.setText(currentUser.getEmail());
                         status_phone.setText(userDto.getPhoneNumber());
                     }else {
-                        System.out.println(task.getException());
+                        System.out.println(task.getException().getMessage());
                     }
                 }
             });
         } else {
             //如果没登录
             //...
+            status_firstname.setText("First Name");
+            status_surname.setText("Surname");
+            status_country.setText("Country");
+            status_email.setText("Email");
+            status_phone.setText("Phone Number");
         }
 
 
