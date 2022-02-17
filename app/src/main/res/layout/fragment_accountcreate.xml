@@ -10,7 +10,7 @@
 
 
     <ImageView
-        android:id="@+id/touxiang"
+        android:id="@+id/avatar"
         android:layout_width="383dp"
         android:layout_height="144dp"
         android:layout_centerHorizontal="true"
@@ -19,10 +19,10 @@
 
 
     <ScrollView
-        android:id="@+id/userdetails"
+        android:id="@+id/user_details"
         android:layout_width="match_parent"
         android:layout_height="339dp"
-        android:layout_below="@+id/touxiang"
+        android:layout_below="@+id/avatar"
         android:layout_marginLeft="80dp"
         android:layout_marginRight="80dp">
 
@@ -50,7 +50,7 @@
                 android:minHeight="70dp" />
 
             <EditText
-                android:id="@+id/firstName"
+                android:id="@+id/first_name"
                 android:layout_width="232dp"
                 android:layout_height="50dp"
                 android:ems="10"
@@ -72,11 +72,11 @@
                 android:layout_width="232dp"
                 android:layout_height="50dp"
                 android:ems="10"
-                android:hint="country"
+                android:hint="Country"
                 android:minHeight="70dp" />
 
             <EditText
-                android:id="@+id/phoneNumber"
+                android:id="@+id/phone_number"
                 android:layout_width="232dp"
                 android:layout_height="50dp"
                 android:ems="10"
@@ -91,13 +91,13 @@
         android:id="@+id/checkBox"
         android:layout_width="250dp"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/userdetails"
+        android:layout_below="@+id/user_details"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="1dp"
         android:text="Agree with Term and Conditions" />
 
     <Button
-        android:id="@+id/register"
+        android:id="@+id/create_account"
         android:layout_width="250dp"
         android:layout_height="wrap_content"
         android:layout_below="@id/checkBox"
