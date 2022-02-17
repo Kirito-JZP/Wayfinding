@@ -210,32 +210,32 @@ public class AccountFragment extends Fragment {
     public void reload() {
         FirebaseUser currentUser = auth.getCurrentUser();
         if (currentUser != null) {
-            TextView status = getView().findViewById(R.id.tip);
-            status.setText(currentUser.getEmail());
+            // if logged in, query and render user information
+            new UserDBLogic().select(new OnCompleteListener<DataSnapshot>() {
+                @Override
+                public void onComplete(@NonNull Task<DataSnapshot> task) {
+                    if(task.isSuccessful()){
+                        UserDto userDto = task.getResult().getValue(UserDto.class);
+                        // 3 输出到layout
+                        TextView status_fisrtname = getView().findViewById(R.id.firstName);
+                        status_fisrtname.setText(userDto.getFirstName());
+                        TextView status_surname = getView().findViewById(R.id.surname);
+                        status_surname.setText(userDto.getSurname());
+                        TextView status_country = getView().findViewById(R.id.country);
+                        status_country.setText(userDto.getCountry());
+                        TextView status_phone = getView().findViewById(R.id.phoneNumber);
+                        status_phone.setText(userDto.getPhoneNumber());
+                    }else {
+                        System.out.println(task.getException());
+                    }
+                }
+            });
         } else {
-            TextView status = getView().findViewById(R.id.tip);
-            status.setText(" "); // 暂时不提示
+            //如果没登录
+            //...
         }
 
-        new UserDBLogic().select(new OnCompleteListener<DataSnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<DataSnapshot> task) {
-                if(task.isSuccessful()){
-                    UserDto userDto = task.getResult().getValue(UserDto.class);
-                    // 3 输出到layout
-                    TextView status_fisrtname = getView().findViewById(R.id.firstName);
-                    status_fisrtname.setText(userDto.getFirstName());
-                    TextView status_surname = getView().findViewById(R.id.surname);
-                    status_surname.setText(userDto.getSurname());
-                    TextView status_country = getView().findViewById(R.id.country);
-                    status_country.setText(userDto.getCountry());
-                    TextView status_phone = getView().findViewById(R.id.phoneNumber);
-                    status_phone.setText(userDto.getPhoneNumber());
-                }else {
-                    System.out.println(task.getException());
-                }
-            }
-        });
+
     }
 
     public static boolean isEmail(String strEmail) {
