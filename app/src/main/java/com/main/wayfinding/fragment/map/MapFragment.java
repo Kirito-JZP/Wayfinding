@@ -5,6 +5,7 @@ import static com.main.wayfinding.utility.LatLngConverterUtils.convert;
 import static com.main.wayfinding.utility.PlaceManagerUtils.queryDetail;
 
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
@@ -39,6 +40,8 @@ import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PointOfInterest;
 import com.google.maps.model.PlacesSearchResult;
+import com.main.wayfinding.ARNavigationActivity;
+import com.main.wayfinding.MainActivity;
 import com.main.wayfinding.R;
 import com.main.wayfinding.adapter.LocationAdapter;
 import com.main.wayfinding.databinding.FragmentMapBinding;
@@ -106,7 +109,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private EditText destinationText;
     private ImageView addImage;
     private ImageView exchangeImage;
-
+    private ImageView arBtn;
     private ImageView navigate;
     private ImageView position;
     private ImageView departureTextClear;
@@ -162,7 +165,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         setDeparture = view.findViewById(R.id.set_departure_btn);
         setDestination = view.findViewById(R.id.set_destination_btn);
         locationImg = view.findViewById(R.id.location_img);
-
+        arBtn = view.findViewById(R.id.arBtn);
         //bottom sheet
         bottomsheet = view.findViewById(R.id.bottomsheet);
 
@@ -185,7 +188,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 new LocationDBLogic().insert(targetLocation);
             }
         });
-
+        arBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent=new Intent(getActivity(), ARNavigationActivity.class);
+                startActivity(intent);
+            }
+        });
         exchangeImage.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
