@@ -2,14 +2,17 @@ package com.main.wayfinding;
 
 import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.view.View;
 
 import com.google.ar.sceneform.ux.ArFragment;
 import com.main.wayfinding.databinding.ActivityArnavigationBinding;
 
 /**
- * An example full-screen activity that shows and hides the system UI (i.e.
- * status bar and navigation/system bar) with user interaction.
+ * Define the activity for AR navigation
+ *
+ * @author JIA
+ * @author Last Modified By JIA
+ * @version Revision: 0
+ * Date: 2022/2/18 15:43
  */
 public class ARNavigationActivity extends AppCompatActivity {
 
