@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RadioButton;
@@ -81,7 +82,7 @@ public class AccountFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        // jump by dialogue 登录检验
+        // 登录检验 jump by dialogue
         view.findViewById(R.id.login).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -204,7 +205,13 @@ public class AccountFragment extends Fragment {
 
                     }
                 });
+                // 添加头像 还没加
+                signUpView.findViewById(R.id.avatar).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
 
+                    }
+                });
 
             }
         });
@@ -218,16 +225,26 @@ public class AccountFragment extends Fragment {
 
             }
         });
+
+
+
     }
     //when click the AccountFragment page, execute
     @SuppressLint("SetTextI18n")
     public void reload() {
         FirebaseUser currentUser = auth.getCurrentUser();
-        TextView status_firstname = getView().findViewById(R.id.first_name);
-        TextView status_surname = getView().findViewById(R.id.surname);
-        TextView status_country = getView().findViewById(R.id.country);
-        TextView status_email = getView().findViewById(R.id.email);
-        TextView status_phone = getView().findViewById(R.id.phone_number);
+        EditText status_firstname = getView().findViewById(R.id.first_name);
+        EditText status_surname = getView().findViewById(R.id.surname);
+        EditText status_country = getView().findViewById(R.id.country);
+        EditText status_email = getView().findViewById(R.id.email);
+        EditText status_phone = getView().findViewById(R.id.phone_number);
+
+        status_firstname.setEnabled(false);
+        status_surname.setEnabled(false);
+        status_country.setEnabled(false);
+        status_email.setEnabled(false);
+        status_phone.setEnabled(false);
+
         if (currentUser != null) {
             // if logged in, query and render user information
             new UserDBLogic().select(new OnCompleteListener<DataSnapshot>() {
@@ -241,15 +258,66 @@ public class AccountFragment extends Fragment {
                         status_country.setText(userDto.getCountry());
                         status_email.setText(currentUser.getEmail());
                         status_phone.setText(userDto.getPhoneNumber());
+
+
+
+                        getView().findViewById(R.id.edit).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                // 设置为可编辑状态
+                                status_firstname.setEnabled(true);
+                                status_surname.setEnabled(true);
+                                status_country.setEnabled(true);
+                                status_phone.setEnabled(true);
+
+                                // 有值的情况下点edit 修改两个隐藏按钮back&confirm为可见，
+                                // 修改两个按钮(edit&signout)为gone,并设置点击事件
+                                getView().findViewById(R.id.edit_back).setVisibility(View.VISIBLE);
+                                getView().findViewById(R.id.edit).setVisibility(View.GONE);
+                                // 设置back按钮的点击事件....
+                                getView().findViewById(R.id.edit_back).setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        // 回复两个按钮可见和两个不可见
+                                        getView().findViewById(R.id.edit_back).setVisibility(View.GONE);
+                                        getView().findViewById(R.id.edit).setVisibility(View.VISIBLE);
+                                        getView().findViewById(R.id.confirm_edit).setVisibility(View.GONE);
+                                        getView().findViewById(R.id.sign_out).setVisibility(View.VISIBLE);
+                                        reload();
+                                    }
+                                });
+
+                                // 设置confirm事件
+                                View editView = getView();
+                                editView.findViewById(R.id.confirm_edit).setVisibility(View.VISIBLE);
+                                editView.findViewById(R.id.sign_out).setVisibility(View.GONE);
+
+                                editView.findViewById(R.id.confirm_edit).setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        userDto.setFisrtName(status_firstname.getText().toString());
+                                        userDto.setSurname(status_surname.getText().toString());
+                                        userDto.setCountry(status_country.getText().toString());
+                                        userDto.setPhoneNumber(status_phone.getText().toString());
+                                        // 更新数据
+                                        new UserDBLogic().update(userDto);
+                                        reload();
+                                    }
+                                });
+                            }
+                        });
+
                     }else {
                         System.out.println(task.getException().getMessage());
                     }
                 }
             });
+
             //如果roald时currentUser里有值 这只登录 和 注册 按钮为隐藏，登出显示
-            getView().findViewById(R.id.login).setAlpha(0);
-            getView().findViewById(R.id.sign_up).setAlpha(0);
-            getView().findViewById(R.id.sign_out).setAlpha(1);
+            getView().findViewById(R.id.login).setVisibility(View.GONE); //可以不要?
+            getView().findViewById(R.id.sign_up).setVisibility(View.GONE);
+            getView().findViewById(R.id.sign_out).setVisibility(View.VISIBLE);
+            getView().findViewById(R.id.edit).setVisibility(View.VISIBLE);
 
 
 
@@ -262,14 +330,16 @@ public class AccountFragment extends Fragment {
             status_email.setText("Email");
             status_phone.setText("Phone Number");
 
-            getView().findViewById(R.id.login).setAlpha(1);
-            getView().findViewById(R.id.sign_up).setAlpha(1);
-            getView().findViewById(R.id.sign_out).setAlpha(1);
+
 
             //如果roald时currentUser里无值 这只login和sign_up button为显示，登出隐藏
-            getView().findViewById(R.id.sign_out).setAlpha(0);
-            getView().findViewById(R.id.login).setAlpha(1);
-            getView().findViewById(R.id.sign_up).setAlpha(1);
+            getView().findViewById(R.id.sign_out).setVisibility(View.GONE);
+            getView().findViewById(R.id.edit).setVisibility(View.GONE);
+            getView().findViewById(R.id.login).setVisibility(View.VISIBLE);
+            getView().findViewById(R.id.sign_up).setVisibility(View.VISIBLE);
+
+
+
         }
 
 
