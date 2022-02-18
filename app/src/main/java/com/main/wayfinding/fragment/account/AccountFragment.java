@@ -12,6 +12,7 @@ import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
@@ -46,6 +47,10 @@ public class AccountFragment extends Fragment {
     private FragmentAccountBinding binding;
     private FirebaseAuth auth;
     private AuthLogic accountLogic;
+    //调取系统摄像头的请求码
+    private static final int MY_ADD_CASE_CALL_PHONE = 6;
+    //打开相册的请求码
+    private static final int MY_ADD_CASE_CALL_PHONE2 = 7;
 
     public static Pattern p =
             Pattern.compile("\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*");
@@ -203,13 +208,42 @@ public class AccountFragment extends Fragment {
                         }
 
 
+
                     }
                 });
-                // 添加头像 还没加
+
+                // 添加头像 这里怎么优化代码？重复
                 signUpView.findViewById(R.id.avatar).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        View avatarView = View.inflate(getContext(), R.layout.fragment_avatar, null);
+                        AlertDialog dialogAvatar = new AlertDialog.Builder(getActivity()).setView(avatarView).show();
+                        //在这里优化？
+                        TextView avatar_photo = (TextView) avatarView.findViewById(R.id.photo);
+                        TextView avatar_photograph = (TextView) avatarView.findViewById(R.id.photograph);
+                        TextView avatar_cancel = (TextView) avatarView.findViewById(R.id.cancel);
 
+                        avatar_photo.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                System.out.println("拍照");
+                            }
+                        });
+
+                        avatar_photograph.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                System.out.println("从相册读取");
+                            }
+                        });
+
+                        avatar_cancel.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                dialogAvatar.dismiss();
+                            }
+                        });
+                        //
                     }
                 });
 
@@ -301,9 +335,17 @@ public class AccountFragment extends Fragment {
                                         userDto.setPhoneNumber(status_phone.getText().toString());
                                         // 更新数据
                                         new UserDBLogic().update(userDto);
+                                        getView().findViewById(R.id.edit_back).setVisibility(View.GONE);
+                                        getView().findViewById(R.id.edit).setVisibility(View.VISIBLE);
+                                        getView().findViewById(R.id.confirm_edit).setVisibility(View.GONE);
+                                        getView().findViewById(R.id.sign_out).setVisibility(View.VISIBLE);
                                         reload();
                                     }
                                 });
+
+                                // 修改头像
+                                //editAvatar();
+
                             }
                         });
 
@@ -350,6 +392,31 @@ public class AccountFragment extends Fragment {
         Matcher mc = pattern.matcher(strEmail);
         return mc.matches();
     }
+
+    // 修改头像 先不用这个
+//    public void editAvatar(){
+//        getView().findViewById(R.id.avatar).setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                View avatarView = View.inflate(getContext(), R.layout.fragment_avatar, null);
+//                AlertDialog dialogAvatar = new AlertDialog.Builder(getActivity()).setView(avatarView).show();
+//
+//                switch (avatarView.getId()){
+//                    case R.id.photo:
+//                        System.out.println("拍照");
+//
+//                        break;
+//                    case R.id.photograph:
+//                        System.out.println("从相册选择");
+//                        break;
+//                    case R.id.cancel:
+//                        dialogAvatar.dismiss();
+//                        break;
+//                    default:break;
+//                }
+//            }
+//        });
+//    }
 
 
 }
