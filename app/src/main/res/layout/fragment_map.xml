@@ -64,7 +64,6 @@
             android:layout_marginEnd="3dp"
             android:background="@drawable/border"
             android:elevation="12dp"
-            android:forceHasOverlappingRendering="true"
             android:visibility="invisible">
 
             <ListView
@@ -160,6 +159,17 @@
 
     <!--  navigate & user position button  -->
     <ImageView
+        android:id="@+id/arBtn"
+        android:layout_width="35dp"
+        android:layout_height="35dp"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentBottom="true"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="220dp"
+        android:scaleType="centerCrop"
+        android:src="@drawable/ic_location_ar_camera" />
+    <ImageView
         android:id="@+id/navigate"
         android:layout_width="40dp"
         android:layout_height="40dp"
@@ -168,7 +178,7 @@
         android:layout_alignParentBottom="true"
         android:layout_marginEnd="30dp"
         android:layout_marginRight="30dp"
-        android:layout_marginBottom="168dp"
+        android:layout_marginBottom="160dp"
         android:scaleType="centerCrop"
         android:src="@drawable/navigate" />
     <ImageView
@@ -181,7 +191,7 @@
         android:layout_marginTop="10dp"
         android:layout_marginEnd="30dp"
         android:layout_marginRight="30dp"
-        android:layout_marginBottom="101dp"
+        android:layout_marginBottom="100dp"
         android:scaleType="centerCrop"
         android:src="@drawable/position" />
     <!--transportation-->
@@ -265,8 +275,7 @@
                 android:textSize="15dp" />
         </RelativeLayout>
     </RelativeLayout>
-    <!-- bottom sheet -->
-    <!-- bottom sheet -->
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="300dp"
@@ -292,13 +301,15 @@
                     android:layout_gravity="center|top"
                     android:scaleType="centerCrop"
                     android:src="@drawable/ic_remove" />
+
                 <ImageView
                     android:id="@+id/location_img"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
-                    android:layout_marginTop="50dp"
                     android:layout_marginLeft="30dp"
+                    android:layout_marginTop="50dp"
                     android:src="@drawable/ic_location_unavaliable" />
+
                 <TextView
                     android:id="@+id/click_location_name"
                     android:layout_width="match_parent"
@@ -308,7 +319,8 @@
                     android:layout_marginRight="20dp"
                     android:text=" "
                     android:textSize="20dp" />
-2
+                2
+
                 <TextView
                     android:id="@+id/click_location_detail"
                     android:layout_width="match_parent"
@@ -343,9 +355,9 @@
                         android:layout_toRightOf="@+id/set_departure"
                         android:gravity="center_vertical"
                         android:text="Set departure"
-                        android:textStyle="bold"
                         android:textColor="@color/white"
-                        android:textSize="15dp" />
+                        android:textSize="15dp"
+                        android:textStyle="bold" />
                 </RelativeLayout>
 
                 <RelativeLayout
@@ -372,9 +384,9 @@
                         android:layout_toRightOf="@+id/set_destination"
                         android:gravity="center_vertical"
                         android:text="Set destination"
-                        android:textStyle="bold"
                         android:textColor="@color/white"
-                        android:textSize="15dp" />
+                        android:textSize="15dp"
+                        android:textStyle="bold" />
                 </RelativeLayout>
 
 

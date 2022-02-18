@@ -19,6 +19,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -370,6 +372,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 if (startLocation != null && targetLocation != null && StringUtils.isNotEmpty(mode)) {
                     PlaceManagerUtils.findRoute(convert(startLocation), convert(targetLocation), mode);
                 }
+
             }
         });
 
@@ -395,7 +398,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     deptPlacesListView.setAdapter(new LocationAdapter(getContext(),
                             R.layout.autocomplete_location_item, deptLocationList));
                     deptScrollView.setVisibility(View.VISIBLE);
-                    deptScrollView.bringToFront();
+                    ListAdapter listAdapter = deptPlacesListView.getAdapter();
+                    if (listAdapter == null) {
+                        return;
+                    }
+                    int totalHeight = 0;
+                    int size=listAdapter.getCount();
+                    for (int i = 0; i < listAdapter.getCount(); i++) {
+                        View listItem = listAdapter.getView(i, null, deptPlacesListView);
+                        listItem.measure(0, 0);
+                        totalHeight += listItem.getMeasuredHeight();
+                    }
+                    int params = deptScrollView.getHeight();
+                    params = totalHeight + (deptPlacesListView.getDividerHeight() * (listAdapter.getCount() - 1));
+                    System.out.println(params);
                 } else {
                     deptPlacesListView.setAdapter(null);
                     deptScrollView.setVisibility(View.INVISIBLE);
