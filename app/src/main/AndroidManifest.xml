@@ -41,6 +41,10 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="AIzaSyCw22dPUG1-s666qK4gTyemXQXnWEIoqic" />
 
+        <meta-data
+            android:name="com.google.ar.core"
+            android:value="required" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true"
