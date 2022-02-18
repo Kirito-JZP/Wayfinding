@@ -2,6 +2,7 @@ package com.main.wayfinding.fragment.map;
 
 import static com.main.wayfinding.utility.PlaceManagerUtils.findLocationGeoMsg;
 import static com.main.wayfinding.utility.LatLngConverterUtils.convert;
+import static com.main.wayfinding.utility.PlaceManagerUtils.queryDetail;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -34,7 +35,9 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.PointOfInterest;
 import com.google.maps.model.PlacesSearchResult;
 import com.main.wayfinding.R;
 import com.main.wayfinding.adapter.LocationAdapter;
@@ -51,6 +54,7 @@ import android.widget.TextView;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.main.wayfinding.utility.LatLngConverterUtils;
 import com.main.wayfinding.utility.PlaceManagerUtils;
 
 import java.io.InputStream;
@@ -205,7 +209,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     }
                 }
                 if (startLocation != null && targetLocation != null && StringUtils.isNotEmpty(mode)) {
-                    PlaceManagerUtils.findRoute(convert(startLocation), convert(targetLocation), mode);
+                    PlaceManagerUtils.findRoute(convert(startLocation), convert(targetLocation),
+                            mode);
                 }
             }
         });
@@ -276,7 +281,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 Location location = gps.getLocation(getActivity());
                 resetCurrentPosition(location);
                 if (startLocation != null && targetLocation != null && StringUtils.isNotEmpty(mode)) {
-                    PlaceManagerUtils.findRoute(convert(startLocation), convert(targetLocation), mode);
+                    PlaceManagerUtils.findRoute(convert(startLocation), convert(targetLocation),
+                            mode);
                 }
             }
         });
@@ -351,7 +357,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     manager.hideSoftInputFromWindow(getView().findFocus().getWindowToken(), 0);
                 destinationText.clearFocus();
                 if (startLocation != null && targetLocation != null && StringUtils.isNotEmpty(mode)) {
-                    PlaceManagerUtils.findRoute(convert(startLocation), convert(targetLocation), mode);
+                    PlaceManagerUtils.findRoute(convert(startLocation), convert(targetLocation),
+                            mode);
                 }
             }
         });
@@ -370,7 +377,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     manager.hideSoftInputFromWindow(getView().findFocus().getWindowToken(), 0);
                 departureText.clearFocus();
                 if (startLocation != null && targetLocation != null && StringUtils.isNotEmpty(mode)) {
-                    PlaceManagerUtils.findRoute(convert(startLocation), convert(targetLocation), mode);
+                    PlaceManagerUtils.findRoute(convert(startLocation), convert(targetLocation),
+                            mode);
                 }
 
             }
@@ -424,6 +432,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onMapReady(@NonNull GoogleMap googleMap) {
         map = googleMap;
         PlaceManagerUtils.SetMap(googleMap);
+        map.setOnPoiClickListener(new GoogleMap.OnPoiClickListener() {
+            @Override
+            public void onPoiClick(@NonNull PointOfInterest pointOfInterest) {
+                LocationDto location = queryDetail(pointOfInterest.placeId);
+                if (location != null) {
+                    showPlaceDetail(location);
+                }
+            }
+        });
 
         // Create GPS object
         gps = new GPSTrackerLogic(getParentFragment().getContext());
@@ -434,58 +451,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         map.setOnMapClickListener(latLng -> {
             LocationDto locationDto = findLocationGeoMsg(latLng);
             // Only when the location exists in the map, change the maker.
-            if (StringUtils.isNotEmpty(locationDto.getName())) {
-                map.clear();
-                map.addMarker(new MarkerOptions().position(latLng));
-                BottomSheetBehavior<FrameLayout> sheetBehavior = BottomSheetBehavior.from(bottomsheet);
-                sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-                if (sheetBehavior.getState() == BottomSheetBehavior.STATE_COLLAPSED) {
-                    sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-
-                    if (StringUtils.isNotEmpty(locationDto.getGmImgUrl())) {
-                        new Thread(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    // resolving the string into url
-                                    URL url = new URL(locationDto.getGmImgUrl());
-                                    // Open the input stream
-                                    InputStream inputStream = url.openStream();
-                                    // Convert the online source to bitmap picture
-                                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-                                    locationImg.setImageBitmap(bitmap);
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }).start();
-                    } else {
-                        locationImg.setImageResource(R.drawable.ic_location_unavaliable);
-                    }
-                    selectLocationName.setText(locationDto.getName());
-                    selectLocationDetail.setText(locationDto.getAddress());
-
-                    setDeparture.setOnClickListener(new View.OnClickListener() {
-                        public void onClick(View v) {
-                            startLocation = locationDto;
-                            departureText.setText(startLocation.getName());
-                            if (startLocation != null && targetLocation != null && StringUtils.isNotEmpty(mode)) {
-                                PlaceManagerUtils.findRoute(convert(startLocation), convert(targetLocation), mode);
-                            }
-                        }
-                    });
-                    setDestination.setOnClickListener(new View.OnClickListener() {
-                        @Override
-                        public void onClick(View view) {
-                            targetLocation = locationDto;
-                            destinationText.setText(targetLocation.getName());
-                            if (startLocation != null && targetLocation != null && StringUtils.isNotEmpty(mode)) {
-                                PlaceManagerUtils.findRoute(convert(startLocation), convert(targetLocation), mode);
-                            }
-                        }
-                    });
-                }
-            }
+            showPlaceDetail(locationDto);
         });
 
         // Add map marker click listener
@@ -563,4 +529,70 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         map.moveCamera(CameraUpdateFactory.newLatLng(convert(currentLocation)));
     }
 
+    private void showPlaceDetail(LocationDto location) {
+        if (StringUtils.isNotEmpty(location.getName())) {
+            map.clear();
+            map.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(),
+                    location.getLongitude())));
+            BottomSheetBehavior<FrameLayout> sheetBehavior = BottomSheetBehavior.from(bottomsheet);
+
+            if (sheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+                sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            }
+
+            if (StringUtils.isNotEmpty(location.getGmImgUrl())) {
+                new Thread(() -> {
+                    try {
+                        // resolving the string into url
+                        URL url = new URL(location.getGmImgUrl());
+                        // Open the input stream
+                        InputStream inputStream = url.openStream();
+                        // Convert the online source to bitmap picture
+                        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                        UIHandler.post(() -> {
+                            locationImg.setImageBitmap(bitmap);
+                        });
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }).start();
+            } else {
+                locationImg.setImageResource(R.drawable.ic_location_unavaliable);
+            }
+            selectLocationName.setText(location.getName());
+            selectLocationDetail.setText(location.getAddress());
+
+            setDeparture.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    startLocation = location;
+                    departureText.setText(startLocation.getName());
+                    if (startLocation != null && targetLocation != null && StringUtils.isNotEmpty(mode)) {
+                        PlaceManagerUtils.findRoute(convert(startLocation),
+                                convert(targetLocation), mode);
+                    }
+                }
+            });
+            setDestination.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    targetLocation = location;
+                    destinationText.setText(targetLocation.getName());
+                    if (startLocation != null && targetLocation != null && StringUtils.isNotEmpty(mode)) {
+                        PlaceManagerUtils.findRoute(convert(startLocation),
+                                convert(targetLocation), mode);
+                    }
+                }
+            });
+            new Thread(() -> {
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                UIHandler.post(() -> {
+                    sheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+                });
+            }).start();
+        }
+    }
 }
