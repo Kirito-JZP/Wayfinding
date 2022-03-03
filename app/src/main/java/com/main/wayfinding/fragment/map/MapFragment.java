@@ -421,7 +421,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     }
                     int totalHeight = 0;
                     int size=listAdapter.getCount();
-                    for (int i = 0; i < listAdapter.getCount(); i++) {
+                    for (int i = 0; i < size; i++) {
                         View listItem = listAdapter.getView(i, null, deptPlacesListView);
                         listItem.measure(0, 0);
                         totalHeight += listItem.getMeasuredHeight();

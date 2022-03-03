@@ -127,7 +127,7 @@
         <ListView
             android:id="@+id/dest_places_listview"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="wrap_content"/>
     </ScrollView>
     <!--add to preference & exchange button-->
     <LinearLayout
@@ -146,14 +146,14 @@
             android:layout_height="30dp"
             android:layout_marginLeft="2dp"
             android:layout_marginTop="7dp"
-            android:src="@drawable/ic_add" />
+            android:src="@drawable/ic_add"/>
 
         <ImageView
             android:id="@+id/exchange"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:layout_marginTop="40dp"
             android:layout_marginLeft="2dp"
+            android:layout_marginTop="40dp"
             android:src="@drawable/ic_exchange" />
     </LinearLayout>
 
@@ -168,7 +168,7 @@
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="220dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/ic_location_ar_camera" />
+        android:src="@drawable/ic_location_ar_camera"/>
     <ImageView
         android:id="@+id/navigate"
         android:layout_width="40dp"

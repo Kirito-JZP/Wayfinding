@@ -11,6 +11,7 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.main.wayfinding.databinding.ActivityMainBinding;
+import com.main.wayfinding.fragment.map.MapFragment;
 
 /**
  * Define the activity including three fragments with navigation
@@ -48,5 +49,13 @@ public class MainActivity extends AppCompatActivity {
         float dpHeight = dm.heightPixels / (dm.ydpi) * 160;
         WayfindingApp.setDpWidth(dpWidth);
         WayfindingApp.setDpHeight(dpHeight);
+        int id = getIntent().getIntExtra("id", 0);
+        if (id == 1) {
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.map,new MapFragment())
+                    .addToBackStack(null)
+                    .commit();
+        }
     }
 }
