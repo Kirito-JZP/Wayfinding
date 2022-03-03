@@ -1,5 +1,6 @@
 package com.main.wayfinding.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -56,7 +57,7 @@ public class preferenceAdapter extends RecyclerView.Adapter<preferenceAdapter.Vi
         return viewHolder;
     }
     @Override
-    public void onBindViewHolder(preferenceAdapter.ViewHolder holder, int position)
+    public void onBindViewHolder(preferenceAdapter.ViewHolder holder, @SuppressLint("RecyclerView") int position)
     {
         LocationDto recentlySaved = mRecentlySaved.get(position);
 
@@ -85,6 +86,16 @@ public class preferenceAdapter extends RecyclerView.Adapter<preferenceAdapter.Vi
         textView2.setText(recentlySaved.getAddress());
         TextView textView3 = holder.countryTextView;
         textView3.setText(recentlySaved.getCountry());
+
+        //delete cardview
+        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                mRecentlySaved.remove(holder.getAdapterPosition());
+                notifyItemRemoved(position);
+                return false;
+            }
+        });
     }
     @Override
     public int getItemCount()
