@@ -64,8 +64,6 @@ public class PreferenceFragment extends Fragment {
 
 
 
-
-
         return rootView;
 
     }
