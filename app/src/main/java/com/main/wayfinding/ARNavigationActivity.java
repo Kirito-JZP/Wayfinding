@@ -1,13 +1,19 @@
 package com.main.wayfinding;
 
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.content.Intent;
 import android.os.Bundle;
-import android.view.View;
-import android.widget.ImageView;
+import android.view.Gravity;
+import android.view.MotionEvent;
+import android.widget.Toast;
 
+import com.google.ar.core.Anchor;
+import com.google.ar.core.HitResult;
+import com.google.ar.core.Plane;
+import com.google.ar.sceneform.AnchorNode;
+import com.google.ar.sceneform.rendering.Color;
+import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.ux.ArFragment;
+import com.google.ar.sceneform.ux.TransformableNode;
 import com.main.wayfinding.databinding.ActivityArnavigationBinding;
 
 /**
@@ -19,11 +25,12 @@ import com.main.wayfinding.databinding.ActivityArnavigationBinding;
  * Date: 2022/2/18 15:43
  */
 public class ARNavigationActivity extends AppCompatActivity {
-    //test first
-    //refactor
+
     private ArFragment arFragment;
-    private ImageView arReturnBtn;
+
     private ActivityArnavigationBinding binding;
+
+    private ModelRenderable arrowRenderable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,16 +39,41 @@ public class ARNavigationActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
-        arReturnBtn = findViewById(R.id.arReturnBtn);
-        arReturnBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(ARNavigationActivity.this, MainActivity.class);
-                intent.putExtra("id",1);
-                startActivity(intent);
-            }
-        });
+
+        // When you build a Renderable, Sceneform loads its resources in the background while returning
+        // a CompletableFuture. Call thenAccept(), handle(), or check isDone() before calling get().
+        ModelRenderable.builder()
+                .setSource(this, R.raw.andy)
+                .build()
+                .thenAccept(renderable -> arrowRenderable = renderable)
+                .exceptionally(
+                        throwable -> {
+                            Toast toast =
+                                    Toast.makeText(this, "Unable to load arrow renderable", Toast.LENGTH_LONG);
+                            toast.setGravity(Gravity.CENTER, 0, 0);
+                            toast.show();
+                            return null;
+                         });
+
+        arFragment.setOnTapArPlaneListener(
+                (HitResult hitResult, Plane plane, MotionEvent motionEvent) -> {
+                    if (arrowRenderable == null) {
+                        return;
+                    }
+
+                    // Create the Anchor.
+                    Anchor anchor = hitResult.createAnchor();
+                    AnchorNode anchorNode = new AnchorNode(anchor);
+                    anchorNode.setParent(arFragment.getArSceneView().getScene());
+
+                    //arrowRenderable.getMaterial().setFloat3("baseColorTint",
+                    //        new Color(android.graphics.Color.rgb(255,0,0)));
+
+                    // Create the transformable andy and add it to the anchor.
+                    TransformableNode arrow = new TransformableNode(arFragment.getTransformationSystem());
+                    arrow.setParent(anchorNode);
+                    arrow.setRenderable(arrowRenderable);
+                    arrow.select();
+                });
     }
-
-
 }

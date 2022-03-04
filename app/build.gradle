@@ -30,6 +30,17 @@ android {
     buildFeatures {
         viewBinding true
     }
+
+    apply plugin: 'com.google.ar.sceneform.plugin'
+    sceneform.asset('sampledata/arrow.obj',
+            'default',
+            'sampledata/models/arrow.sfa',
+            'src/main/res/raw/arrow')
+    sceneform.asset('sampledata/andy.obj',
+            'default',
+            'sampledata/models/andy.sfa',
+            'src/main/res/raw/andy')
+
 }
 
 dependencies {
@@ -45,8 +56,9 @@ dependencies {
     implementation 'com.google.maps:google-maps-services:2.0.0'
     implementation 'com.google.appengine:appengine-api-1.0-sdk:2.0.3'
     implementation 'com.google.ar:core:1.29.0'
-    implementation "com.google.ar.sceneform.ux:sceneform-ux:1.17.1"
-    implementation "com.google.ar.sceneform:core:1.17.1"
+    implementation 'com.google.ar.sceneform.ux:sceneform-ux:1.17.1'
+    implementation 'com.google.ar.sceneform:core:1.17.1'
+    implementation 'com.google.ar.sceneform:plugin:1.15.0'
     implementation 'org.slf4j:slf4j-simple:1.7.25'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.3'
     implementation 'androidx.navigation:navigation-fragment:2.3.5'
@@ -57,7 +69,7 @@ dependencies {
     implementation files('..\\.idea\\libraries\\android-java-air-bridge.jar')
     testImplementation 'junit:junit:4.+'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    androidTestImplementation 'androidx·.test.espresso:espresso-core:3.4.0'
     //noinspection GradleCompatible
     implementation 'com.android.support:recyclerview-v7:28.0.0'
 
