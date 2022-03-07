@@ -1,8 +1,13 @@
 package com.main.wayfinding.fragment.account;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +21,11 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.TextView;
 
+import androidx.activity.result.ActivityResult;
+import androidx.activity.result.ActivityResultCallback;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContract;
+import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -32,6 +42,10 @@ import com.main.wayfinding.dto.UserDto;
 import com.main.wayfinding.logic.AuthLogic;
 import com.main.wayfinding.logic.DB.UserDBLogic;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -47,6 +61,7 @@ public class AccountFragment extends Fragment {
     private FragmentAccountBinding binding;
     private FirebaseAuth auth;
     private AuthLogic accountLogic;
+    ActivityResultLauncher<Intent> intentActivityResultLauncher;
     //调取系统摄像头的请求码
     private static final int MY_ADD_CASE_CALL_PHONE = 6;
     //打开相册的请求码
@@ -67,14 +82,39 @@ public class AccountFragment extends Fragment {
         super.onCreate(savedInstanceState);
         auth = FirebaseAuth.getInstance();
         accountLogic = new AuthLogic();
-        System.out.println("CCC");
+
+        intentActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
+            @Override
+            public void onActivityResult(ActivityResult result) {
+                if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
+                    Uri imageSelected = result.getData().getData();
+                    imageSelected = result.getData().getData();
+                    System.out.println(imageSelected);
+
+                    InputStream is = null;
+                    try {
+                        is = requireActivity().getContentResolver().openInputStream(imageSelected);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+
+                    View signUpView = View.inflate(getContext(), R.layout.fragment_accountcreate, null);
+                    EditText editText = signUpView.findViewById(R.id.username);
+                    System.out.println(editText);
+
+                    editText.setText("888888888888");
+                    ImageView imageView = signUpView.findViewById(R.id.avatar);
+                    imageView.setImageBitmap(BitmapFactory.decodeStream(is));
+                }
+                System.out.println(result.getResultCode());
+            }
+        });
     }
 
     @Override
     public void onStart() {
         super.onStart();
         reload();
-        System.out.println("SSS");
     }
 
     @Override
@@ -105,26 +145,26 @@ public class AccountFragment extends Fragment {
                         String password = passwordComponent.getText().toString();
 
                         //登录验证 字符串规格（邮箱格式是否正确，密码最少多少位，复杂程度等）
-                        if (TextUtils.isEmpty(username) || TextUtils.isEmpty(password)){
+                        if (TextUtils.isEmpty(username) || TextUtils.isEmpty(password)) {
                             AlertDialog dialogEmpty = new AlertDialog.Builder(getActivity()).
                                     setTitle("Empty! Please input").show();
-                        }else if(!isEmail(username) ){
+                        } else if (!isEmail(username)) {
                             AlertDialog dialogError = new AlertDialog.Builder(getActivity()).
                                     setTitle("Error Email Format!").show();
-                        } else{
+                        } else {
                             accountLogic.login(username, password, new OnCompleteListener<AuthResult>() {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
-                                    if(task.isSuccessful()){
+                                    if (task.isSuccessful()) {
                                         //关闭dialoglogin
                                         dialogLogin.dismiss();
                                         reload();
 
-                                    }else {
+                                    } else {
                                         //如果密码输入错误
                                         String msg = task.getException().getMessage();
-                                        if(msg.equals("The password is invalid or the user does " +
-                                                "not have a password.")){
+                                        if (msg.equals("The password is invalid or the user does " +
+                                                "not have a password.")) {
                                             AlertDialog dialogErrorPassword = new AlertDialog.Builder(getActivity()).
                                                     setTitle("Error Password!").show();
                                         }
@@ -173,24 +213,23 @@ public class AccountFragment extends Fragment {
 
                         //1.验证字符串规格（邮箱格式是否正确，密码最少6位等）
                         // 非空验证
-                        if (TextUtils.isEmpty(username)||TextUtils.isEmpty(password)||
-                                TextUtils.isEmpty(userDto.getFirstName())||
-                                TextUtils.isEmpty(userDto.getSurname())||
-                                TextUtils.isEmpty(userDto.getCountry())||
-                                TextUtils.isEmpty(userDto.getPhoneNumber())){
+                        if (TextUtils.isEmpty(username) || TextUtils.isEmpty(password) ||
+                                TextUtils.isEmpty(userDto.getFirstName()) ||
+                                TextUtils.isEmpty(userDto.getSurname()) ||
+                                TextUtils.isEmpty(userDto.getCountry()) ||
+                                TextUtils.isEmpty(userDto.getPhoneNumber())) {
                             AlertDialog dialogEmpty = new AlertDialog.Builder(getActivity()).
                                     setTitle("Empty! Please input").show();
-                        }else if(!checkbox.isChecked()){
+                        } else if (!checkbox.isChecked()) {
                             AlertDialog dialogCheckbox = new AlertDialog.Builder(getActivity()).
                                     setTitle("Please agree with terms.").show();
-                        } else if(!isEmail(username)){
+                        } else if (!isEmail(username)) {
                             AlertDialog dialogError = new AlertDialog.Builder(getActivity()).
                                     setTitle("Error Email Format!").show();
-                        } else if (password.length() < 6){
+                        } else if (password.length() < 6) {
                             AlertDialog dialogError = new AlertDialog.Builder(getActivity()).
                                     setTitle("Password too short!").show();
-                        }
-                        else {
+                        } else {
                             //登录
                             accountLogic.signUp(username, password, new OnCompleteListener<AuthResult>() {
                                 @Override
@@ -206,7 +245,6 @@ public class AccountFragment extends Fragment {
                             //关闭dialoglogin
                             dialogCreate.dismiss();
                         }
-
 
 
                     }
@@ -226,14 +264,17 @@ public class AccountFragment extends Fragment {
                         avatar_photo.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                System.out.println("拍照");
+                                System.out.println("从相册选择");
+                                Intent album = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                intentActivityResultLauncher.launch(album);
+
                             }
                         });
 
                         avatar_photograph.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                System.out.println("从相册读取");
+                                System.out.println("拍照");
                             }
                         });
 
@@ -261,8 +302,8 @@ public class AccountFragment extends Fragment {
         });
 
 
-
     }
+
     //when click the AccountFragment page, execute
     @SuppressLint("SetTextI18n")
     public void reload() {
@@ -284,7 +325,7 @@ public class AccountFragment extends Fragment {
             new UserDBLogic().select(new OnCompleteListener<DataSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DataSnapshot> task) {
-                    if(task.isSuccessful()){
+                    if (task.isSuccessful()) {
                         UserDto userDto = task.getResult().getValue(UserDto.class);
                         // 3 输出到layout
                         status_firstname.setText(userDto.getFirstName());
@@ -292,7 +333,6 @@ public class AccountFragment extends Fragment {
                         status_country.setText(userDto.getCountry());
                         status_email.setText(currentUser.getEmail());
                         status_phone.setText(userDto.getPhoneNumber());
-
 
 
                         getView().findViewById(R.id.edit).setOnClickListener(new View.OnClickListener() {
@@ -349,7 +389,7 @@ public class AccountFragment extends Fragment {
                             }
                         });
 
-                    }else {
+                    } else {
                         System.out.println(task.getException().getMessage());
                     }
                 }
@@ -362,7 +402,6 @@ public class AccountFragment extends Fragment {
             getView().findViewById(R.id.edit).setVisibility(View.VISIBLE);
 
 
-
         } else {
             //如果没登录 currentUser == null
             //...
@@ -373,13 +412,11 @@ public class AccountFragment extends Fragment {
             status_phone.setText("Phone Number");
 
 
-
             //如果roald时currentUser里无值 这只login和sign_up button为显示，登出隐藏
             getView().findViewById(R.id.sign_out).setVisibility(View.GONE);
             getView().findViewById(R.id.edit).setVisibility(View.GONE);
             getView().findViewById(R.id.login).setVisibility(View.VISIBLE);
             getView().findViewById(R.id.sign_up).setVisibility(View.VISIBLE);
-
 
 
         }
@@ -388,7 +425,7 @@ public class AccountFragment extends Fragment {
     }
 
     public static boolean isEmail(String strEmail) {
-        Pattern pattern = Pattern .compile("\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*");
+        Pattern pattern = Pattern.compile("\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*");
         Matcher mc = pattern.matcher(strEmail);
         return mc.matches();
     }

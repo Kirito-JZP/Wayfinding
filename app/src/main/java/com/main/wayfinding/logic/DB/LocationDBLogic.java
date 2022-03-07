@@ -1,6 +1,11 @@
 package com.main.wayfinding.logic.DB;
 
+import androidx.annotation.NonNull;
+
+import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -44,6 +49,7 @@ public class LocationDBLogic {
         if (uid!=null){
             locationDto.setLocationId(locationNode.child(uid).push().getKey());
             locationNode.child(uid).child(locationDto.getLocationId()).setValue(locationDto);
+
         }
     }
 
