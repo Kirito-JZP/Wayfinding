@@ -29,15 +29,15 @@ public class LocationDBLogic {
 
     public LocationDBLogic() {
         this.auth = FirebaseAuth.getInstance();
-        FirebaseDatabase database = FirebaseDatabase.getInstance("https://wayfinding-90556-default-rtdb.europe-west1.firebasedatabase.app/");
+        FirebaseDatabase database = FirebaseDatabase.getInstance("https://wayfinding-55555-default-rtdb.europe-west1.firebasedatabase.app/");
         this.locationNode = database.getReference("location");
     }
 
-    private String getUid(){
+    private String getUid() {
         FirebaseUser user = auth.getCurrentUser();
-        if(user!=null){
+        if (user != null) {
             return user.getUid();
-        }else{
+        } else {
             System.out.println("haven't log in");
             return null;
         }
@@ -49,20 +49,19 @@ public class LocationDBLogic {
         if (uid!=null){
             locationDto.setLocationId(locationNode.child(uid).push().getKey());
             locationNode.child(uid).child(locationDto.getLocationId()).setValue(locationDto);
-
         }
     }
 
-    public void select(OnCompleteListener<DataSnapshot> callback){
+    public void select(OnCompleteListener<DataSnapshot> callback) {
         String uid = getUid();
-        if (uid!=null){
+        if (uid != null) {
             locationNode.child(uid).get().addOnCompleteListener(callback);
         }
     }
 
-    public void delete(String locationID){
+    public void delete(String locationID) {
         String uid = getUid();
-        if (uid!=null){
+        if (uid != null) {
             locationNode.child(uid).child(locationID).removeValue();
         }
     }

@@ -25,7 +25,7 @@ public class UserDBLogic {
 
     public UserDBLogic() {
         this.auth = FirebaseAuth.getInstance();
-        FirebaseDatabase database = FirebaseDatabase.getInstance("https://wayfinding-90556-default-rtdb.europe-west1.firebasedatabase.app/");
+        FirebaseDatabase database = FirebaseDatabase.getInstance("https://wayfinding-55555-default-rtdb.europe-west1.firebasedatabase.app/");
         this.userNode = database.getReference("user");
     }
 
