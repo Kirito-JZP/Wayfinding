@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "1028118289702",
-    "project_id": "wayfinding-6da1a",
-    "storage_bucket": "wayfinding-6da1a.appspot.com"
+    "project_number": "594484774595",
+    "project_id": "wayfinding-55555",
+    "storage_bucket": "wayfinding-55555.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1028118289702:android:e6d6f267fa810e23b235e7",
+        "mobilesdk_app_id": "1:594484774595:android:fac890f4b0cac517d48476",
         "android_client_info": {
           "package_name": "com.main.wayfinding"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1028118289702-a1kkiiincj1de6uf5q3d6acacqdcl3so.apps.googleusercontent.com",
+          "client_id": "594484774595-preq3e0popjchrp5ggq965fkkfvknamf.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCeKMp1RhsTvGJELmj_a6Y7JWGA4u7lDBs"
+          "current_key": "AIzaSyAcJCfm-anV0e9Lcappc8_oHyeUV_w9zMQ"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "1028118289702-a1kkiiincj1de6uf5q3d6acacqdcl3so.apps.googleusercontent.com",
+              "client_id": "594484774595-preq3e0popjchrp5ggq965fkkfvknamf.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

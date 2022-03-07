@@ -163,6 +163,7 @@ public class AccountFragment extends Fragment {
                                     } else {
                                         //如果密码输入错误
                                         String msg = task.getException().getMessage();
+                                        System.out.println(msg);
                                         if (msg.equals("The password is invalid or the user does " +
                                                 "not have a password.")) {
                                             AlertDialog dialogErrorPassword = new AlertDialog.Builder(getActivity()).
