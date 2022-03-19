@@ -4,11 +4,15 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Matrix;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -45,6 +49,8 @@ import com.main.wayfinding.logic.DB.UserDBLogic;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -57,6 +63,7 @@ import java.util.regex.Pattern;
  * @version Revision: 0
  * Date: 2022/2/3 21:58
  */
+
 public class AccountFragment extends Fragment {
     private FragmentAccountBinding binding;
     private FirebaseAuth auth;
@@ -66,6 +73,8 @@ public class AccountFragment extends Fragment {
     private static final int MY_ADD_CASE_CALL_PHONE = 6;
     //打开相册的请求码
     private static final int MY_ADD_CASE_CALL_PHONE2 = 7;
+
+    private static Bitmap bitmap;
 
     public static Pattern p =
             Pattern.compile("\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*");
@@ -89,22 +98,35 @@ public class AccountFragment extends Fragment {
                 if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
                     Uri imageSelected = result.getData().getData();
                     imageSelected = result.getData().getData();
-                    System.out.println(imageSelected);
+                    System.out.println(imageSelected); // test
 
                     InputStream is = null;
+                    //Uri.parse("content://media/external/images/media/113769")
                     try {
-                        is = requireActivity().getContentResolver().openInputStream(imageSelected);
+                        is = requireActivity().getContentResolver().openInputStream(imageSelected); // inputStream
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
+
+
 
                     View signUpView = View.inflate(getContext(), R.layout.fragment_accountcreate, null);
                     EditText editText = signUpView.findViewById(R.id.username);
                     System.out.println(editText);
 
+                    // set ImageView --- bug
+                    // 获取到signupview&createAccountView 修改头像
                     editText.setText("888888888888");
                     ImageView imageView = signUpView.findViewById(R.id.avatar);
-                    imageView.setImageBitmap(BitmapFactory.decodeStream(is));
+                    Bitmap bitmap = BitmapFactory.decodeStream(is);
+
+                    imageView.setImageBitmap(bitmap); // 是否有效？
+
+                    System.out.println("set finished");
+
+                    Log.d("bitmap", bitmap.getPixel(25,35)+""); //test
+
+
                 }
                 System.out.println(result.getResultCode());
             }
@@ -269,13 +291,37 @@ public class AccountFragment extends Fragment {
                                 Intent album = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                                 intentActivityResultLauncher.launch(album);
 
+
+
                             }
                         });
 
+                        // 拍照
                         avatar_photograph.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
                                 System.out.println("拍照");
+                                Handler imgHandler = new Handler();
+                                // set imageView test
+                                try {
+                                    // resolving the string into url
+
+                                    URL url = new URL("https://p0.ssl.img.360kuai.com/t01630a753af82c625f.jpg?size=640x410");
+                                    // Open the input stream
+                                    InputStream inputStream = url.openStream();
+                                    // Convert the online source to bitmap picture
+                                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+                                    System.out.println("set Image!!!");
+                                    ImageView imageView = signUpView.findViewById(R.id.avatar);
+                                    imgHandler.post(() -> {
+                                        imageView.setImageBitmap(bitmap);
+
+                                    });
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+
+
                             }
                         });
 
@@ -288,6 +334,7 @@ public class AccountFragment extends Fragment {
                         //
                     }
                 });
+
 
             }
         });
@@ -308,6 +355,7 @@ public class AccountFragment extends Fragment {
     //when click the AccountFragment page, execute
     @SuppressLint("SetTextI18n")
     public void reload() {
+        System.out.println("reload!!!!!!");
         FirebaseUser currentUser = auth.getCurrentUser();
         EditText status_firstname = getView().findViewById(R.id.first_name);
         EditText status_surname = getView().findViewById(R.id.surname);
