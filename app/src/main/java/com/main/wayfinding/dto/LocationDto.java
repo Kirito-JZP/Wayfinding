@@ -13,6 +13,13 @@ import java.util.Date;
  * Date: 2022/1/28 22:10
  */
 public class LocationDto {
+    public String getLocationId() {
+        return locationId;
+    }
+
+    public void setLocationId(String locationId) {
+        this.locationId = locationId;
+    }
 
     private String locationId;
     private String name;
@@ -27,14 +34,6 @@ public class LocationDto {
     // the following properties only apply to google maps apis
     private String gmPlaceID;
     private String gmImgUrl;
-
-    public String getLocationId() {
-        return locationId;
-    }
-
-    public void setLocationId(String locationId) {
-        this.locationId = locationId;
-    }
 
     public String getName() {
         return name;
@@ -115,13 +114,5 @@ public class LocationDto {
     public void setGmImgUrl(String gmImgUrl) {
         this.gmImgUrl = gmImgUrl;
     }
-
-//    public int getsize(){
-//        int size = 0;
-//        while (this.locationId!=null){
-//            size++;
-//        }
-//        return size;
-//    }
 
 }

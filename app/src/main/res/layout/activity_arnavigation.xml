@@ -27,22 +27,15 @@
             android:layout_gravity="bottom|center_horizontal"
             android:orientation="horizontal"
             tools:ignore="UselessParent">
+
             <ImageView
                 android:id="@+id/arReturnBtn"
                 android:layout_width="35dp"
                 android:layout_height="35dp"
-                android:layout_marginEnd="32dp"
-                android:layout_marginBottom="220dp"
+                android:layout_marginLeft="340dp"
+                android:layout_marginBottom="20dp"
                 android:scaleType="centerCrop"
-                android:src="@drawable/ic_location_exit_ar"/>
-            <Button
-                android:id="@+id/dummy_button"
-                style="?android:attr/buttonBarButtonStyle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="to be changed" />
-
+                android:src="@drawable/ic_location_exit_ar" />
         </LinearLayout>
     </FrameLayout>
 

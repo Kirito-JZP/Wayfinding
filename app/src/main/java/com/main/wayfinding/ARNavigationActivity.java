@@ -1,9 +1,13 @@
 package com.main.wayfinding;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.MotionEvent;
+import android.view.View;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.ar.core.Anchor;
@@ -27,9 +31,8 @@ import com.main.wayfinding.databinding.ActivityArnavigationBinding;
 public class ARNavigationActivity extends AppCompatActivity {
 
     private ArFragment arFragment;
-
+    private ImageView arReturnBtn;
     private ActivityArnavigationBinding binding;
-
     private ModelRenderable arrowRenderable;
 
     @Override
@@ -39,7 +42,7 @@ public class ARNavigationActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         arFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.ux_fragment);
-
+        arReturnBtn = findViewById(R.id.arReturnBtn);
         // When you build a Renderable, Sceneform loads its resources in the background while returning
         // a CompletableFuture. Call thenAccept(), handle(), or check isDone() before calling get().
         ModelRenderable.builder()
@@ -75,5 +78,13 @@ public class ARNavigationActivity extends AppCompatActivity {
                     arrow.setRenderable(arrowRenderable);
                     arrow.select();
                 });
+        arReturnBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(ARNavigationActivity.this, MainActivity.class);
+                intent.putExtra("id",1);
+                startActivity(intent);
+            }
+        });
     }
 }
