@@ -441,7 +441,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
 
         // Create GPS object
-        gps = new GPSTrackerLogic(getParentFragment().getContext());
+        gps = new GPSTrackerLogic(getContext());
         Location location = gps.getLocation(getActivity());
         resetCurrentPosition(location);
 
