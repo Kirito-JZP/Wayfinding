@@ -3,6 +3,8 @@ package com.main.wayfinding.fragment.map;
 import static com.main.wayfinding.utility.PlaceManagerUtils.findLocationGeoMsg;
 import static com.main.wayfinding.utility.LatLngConverterUtils.convert;
 import static com.main.wayfinding.utility.PlaceManagerUtils.queryDetail;
+
+import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -20,10 +22,8 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.ScrollView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -55,6 +55,9 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+
 import javadz.beanutils.BeanUtils;
 
 /**
@@ -62,54 +65,67 @@ import javadz.beanutils.BeanUtils;
  *
  * @author JIA
  * @author Last Modified By JIA
- * @version Revision: 0
+ * @version Revision: 1
  * Date: 2022/2/2 19:50
  */
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
-    /**
-     * Constant string
-     */
-    private static final String YOUR_LOCATION = "Your location";
 
-    private GoogleMap map;
-    private FragmentMapBinding binding;
-    private GPSTrackerLogic gps;
-    private NavigationLogic navigation;
-    private LocationDto currentLocation;
-    private LocationDto startLocation;
-    private LocationDto targetLocation;
-    private List<LocationDto> destLocationList;
-    private List<LocationDto> deptLocationList;
-    private String destinationKeyword;
-    private String departureKeyword;
-    private RelativeLayout setDeparture;
-    private RelativeLayout setDestination;
-    private FrameLayout bottomsheet;
-    private AutoCompleteUtils autoCompleteUtils;
-    private Handler UIHandler;
     private int autocompleteDelay = 500;
     private String mode = "walking";
+    private FragmentMapBinding binding;
+    private String destinationKeyword;
+    private String departureKeyword;
+
+    private FrameLayout bottomsheet;
+    private Handler UIHandler;
+    private RelativeLayout rootLayout;
+
+    /********** JAVA DATA Structure ***********/
+    // Dto
+    private LocationDto currentLocDto;
+    private LocationDto startLocDto;
+    private LocationDto targetLocDto;
+    private List<LocationDto> deptLocList;
+    private List<LocationDto> destLocList;
+
+    // Logic
+    private GPSTrackerLogic gpsLogic;
+    private NavigationLogic navigationLogic;
+
+    // Utils
+    private AutoCompleteUtils autoCompleteUtils;
+
+    /*************** Components ***************/
+    // Map
+    private GoogleMap map;
+
+    // EditText/TextView
+    private EditText deptTxt;
+    private EditText destTxt;
+    private TextView btmLocNmTxt;
+    private TextView btmLocDtlTxt;
+
+    // ImageView (button)
+    private ImageView addBtn;
+    private ImageView exchangeBtn;
+    private ImageView arBtn;
+    private ImageView navigateBtn;
+    private ImageView locateBtn;
+    private ImageView deptTxtClearBtn;
+    private ImageView destTxtClearBtn;
+    private ImageView locationImg;
+    private RelativeLayout setDeptBtn;
+    private RelativeLayout setDestBtn;
     private RelativeLayout publicBtn;
     private RelativeLayout walkBtn;
     private RelativeLayout cycBtn;
-    // Components
-    private EditText departureText;
-    private EditText destinationText;
-    private ImageView addImage;
-    private ImageView exchangeImage;
-    private ImageView arBtn;
-    private ImageView navigate;
-    private ImageView position;
-    private ImageView departureTextClear;
-    private ImageView destinationTextClear;
-    private ImageView locationImg;
-    private TextView selectLocationName;
-    private TextView selectLocationDetail;
+
+    // ListView
     private ListView destPlacesListView;
     private ListView deptPlacesListView;
-    private RelativeLayout rootLayout;
 
+    
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
 
@@ -134,23 +150,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         rootLayout = view.findViewById(R.id.map_root_layout);
 
         // TextView
-        departureText = view.findViewById(R.id.input_start);
-        destinationText = view.findViewById(R.id.input_search);
+        deptTxt = view.findViewById(R.id.input_start);
+        destTxt = view.findViewById(R.id.input_search);
 
         // ImageView
-        addImage = view.findViewById(R.id.add);
-        exchangeImage = view.findViewById(R.id.exchange);
+        addBtn = view.findViewById(R.id.add_btn);
+        exchangeBtn = view.findViewById(R.id.exchange_btn);
         publicBtn = view.findViewById(R.id.public_btn);
         walkBtn = view.findViewById(R.id.walk_btn);
         cycBtn = view.findViewById(R.id.cyc_btn);
-        navigate = view.findViewById(R.id.navigate);
-        position = view.findViewById(R.id.position);
-        departureTextClear = view.findViewById(R.id.clear_departure);
-        destinationTextClear = view.findViewById(R.id.clear_destination);
-        selectLocationName = view.findViewById(R.id.click_location_name);
-        selectLocationDetail = view.findViewById(R.id.click_location_detail);
-        setDeparture = view.findViewById(R.id.set_departure_btn);
-        setDestination = view.findViewById(R.id.set_destination_btn);
+        navigateBtn = view.findViewById(R.id.navigate);
+        locateBtn = view.findViewById(R.id.position);
+        deptTxtClearBtn = view.findViewById(R.id.clear_dept_btn);
+        destTxtClearBtn = view.findViewById(R.id.clear_dest_btn);
+        btmLocNmTxt = view.findViewById(R.id.btm_location_name_txt);
+        btmLocDtlTxt = view.findViewById(R.id.btm_location_detail_txt);
+        setDeptBtn = view.findViewById(R.id.set_departure_btn);
+        setDestBtn = view.findViewById(R.id.set_destination_btn);
         locationImg = view.findViewById(R.id.location_img);
         arBtn = view.findViewById(R.id.arBtn);
         //bottom sheet
@@ -159,20 +175,33 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         // ListView
         destPlacesListView = view.findViewById(R.id.dest_places_listview);
         deptPlacesListView = view.findViewById(R.id.dept_places_listview);
-//        destScrollView = view.findViewById(R.id.dest_scrollview);
-//        deptScrollView = view.findViewById(R.id.dept_scrollview);
 
         autoCompleteUtils = new AutoCompleteUtils();
         autoCompleteUtils.setFragment(this);
         UIHandler = new Handler();
-        destLocationList = new ArrayList<>();
-        deptLocationList = new ArrayList<>();
+        deptLocList = new ArrayList<>();
+        destLocList = new ArrayList<>();
 
-        addImage.setOnClickListener(new View.OnClickListener() {
+        addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                targetLocation.setDate(new Date());
-                new LocationDBLogic().insert(targetLocation);
+                if (StringUtils.isNotEmpty(targetLocDto.getName())) {
+                    targetLocDto.setDate(new Date());
+                    new LocationDBLogic().insert(targetLocDto);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    builder.setMessage(R.string.dialog_msg_add);
+                    final AlertDialog alertDialog= builder.create();
+                    alertDialog.show();
+
+                    final Timer t = new Timer();
+                    t.schedule(new TimerTask() {
+                        public void run() {
+                            alertDialog.dismiss();
+                            t.cancel();
+                        }
+                    }, 5000);
+                }
+
             }
         });
         arBtn.setOnClickListener(new View.OnClickListener() {
@@ -182,49 +211,48 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 startActivity(intent);
             }
         });
-        exchangeImage.setOnClickListener(new View.OnClickListener() {
+        exchangeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // Exchange the departure and the destination
-                if (startLocation != null || targetLocation != null) {
+                if (startLocDto != null || targetLocDto != null) {
                     // Exchange content in dto
-                    LocationDto temp = startLocation;
-                    startLocation = targetLocation;
-                    targetLocation = temp;
+                    LocationDto temp = startLocDto;
+                    startLocDto = targetLocDto;
+                    targetLocDto = temp;
 
                     // Exchange message in TextView
-                    if (startLocation != null) {
-                        departureText.setText(startLocation.getName());
+                    if (startLocDto != null) {
+                        deptTxt.setText(startLocDto.getName());
                     } else {
-                        departureText.setText("");
+                        deptTxt.setText("");
                     }
-                    if (targetLocation != null) {
-                        destinationText.setText(targetLocation.getName());
+                    if (targetLocDto != null) {
+                        destTxt.setText(targetLocDto.getName());
                     } else {
-                        destinationText.setText("");
+                        destTxt.setText("");
                     }
                 }
-                if (startLocation != null && targetLocation != null && StringUtils.isNotEmpty(mode)) {
-                    PlaceManagerUtils.findRoute(convert(startLocation), convert(targetLocation),
+                if (startLocDto != null && targetLocDto != null && StringUtils.isNotEmpty(mode)) {
+                    PlaceManagerUtils.findRoute(convert(startLocDto), convert(targetLocDto),
                             mode);
                 }
             }
         });
 
-        departureTextClear.setOnClickListener(new View.OnClickListener() {
+        deptTxtClearBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startLocation = new LocationDto();
-                ;
-                departureText.setText("");
+                startLocDto = new LocationDto();
+                deptTxt.setText("");
             }
         });
 
-        destinationTextClear.setOnClickListener(new View.OnClickListener() {
+        destTxtClearBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                targetLocation = new LocationDto();
-                destinationText.setText("");
+                targetLocDto = new LocationDto();
+                destTxt.setText("");
             }
         });
 
@@ -232,10 +260,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View view) {
                 mode = "transit";
-                if (startLocation != null && targetLocation != null) {
+                if (startLocDto != null && targetLocDto != null) {
                     PlaceManagerUtils.findRoute(
-                            convert(startLocation),
-                            convert(targetLocation),
+                            convert(startLocDto),
+                            convert(targetLocDto),
                             mode.equals("") ? "walking" : mode
                     );
                 }
@@ -246,10 +274,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View view) {
                 mode = "walking";
-                if (startLocation != null && targetLocation != null) {
+                if (startLocDto != null && targetLocDto != null) {
                     PlaceManagerUtils.findRoute(
-                            convert(startLocation),
-                            convert(targetLocation),
+                            convert(startLocDto),
+                            convert(targetLocDto),
                             mode.equals("") ? "walking" : mode
                     );
                 }
@@ -260,10 +288,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View view) {
                 mode = "bicycling";
-                if (startLocation != null && targetLocation != null) {
+                if (startLocDto != null && targetLocDto != null) {
                     PlaceManagerUtils.findRoute(
-                            convert(startLocation),
-                            convert(targetLocation),
+                            convert(startLocDto),
+                            convert(targetLocDto),
                             mode.equals("") ? "walking" : mode
                     );
                 }
@@ -271,58 +299,34 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
 
         // Get current location after clicking the position button
-        position.setOnClickListener(new View.OnClickListener() {
+        locateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Location location = gps.getLocation(getActivity());
+                Location location = gpsLogic.getLocation(getActivity());
                 resetCurrentPosition(location);
-                if (startLocation != null && targetLocation != null && StringUtils.isNotEmpty(mode)) {
-                    PlaceManagerUtils.findRoute(convert(startLocation), convert(targetLocation),
+                if (startLocDto != null && targetLocDto != null && StringUtils.isNotEmpty(mode)) {
+                    PlaceManagerUtils.findRoute(convert(startLocDto), convert(targetLocDto),
                             mode);
                 }
             }
         });
 
         // Do way finding after clicking the navigate button
-        navigate.setOnClickListener(new View.OnClickListener() {
+        navigateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 // TODO
             }
         });
 
-        // listener for delayed trigger
-        destinationText.addTextChangedListener(new TextWatcher() {
+        deptTxt.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
             }
 
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (getView().findFocus() == destinationText) {
-                    destinationKeyword = charSequence.toString().trim();
-                    if (autoCompleteUtils.hasMessages(AutoCompleteUtils.TRIGGER_DEST_MSG)) {
-                        autoCompleteUtils.removeMessages(AutoCompleteUtils.TRIGGER_DEST_MSG);
-                    }
-                    Message msg = new Message();
-                    msg.what = AutoCompleteUtils.TRIGGER_DEST_MSG;
-                    autoCompleteUtils.sendMessageDelayed(msg, autocompleteDelay);
-                }
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-            }
-        });
-
-        departureText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-                if (getView().findFocus() == departureText) {
+                if (getView().findFocus() == deptTxt) {
                     departureKeyword = charSequence.toString().trim();
                     if (autoCompleteUtils.hasMessages(AutoCompleteUtils.TRIGGER_DEPT_MSG)) {
                         autoCompleteUtils.removeMessages(AutoCompleteUtils.TRIGGER_DEPT_MSG);
@@ -338,22 +342,46 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
+        // listener for delayed trigger
+        destTxt.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                if (getView().findFocus() == destTxt) {
+                    destinationKeyword = charSequence.toString().trim();
+                    if (autoCompleteUtils.hasMessages(AutoCompleteUtils.TRIGGER_DEST_MSG)) {
+                        autoCompleteUtils.removeMessages(AutoCompleteUtils.TRIGGER_DEST_MSG);
+                    }
+                    Message msg = new Message();
+                    msg.what = AutoCompleteUtils.TRIGGER_DEST_MSG;
+                    autoCompleteUtils.sendMessageDelayed(msg, autocompleteDelay);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+            }
+        });
+
         // click on a place in the candidate places
         destPlacesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                LocationDto location = destLocationList.get(i);
+                LocationDto location = destLocList.get(i);
                 destPlacesListView.setAdapter(null);
-                targetLocation = location;
-                destinationText.setText(targetLocation.getName());
+                targetLocDto = location;
+                destTxt.setText(targetLocDto.getName());
                 // hide the soft keyboard after clicking on an item
                 InputMethodManager manager = ((InputMethodManager) getContext()
                         .getSystemService(Context.INPUT_METHOD_SERVICE));
                 if (manager != null)
                     manager.hideSoftInputFromWindow(getView().findFocus().getWindowToken(), 0);
-                destinationText.clearFocus();
-                if (startLocation != null && targetLocation != null && StringUtils.isNotEmpty(mode)) {
-                    PlaceManagerUtils.findRoute(convert(startLocation), convert(targetLocation),
+                destTxt.clearFocus();
+                if (startLocDto != null && targetLocDto != null && StringUtils.isNotEmpty(mode)) {
+                    PlaceManagerUtils.findRoute(convert(startLocDto), convert(targetLocDto),
                             mode);
                 }
             }
@@ -362,18 +390,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         deptPlacesListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                LocationDto location = deptLocationList.get(i);
+                LocationDto location = deptLocList.get(i);
                 deptPlacesListView.setAdapter(null);
-                startLocation = location;
-                departureText.setText(startLocation.getName());
+                startLocDto = location;
+                deptTxt.setText(startLocDto.getName());
                 // hide the soft keyboard after clicking on an item
                 InputMethodManager manager = ((InputMethodManager) getContext()
                         .getSystemService(Context.INPUT_METHOD_SERVICE));
                 if (manager != null)
                     manager.hideSoftInputFromWindow(getView().findFocus().getWindowToken(), 0);
-                departureText.clearFocus();
-                if (startLocation != null && targetLocation != null && StringUtils.isNotEmpty(mode)) {
-                    PlaceManagerUtils.findRoute(convert(startLocation), convert(targetLocation),
+                deptTxt.clearFocus();
+                if (startLocDto != null && targetLocDto != null && StringUtils.isNotEmpty(mode)) {
+                    PlaceManagerUtils.findRoute(convert(startLocDto), convert(targetLocDto),
                             mode);
                 }
 
@@ -381,12 +409,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
 
         // listener to change the visibility of the places list
-        destinationText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        destTxt.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
                 if (b) {
                     destPlacesListView.setAdapter(new LocationAdapter(getContext(),
-                            R.layout.autocomplete_location_item, destLocationList));
+                            R.layout.autocomplete_location_item, destLocList));
                     destPlacesListView.setVisibility(View.VISIBLE);
                 } else {
                     destPlacesListView.setAdapter(null);
@@ -395,12 +423,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             }
         });
 
-        departureText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        deptTxt.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean b) {
                 if (b) {
                     deptPlacesListView.setAdapter(new LocationAdapter(getContext(),
-                            R.layout.autocomplete_location_item, deptLocationList));
+                            R.layout.autocomplete_location_item, deptLocList));
                     deptPlacesListView.setVisibility(View.VISIBLE);
                 } else {
                     deptPlacesListView.setAdapter(null);
@@ -425,8 +453,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
 
         // Create GPS object
-        gps = new GPSTrackerLogic(getContext());
-        Location location = gps.getLocation(getActivity());
+        gpsLogic = new GPSTrackerLogic(getContext());
+        Location location = gpsLogic.getLocation(getActivity());
         resetCurrentPosition(location);
 
         // Add map click listener
@@ -450,28 +478,28 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             PlacesSearchResult[] places;
             if (type == AutoCompleteUtils.AutocompleteType.DEST) {
                 places = PlaceManagerUtils.nearbySearchQuery(destinationKeyword,
-                        convert(startLocation != null ? startLocation : currentLocation));
-                destLocationList.clear();
+                        convert(startLocDto != null ? startLocDto : currentLocDto));
+                destLocList.clear();
             } else {
                 places = PlaceManagerUtils.nearbySearchQuery(departureKeyword,
-                        convert(targetLocation != null ? targetLocation : currentLocation));
-                deptLocationList.clear();
+                        convert(targetLocDto != null ? targetLocDto : currentLocDto));
+                deptLocList.clear();
             }
             for (PlacesSearchResult place : places) {
                 LocationDto location = PlaceManagerUtils.queryDetail(place.placeId);
                 if (type == AutoCompleteUtils.AutocompleteType.DEST) {
-                    destLocationList.add(location);
+                    destLocList.add(location);
                 } else {
-                    deptLocationList.add(location);
+                    deptLocList.add(location);
                 }
             }
             // pass the results to original thread so that UI elements can be updated
             if (type == AutoCompleteUtils.AutocompleteType.DEST) {
                 UIHandler.post(() -> destPlacesListView.setAdapter(new LocationAdapter(getContext(),
-                        R.layout.autocomplete_location_item, destLocationList)));
+                        R.layout.autocomplete_location_item, destLocList)));
             } else {
                 UIHandler.post(() -> deptPlacesListView.setAdapter(new LocationAdapter(getContext(),
-                        R.layout.autocomplete_location_item, deptLocationList)));
+                        R.layout.autocomplete_location_item, deptLocList)));
             }
         }).start();
     }
@@ -483,32 +511,32 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
      */
     private void resetCurrentPosition(Location location) {
         // Add a marker in current location and move the camera
-        currentLocation = new LocationDto();
-        currentLocation.setName(YOUR_LOCATION);
-        currentLocation.setDate(new Date());
-        if (gps.isLocateEnabled()) {
+        currentLocDto = new LocationDto();
+        currentLocDto.setName(getString(R.string.your_location));
+        currentLocDto.setDate(new Date());
+        if (gpsLogic.isLocateEnabled()) {
             // reset Dto
-            currentLocation.setLatitude(location.getLatitude());
-            currentLocation.setLongitude(location.getLongitude());
+            currentLocDto.setLatitude(location.getLatitude());
+            currentLocDto.setLongitude(location.getLongitude());
             // reset view text
-            departureText.setText(currentLocation.getName());
+            deptTxt.setText(currentLocDto.getName());
         } else {
             // reset Dto
-            currentLocation.setLatitude(53);
-            currentLocation.setLongitude(-6);
+            currentLocDto.setLatitude(53);
+            currentLocDto.setLongitude(-6);
         }
         try {
-            startLocation = new LocationDto();
-            BeanUtils.copyProperties(startLocation, currentLocation);
+            startLocDto = new LocationDto();
+            BeanUtils.copyProperties(startLocDto, currentLocDto);
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Error occurs while doing dto copy");
         }
         // reset map
         map.clear();
-        map.addMarker(new MarkerOptions().position(convert(currentLocation))
+        map.addMarker(new MarkerOptions().position(convert(currentLocDto))
                 .title("current location"));
-        map.moveCamera(CameraUpdateFactory.newLatLng(convert(currentLocation)));
+        map.moveCamera(CameraUpdateFactory.newLatLng(convert(currentLocDto)));
     }
 
     private void showPlaceDetail(LocationDto location) {
@@ -541,27 +569,27 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             } else {
                 locationImg.setImageResource(R.drawable.ic_location_unavaliable);
             }
-            selectLocationName.setText(location.getName());
-            selectLocationDetail.setText(location.getAddress());
+            btmLocNmTxt.setText(location.getName());
+            btmLocDtlTxt.setText(location.getAddress());
 
-            setDeparture.setOnClickListener(new View.OnClickListener() {
+            setDeptBtn.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
-                    startLocation = location;
-                    departureText.setText(startLocation.getName());
-                    if (startLocation != null && targetLocation != null && StringUtils.isNotEmpty(mode)) {
-                        PlaceManagerUtils.findRoute(convert(startLocation),
-                                convert(targetLocation), mode);
+                    startLocDto = location;
+                    deptTxt.setText(startLocDto.getName());
+                    if (startLocDto != null && targetLocDto != null && StringUtils.isNotEmpty(mode)) {
+                        PlaceManagerUtils.findRoute(convert(startLocDto),
+                                convert(targetLocDto), mode);
                     }
                 }
             });
-            setDestination.setOnClickListener(new View.OnClickListener() {
+            setDestBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    targetLocation = location;
-                    destinationText.setText(targetLocation.getName());
-                    if (startLocation != null && targetLocation != null && StringUtils.isNotEmpty(mode)) {
-                        PlaceManagerUtils.findRoute(convert(startLocation),
-                                convert(targetLocation), mode);
+                    targetLocDto = location;
+                    destTxt.setText(targetLocDto.getName());
+                    if (startLocDto != null && targetLocDto != null && StringUtils.isNotEmpty(mode)) {
+                        PlaceManagerUtils.findRoute(convert(startLocDto),
+                                convert(targetLocDto), mode);
                     }
                 }
             });

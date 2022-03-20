@@ -47,7 +47,7 @@
             android:textSize="15dp" />
 
         <ImageView
-            android:id="@+id/clear_departure"
+            android:id="@+id/clear_dept_btn"
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_centerVertical="true"
@@ -101,7 +101,7 @@
             android:textSize="15dp" />
 
         <ImageView
-            android:id="@+id/clear_destination"
+            android:id="@+id/clear_dest_btn"
             android:layout_width="20dp"
             android:layout_height="20dp"
             android:layout_centerVertical="true"
@@ -133,7 +133,7 @@
         android:orientation="vertical">
 
         <ImageView
-            android:id="@+id/add"
+            android:id="@+id/add_btn"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginLeft="2dp"
@@ -141,7 +141,7 @@
             android:src="@drawable/ic_add"/>
 
         <ImageView
-            android:id="@+id/exchange"
+            android:id="@+id/exchange_btn"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_marginLeft="2dp"
@@ -303,7 +303,7 @@
                     android:src="@drawable/ic_location_unavaliable" />
 
                 <TextView
-                    android:id="@+id/click_location_name"
+                    android:id="@+id/btm_location_name_txt"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="150dp"
@@ -314,7 +314,7 @@
                 2
 
                 <TextView
-                    android:id="@+id/click_location_detail"
+                    android:id="@+id/btm_location_detail_txt"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="150dp"

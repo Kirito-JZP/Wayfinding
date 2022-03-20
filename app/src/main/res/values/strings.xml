@@ -19,4 +19,9 @@
     <string name="confirm">Confirm</string>
     <string name="edit">Edit</string>
     <string name="back">Back</string>
+    
+    <!-- Map -->
+    <string name="your_location">Your location</string>
+    <string name="dialog_msg_no_inputs">No inputs in destination!</string>
+    <string name="dialog_msg_add">Added a destination!</string>
 </resources>
