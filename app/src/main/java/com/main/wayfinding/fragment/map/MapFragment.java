@@ -1,10 +1,10 @@
 package com.main.wayfinding.fragment.map;
 
+import static com.main.wayfinding.utility.AlertDialogUtils.createAlertDialog;
 import static com.main.wayfinding.utility.PlaceManagerUtils.findLocationGeoMsg;
 import static com.main.wayfinding.utility.LatLngConverterUtils.convert;
 import static com.main.wayfinding.utility.PlaceManagerUtils.queryDetail;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -55,8 +55,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 import javadz.beanutils.BeanUtils;
 
@@ -185,21 +183,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (StringUtils.isNotEmpty(targetLocDto.getName())) {
+                if (targetLocDto !=null && StringUtils.isNotEmpty(targetLocDto.getName())) {
                     targetLocDto.setDate(new Date());
                     new LocationDBLogic().insert(targetLocDto);
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    builder.setMessage(R.string.dialog_msg_add);
-                    final AlertDialog alertDialog= builder.create();
-                    alertDialog.show();
-
-                    final Timer t = new Timer();
-                    t.schedule(new TimerTask() {
-                        public void run() {
-                            alertDialog.dismiss();
-                            t.cancel();
-                        }
-                    }, 5000);
+                    createAlertDialog(getContext(), getString(R.string.dialog_msg_add));
+                } else {
+                    createAlertDialog(getContext(), getString(R.string.dialog_msg_no_inputs));
                 }
 
             }
@@ -244,6 +233,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View view) {
                 startLocDto = new LocationDto();
+                deptPlacesListView.setVisibility(View.INVISIBLE);
                 deptTxt.setText("");
             }
         });
@@ -252,6 +242,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View view) {
                 targetLocDto = new LocationDto();
+                destPlacesListView.setVisibility(View.INVISIBLE);
                 destTxt.setText("");
             }
         });
@@ -304,6 +295,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             public void onClick(View view) {
                 Location location = gpsLogic.getLocation(getActivity());
                 resetCurrentPosition(location);
+                deptPlacesListView.setVisibility(View.INVISIBLE);
                 if (startLocDto != null && targetLocDto != null && StringUtils.isNotEmpty(mode)) {
                     PlaceManagerUtils.findRoute(convert(startLocDto), convert(targetLocDto),
                             mode);

@@ -47,12 +47,13 @@ public class UserDto {
     public void setSurname(String surname){
         this.surname = surname;
     }
+
     public void setCountry(String country){
         this.country = country;
     }
+
     public void setPhoneNumber(String phoneNumber){
         this.phoneNumber = phoneNumber;
     }
-
 
 }

@@ -57,7 +57,7 @@
     <ListView
             android:id="@+id/dept_places_listview"
             android:layout_width="match_parent"
-            android:layout_height="200dp"
+            android:layout_height="100dp"
             android:layout_below="@id/Layout_start_location"
             android:layout_alignStart="@id/Layout_start_location"
             android:layout_alignEnd="@id/Layout_start_location"
@@ -65,6 +65,7 @@
             android:background="@drawable/border"
             android:elevation="12dp"
             android:fastScrollEnabled="true"
+            android:scrollbarStyle="insideInset"
             android:visibility="invisible"/>
 
     <RelativeLayout
@@ -111,7 +112,7 @@
     <ListView
         android:id="@+id/dest_places_listview"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="100dp"
         android:layout_below="@id/Layout_search"
         android:layout_alignStart="@id/Layout_search"
         android:layout_alignEnd="@id/Layout_search"
@@ -119,6 +120,7 @@
         android:background="@drawable/border"
         android:elevation="1dp"
         android:fastScrollEnabled="true"
+        android:scrollbarStyle="insideInset"
         android:visibility="invisible"/>
 
     <!--add to preference & exchange button-->
