@@ -40,6 +40,8 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
+import com.main.wayfinding.ARNavigationActivity;
+import com.main.wayfinding.MainActivity;
 import com.main.wayfinding.R;
 import com.main.wayfinding.databinding.FragmentAccountBinding;
 import com.main.wayfinding.dto.UserDto;
@@ -101,30 +103,15 @@ public class AccountFragment extends Fragment {
                     System.out.println(imageSelected); // test
 
                     InputStream is = null;
-                    //Uri.parse("content://media/external/images/media/113769")
+
                     try {
                         is = requireActivity().getContentResolver().openInputStream(imageSelected); // inputStream
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     }
-
-
-
-                    View signUpView = View.inflate(getContext(), R.layout.fragment_accountcreate, null);
-                    EditText editText = signUpView.findViewById(R.id.username);
-                    System.out.println(editText);
-
-                    // set ImageView --- bug
-                    // 获取到signupview&createAccountView 修改头像
-                    editText.setText("888888888888");
-                    ImageView imageView = signUpView.findViewById(R.id.avatar);
                     Bitmap bitmap = BitmapFactory.decodeStream(is);
-
-                    imageView.setImageBitmap(bitmap); // 是否有效？
-
-                    System.out.println("set finished");
-
-                    Log.d("bitmap", bitmap.getPixel(25,35)+""); //test
+                    ImageView imageView = getView().findViewById(R.id.avatar);
+                    imageView.setImageBitmap(bitmap);
 
 
                 }
@@ -273,68 +260,6 @@ public class AccountFragment extends Fragment {
                     }
                 });
 
-                // 添加头像 这里怎么优化代码？重复
-                signUpView.findViewById(R.id.avatar).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        View avatarView = View.inflate(getContext(), R.layout.fragment_avatar, null);
-                        AlertDialog dialogAvatar = new AlertDialog.Builder(getActivity()).setView(avatarView).show();
-                        //在这里优化？
-                        TextView avatar_photo = (TextView) avatarView.findViewById(R.id.photo);
-                        TextView avatar_photograph = (TextView) avatarView.findViewById(R.id.photograph);
-                        TextView avatar_cancel = (TextView) avatarView.findViewById(R.id.cancel);
-
-                        avatar_photo.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                System.out.println("从相册选择");
-                                Intent album = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                                intentActivityResultLauncher.launch(album);
-
-
-
-                            }
-                        });
-
-                        // 拍照
-                        avatar_photograph.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                System.out.println("拍照");
-                                Handler imgHandler = new Handler();
-                                // set imageView test
-                                try {
-                                    // resolving the string into url
-
-                                    URL url = new URL("https://p0.ssl.img.360kuai.com/t01630a753af82c625f.jpg?size=640x410");
-                                    // Open the input stream
-                                    InputStream inputStream = url.openStream();
-                                    // Convert the online source to bitmap picture
-                                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-                                    System.out.println("set Image!!!");
-                                    ImageView imageView = signUpView.findViewById(R.id.avatar);
-                                    imgHandler.post(() -> {
-                                        imageView.setImageBitmap(bitmap);
-
-                                    });
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-
-
-                            }
-                        });
-
-                        avatar_cancel.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                dialogAvatar.dismiss();
-                            }
-                        });
-                        //
-                    }
-                });
-
 
             }
         });
@@ -362,12 +287,14 @@ public class AccountFragment extends Fragment {
         EditText status_country = getView().findViewById(R.id.country);
         EditText status_email = getView().findViewById(R.id.email);
         EditText status_phone = getView().findViewById(R.id.phone_number);
+        ImageView stauts_avatar = getView().findViewById(R.id.avatar);
 
         status_firstname.setEnabled(false);
         status_surname.setEnabled(false);
         status_country.setEnabled(false);
         status_email.setEnabled(false);
         status_phone.setEnabled(false);
+        stauts_avatar.setEnabled(false);
 
         if (currentUser != null) {
             // if logged in, query and render user information
@@ -384,6 +311,7 @@ public class AccountFragment extends Fragment {
                         status_phone.setText(userDto.getPhoneNumber());
 
 
+
                         getView().findViewById(R.id.edit).setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
@@ -392,6 +320,8 @@ public class AccountFragment extends Fragment {
                                 status_surname.setEnabled(true);
                                 status_country.setEnabled(true);
                                 status_phone.setEnabled(true);
+                                stauts_avatar.setEnabled(true);
+
 
                                 // 有值的情况下点edit 修改两个隐藏按钮back&confirm为可见，
                                 // 修改两个按钮(edit&signout)为gone,并设置点击事件
@@ -429,11 +359,50 @@ public class AccountFragment extends Fragment {
                                         getView().findViewById(R.id.confirm_edit).setVisibility(View.GONE);
                                         getView().findViewById(R.id.sign_out).setVisibility(View.VISIBLE);
                                         reload();
+
+                                        //这里confirm上传图片--------
+
                                     }
                                 });
 
                                 // 修改头像
-                                //editAvatar();
+                                stauts_avatar.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        View avatarView = View.inflate(getContext(), R.layout.fragment_avatar, null);
+                                        AlertDialog dialogAvatar = new AlertDialog.Builder(getActivity()).setView(avatarView).show();
+                                        //在这里优化？
+                                        TextView avatar_photo = (TextView) avatarView.findViewById(R.id.photo);//album
+                                        TextView avatar_photograph = (TextView) avatarView.findViewById(R.id.photograph);//take photo
+                                        TextView avatar_cancel = (TextView) avatarView.findViewById(R.id.cancel);
+
+                                        avatar_photo.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View view) {
+                                                System.out.println("从相册选择");
+                                                Intent album = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                                intentActivityResultLauncher.launch(album);
+                                            }
+                                        });
+                                        // 拍照
+                                        avatar_photograph.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View view) {
+                                                System.out.println("拍照");
+                                                // 待写------
+                                            }
+                                        });
+
+                                        avatar_cancel.setOnClickListener(new View.OnClickListener() {
+                                            @Override
+                                            public void onClick(View view) {
+                                                dialogAvatar.dismiss();
+                                            }
+                                        });
+
+
+                                    }
+                                });
 
                             }
                         });
@@ -479,30 +448,7 @@ public class AccountFragment extends Fragment {
         return mc.matches();
     }
 
-    // 修改头像 先不用这个
-//    public void editAvatar(){
-//        getView().findViewById(R.id.avatar).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                View avatarView = View.inflate(getContext(), R.layout.fragment_avatar, null);
-//                AlertDialog dialogAvatar = new AlertDialog.Builder(getActivity()).setView(avatarView).show();
-//
-//                switch (avatarView.getId()){
-//                    case R.id.photo:
-//                        System.out.println("拍照");
-//
-//                        break;
-//                    case R.id.photograph:
-//                        System.out.println("从相册选择");
-//                        break;
-//                    case R.id.cancel:
-//                        dialogAvatar.dismiss();
-//                        break;
-//                    default:break;
-//                }
-//            }
-//        });
-//    }
+
 
 
 }
