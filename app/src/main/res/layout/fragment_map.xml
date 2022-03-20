@@ -54,23 +54,19 @@
             android:layout_marginLeft="280dp"
             android:src="@drawable/ic_clear" />
     </RelativeLayout>
-    <ScrollView
-            android:id="@+id/dept_scrollview"
+    <ListView
+            android:id="@+id/dept_places_listview"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="200dp"
             android:layout_below="@id/Layout_start_location"
             android:layout_alignStart="@id/Layout_start_location"
             android:layout_alignEnd="@id/Layout_start_location"
             android:layout_marginEnd="3dp"
             android:background="@drawable/border"
             android:elevation="12dp"
-            android:visibility="invisible">
+            android:fastScrollEnabled="true"
+            android:visibility="invisible"/>
 
-            <ListView
-                android:id="@+id/dept_places_listview"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
-        </ScrollView>
     <RelativeLayout
         android:id="@+id/Layout_search"
         android:layout_width="match_parent"
@@ -112,23 +108,19 @@
             android:layout_marginLeft="280dp"
             android:src="@drawable/ic_clear" />
     </RelativeLayout>
-    <ScrollView
-        android:id="@+id/dest_scrollview"
+    <ListView
+        android:id="@+id/dest_places_listview"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="200dp"
         android:layout_below="@id/Layout_search"
         android:layout_alignStart="@id/Layout_search"
         android:layout_alignEnd="@id/Layout_search"
         android:layout_marginEnd="3dp"
         android:background="@drawable/border"
         android:elevation="1dp"
-        android:visibility="invisible">
+        android:fastScrollEnabled="true"
+        android:visibility="invisible"/>
 
-        <ListView
-            android:id="@+id/dest_places_listview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"/>
-    </ScrollView>
     <!--add to preference & exchange button-->
     <LinearLayout
         android:layout_width="100dp"

@@ -108,8 +108,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private TextView selectLocationDetail;
     private ListView destPlacesListView;
     private ListView deptPlacesListView;
-    private ScrollView destScrollView;
-    private ScrollView deptScrollView;
     private RelativeLayout rootLayout;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -161,8 +159,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         // ListView
         destPlacesListView = view.findViewById(R.id.dest_places_listview);
         deptPlacesListView = view.findViewById(R.id.dept_places_listview);
-        destScrollView = view.findViewById(R.id.dest_scrollview);
-        deptScrollView = view.findViewById(R.id.dept_scrollview);
+//        destScrollView = view.findViewById(R.id.dest_scrollview);
+//        deptScrollView = view.findViewById(R.id.dept_scrollview);
 
         autoCompleteUtils = new AutoCompleteUtils();
         autoCompleteUtils.setFragment(this);
@@ -389,10 +387,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 if (b) {
                     destPlacesListView.setAdapter(new LocationAdapter(getContext(),
                             R.layout.autocomplete_location_item, destLocationList));
-                    destScrollView.setVisibility(View.VISIBLE);
+                    destPlacesListView.setVisibility(View.VISIBLE);
                 } else {
                     destPlacesListView.setAdapter(null);
-                    destScrollView.setVisibility(View.INVISIBLE);
+                    destPlacesListView.setVisibility(View.INVISIBLE);
                 }
             }
         });
@@ -403,24 +401,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 if (b) {
                     deptPlacesListView.setAdapter(new LocationAdapter(getContext(),
                             R.layout.autocomplete_location_item, deptLocationList));
-                    deptScrollView.setVisibility(View.VISIBLE);
-                    ListAdapter listAdapter = deptPlacesListView.getAdapter();
-                    if (listAdapter == null) {
-                        return;
-                    }
-                    int totalHeight = 0;
-                    int size=listAdapter.getCount();
-                    for (int i = 0; i < size; i++) {
-                        View listItem = listAdapter.getView(i, null, deptPlacesListView);
-                        listItem.measure(0, 0);
-                        totalHeight += listItem.getMeasuredHeight();
-                    }
-                    int params = deptScrollView.getHeight();
-                    params = totalHeight + (deptPlacesListView.getDividerHeight() * (listAdapter.getCount() - 1));
-                    System.out.println(params);
+                    deptPlacesListView.setVisibility(View.VISIBLE);
                 } else {
                     deptPlacesListView.setAdapter(null);
-                    deptScrollView.setVisibility(View.INVISIBLE);
+                    deptPlacesListView.setVisibility(View.INVISIBLE);
                 }
             }
         });
