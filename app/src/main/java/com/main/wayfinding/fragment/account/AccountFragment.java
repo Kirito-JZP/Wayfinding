@@ -40,6 +40,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.storage.UploadTask;
 import com.main.wayfinding.ARNavigationActivity;
 import com.main.wayfinding.MainActivity;
 import com.main.wayfinding.R;
@@ -50,6 +51,7 @@ import com.main.wayfinding.logic.DB.UserDBLogic;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
 import java.net.URL;
@@ -70,7 +72,9 @@ public class AccountFragment extends Fragment {
     private FragmentAccountBinding binding;
     private FirebaseAuth auth;
     private AuthLogic accountLogic;
-    ActivityResultLauncher<Intent> intentActivityResultLauncher;
+    private ActivityResultLauncher<Intent> intentActivityResultLauncher;
+    private Uri imageSelected;
+
     //调取系统摄像头的请求码
     private static final int MY_ADD_CASE_CALL_PHONE = 6;
     //打开相册的请求码
@@ -98,7 +102,6 @@ public class AccountFragment extends Fragment {
             @Override
             public void onActivityResult(ActivityResult result) {
                 if (result.getResultCode() == Activity.RESULT_OK && result.getData() != null) {
-                    Uri imageSelected = result.getData().getData();
                     imageSelected = result.getData().getData();
                     System.out.println(imageSelected); // test
 
@@ -106,12 +109,19 @@ public class AccountFragment extends Fragment {
 
                     try {
                         is = requireActivity().getContentResolver().openInputStream(imageSelected); // inputStream
+                        Bitmap bitmap = BitmapFactory.decodeStream(is);
+                        ImageView imageView = getView().findViewById(R.id.avatar);
+                        imageView.setImageBitmap(bitmap);
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
+                    } finally {
+                        try {
+                            is.close();
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
-                    Bitmap bitmap = BitmapFactory.decodeStream(is);
-                    ImageView imageView = getView().findViewById(R.id.avatar);
-                    imageView.setImageBitmap(bitmap);
+
 
 
                 }
@@ -274,6 +284,131 @@ public class AccountFragment extends Fragment {
             }
         });
 
+        view.findViewById(R.id.edit).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EditText status_firstname = getView().findViewById(R.id.first_name);
+                EditText status_surname = getView().findViewById(R.id.surname);
+                EditText status_country = getView().findViewById(R.id.country);
+                EditText status_email = getView().findViewById(R.id.email);
+                EditText status_phone = getView().findViewById(R.id.phone_number);
+                ImageView stauts_avatar = getView().findViewById(R.id.avatar);
+                // 设置为可编辑状态
+                status_firstname.setEnabled(true);
+                status_surname.setEnabled(true);
+                status_country.setEnabled(true);
+                status_phone.setEnabled(true);
+                stauts_avatar.setEnabled(true);
+
+
+                // 有值的情况下点edit 修改两个隐藏按钮back&confirm为可见，
+                // 修改两个按钮(edit&signout)为gone,并设置点击事件
+                getView().findViewById(R.id.edit_back).setVisibility(View.VISIBLE);
+                getView().findViewById(R.id.edit).setVisibility(View.GONE);
+                // 设置back按钮的点击事件....
+                getView().findViewById(R.id.edit_back).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        // 回复两个按钮可见和两个不可见
+                        getView().findViewById(R.id.edit_back).setVisibility(View.GONE);
+                        getView().findViewById(R.id.edit).setVisibility(View.VISIBLE);
+                        getView().findViewById(R.id.confirm_edit).setVisibility(View.GONE);
+                        getView().findViewById(R.id.sign_out).setVisibility(View.VISIBLE);
+                        reload();
+                    }
+                });
+
+                // 设置confirm事件
+                View editView = getView();
+                editView.findViewById(R.id.confirm_edit).setVisibility(View.VISIBLE);
+                editView.findViewById(R.id.sign_out).setVisibility(View.GONE);
+
+                editView.findViewById(R.id.confirm_edit).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        UserDto userDto = new UserDto();
+                        userDto.setFisrtName(status_firstname.getText().toString());
+                        userDto.setSurname(status_surname.getText().toString());
+                        userDto.setCountry(status_country.getText().toString());
+                        userDto.setPhoneNumber(status_phone.getText().toString());
+                        // 更新数据
+                        UserDBLogic userDBLogic = new UserDBLogic();
+                        userDBLogic.update(userDto);
+
+                        //这里confirm上传图片--------
+                        if(imageSelected!=null){
+                            try {
+                                InputStream is = requireActivity().getContentResolver().openInputStream(imageSelected);
+                                userDBLogic.uploadAvatar(is, new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                    @Override
+                                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                                        imageSelected = null;
+                                        getView().findViewById(R.id.edit_back).setVisibility(View.GONE);
+                                        getView().findViewById(R.id.edit).setVisibility(View.VISIBLE);
+                                        getView().findViewById(R.id.confirm_edit).setVisibility(View.GONE);
+                                        getView().findViewById(R.id.sign_out).setVisibility(View.VISIBLE);
+                                    }
+                                });
+
+                                //未关闭，记得在回调里关闭流
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            }
+
+                        }else{
+                            getView().findViewById(R.id.edit_back).setVisibility(View.GONE);
+                            getView().findViewById(R.id.edit).setVisibility(View.VISIBLE);
+                            getView().findViewById(R.id.confirm_edit).setVisibility(View.GONE);
+                            getView().findViewById(R.id.sign_out).setVisibility(View.VISIBLE);
+                        }
+
+                        reload();
+                    }
+                });
+
+                // 修改头像
+                stauts_avatar.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        View avatarView = View.inflate(getContext(), R.layout.fragment_avatar, null);
+                        AlertDialog dialogAvatar = new AlertDialog.Builder(getActivity()).setView(avatarView).show();
+                        //在这里优化？
+                        TextView avatar_photo = (TextView) avatarView.findViewById(R.id.photo);//album
+                        TextView avatar_photograph = (TextView) avatarView.findViewById(R.id.photograph);//take photo
+                        TextView avatar_cancel = (TextView) avatarView.findViewById(R.id.cancel);
+
+                        avatar_photo.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                System.out.println("从相册选择");
+                                Intent album = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                                intentActivityResultLauncher.launch(album);
+                            }
+                        });
+                        // 拍照
+                        avatar_photograph.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                System.out.println("拍照");
+                                // 待写------
+
+
+                            }
+                        });
+
+                        avatar_cancel.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                dialogAvatar.dismiss();
+                            }
+                        });
+
+
+                    }
+                });
+
+            }
+        });
 
     }
 
@@ -298,7 +433,8 @@ public class AccountFragment extends Fragment {
 
         if (currentUser != null) {
             // if logged in, query and render user information
-            new UserDBLogic().select(new OnCompleteListener<DataSnapshot>() {
+            UserDBLogic userDBLogic = new UserDBLogic();
+            userDBLogic.select(new OnCompleteListener<DataSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DataSnapshot> task) {
                     if (task.isSuccessful()) {
@@ -312,106 +448,15 @@ public class AccountFragment extends Fragment {
 
 
 
-                        getView().findViewById(R.id.edit).setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                // 设置为可编辑状态
-                                status_firstname.setEnabled(true);
-                                status_surname.setEnabled(true);
-                                status_country.setEnabled(true);
-                                status_phone.setEnabled(true);
-                                stauts_avatar.setEnabled(true);
-
-
-                                // 有值的情况下点edit 修改两个隐藏按钮back&confirm为可见，
-                                // 修改两个按钮(edit&signout)为gone,并设置点击事件
-                                getView().findViewById(R.id.edit_back).setVisibility(View.VISIBLE);
-                                getView().findViewById(R.id.edit).setVisibility(View.GONE);
-                                // 设置back按钮的点击事件....
-                                getView().findViewById(R.id.edit_back).setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        // 回复两个按钮可见和两个不可见
-                                        getView().findViewById(R.id.edit_back).setVisibility(View.GONE);
-                                        getView().findViewById(R.id.edit).setVisibility(View.VISIBLE);
-                                        getView().findViewById(R.id.confirm_edit).setVisibility(View.GONE);
-                                        getView().findViewById(R.id.sign_out).setVisibility(View.VISIBLE);
-                                        reload();
-                                    }
-                                });
-
-                                // 设置confirm事件
-                                View editView = getView();
-                                editView.findViewById(R.id.confirm_edit).setVisibility(View.VISIBLE);
-                                editView.findViewById(R.id.sign_out).setVisibility(View.GONE);
-
-                                editView.findViewById(R.id.confirm_edit).setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        userDto.setFisrtName(status_firstname.getText().toString());
-                                        userDto.setSurname(status_surname.getText().toString());
-                                        userDto.setCountry(status_country.getText().toString());
-                                        userDto.setPhoneNumber(status_phone.getText().toString());
-                                        // 更新数据
-                                        new UserDBLogic().update(userDto);
-                                        getView().findViewById(R.id.edit_back).setVisibility(View.GONE);
-                                        getView().findViewById(R.id.edit).setVisibility(View.VISIBLE);
-                                        getView().findViewById(R.id.confirm_edit).setVisibility(View.GONE);
-                                        getView().findViewById(R.id.sign_out).setVisibility(View.VISIBLE);
-                                        reload();
-
-                                        //这里confirm上传图片--------
-
-                                    }
-                                });
-
-                                // 修改头像
-                                stauts_avatar.setOnClickListener(new View.OnClickListener() {
-                                    @Override
-                                    public void onClick(View view) {
-                                        View avatarView = View.inflate(getContext(), R.layout.fragment_avatar, null);
-                                        AlertDialog dialogAvatar = new AlertDialog.Builder(getActivity()).setView(avatarView).show();
-                                        //在这里优化？
-                                        TextView avatar_photo = (TextView) avatarView.findViewById(R.id.photo);//album
-                                        TextView avatar_photograph = (TextView) avatarView.findViewById(R.id.photograph);//take photo
-                                        TextView avatar_cancel = (TextView) avatarView.findViewById(R.id.cancel);
-
-                                        avatar_photo.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View view) {
-                                                System.out.println("从相册选择");
-                                                Intent album = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                                                intentActivityResultLauncher.launch(album);
-                                            }
-                                        });
-                                        // 拍照
-                                        avatar_photograph.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View view) {
-                                                System.out.println("拍照");
-                                                // 待写------
-                                            }
-                                        });
-
-                                        avatar_cancel.setOnClickListener(new View.OnClickListener() {
-                                            @Override
-                                            public void onClick(View view) {
-                                                dialogAvatar.dismiss();
-                                            }
-                                        });
-
-
-                                    }
-                                });
-
-                            }
-                        });
-
                     } else {
                         System.out.println(task.getException().getMessage());
                     }
                 }
             });
+
+            userDBLogic.downloadAvatarInto(getContext(),stauts_avatar);
+
+
 
             //如果roald时currentUser里有值 这只登录 和 注册 按钮为隐藏，登出显示
             getView().findViewById(R.id.login).setVisibility(View.GONE); //可以不要?
