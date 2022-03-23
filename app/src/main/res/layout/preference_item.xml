@@ -52,7 +52,7 @@
                 android:layout_gravity="center_horizontal"
                 android:layout_margin="10dp"
                 android:text="Country"
-                android:textSize="16sp" />
+                android:textSize="17sp" />
         </LinearLayout>
 
     </androidx.cardview.widget.CardView>
