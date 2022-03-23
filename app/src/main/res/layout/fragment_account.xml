@@ -9,13 +9,21 @@
     tools:context=".fragment.account.AccountFragment"
     >
 
-    <ImageView
+<!--    <ImageView-->
+<!--        android:id="@+id/avatar"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="189dp"-->
+<!--        android:layout_marginTop="0dp"-->
+<!--        android:src="@drawable/ic_fragment_person" />-->
+
+
+    <com.main.wayfinding.fragment.account.RoundImageView
         android:id="@+id/avatar"
-        android:layout_width="match_parent"
+        android:layout_width="189dp"
         android:layout_height="189dp"
+        android:layout_centerHorizontal="true"
         android:layout_marginTop="0dp"
-        android:src="@drawable/ic_fragment_person"
-        />
+        android:src="@drawable/ic_fragment_person" />
 
     <ScrollView
         android:id="@+id/user_details"
