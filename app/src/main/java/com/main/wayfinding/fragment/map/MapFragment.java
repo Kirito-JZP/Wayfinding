@@ -101,8 +101,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     // EditText/TextView
     private EditText deptTxt;
     private EditText destTxt;
-    private TextView btmLocNmTxt;
-    private TextView btmLocDtlTxt;
+    private TextView btnLocNmTxt;
+    private TextView btnLocDtlTxt;
 
     // ImageView (button)
     private ImageView addBtn;
@@ -161,18 +161,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         locateBtn = view.findViewById(R.id.position);
         deptTxtClearBtn = view.findViewById(R.id.clear_dept_btn);
         destTxtClearBtn = view.findViewById(R.id.clear_dest_btn);
-        btmLocNmTxt = view.findViewById(R.id.btm_location_name_txt);
-        btmLocDtlTxt = view.findViewById(R.id.btm_location_detail_txt);
-        setDeptBtn = view.findViewById(R.id.set_departure_btn);
-        setDestBtn = view.findViewById(R.id.set_destination_btn);
+        btnLocNmTxt = view.findViewById(R.id.loc_name_txt);
+        btnLocDtlTxt = view.findViewById(R.id.loc_detail_txt);
+        setDeptBtn = view.findViewById(R.id.set_dept_btn);
+        setDestBtn = view.findViewById(R.id.set_dest_btn);
         locationImg = view.findViewById(R.id.location_img);
         arBtn = view.findViewById(R.id.arBtn);
         //bottom sheet
         bottomsheet = view.findViewById(R.id.bottomsheet);
 
         // ListView
-        destPlacesListView = view.findViewById(R.id.dest_places_listview);
-        deptPlacesListView = view.findViewById(R.id.dept_places_listview);
+        destPlacesListView = view.findViewById(R.id.dest_places_list);
+        deptPlacesListView = view.findViewById(R.id.dept_places_list);
 
         autoCompleteUtils = new AutoCompleteUtils();
         autoCompleteUtils.setFragment(this);
@@ -559,10 +559,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     }
                 }).start();
             } else {
-                locationImg.setImageResource(R.drawable.ic_location_unavaliable);
+                locationImg.setImageResource(R.drawable.ic_loc_img);
             }
-            btmLocNmTxt.setText(location.getName());
-            btmLocDtlTxt.setText(location.getAddress());
+            btnLocNmTxt.setText(location.getName());
+            btnLocDtlTxt.setText(location.getAddress());
 
             setDeptBtn.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {

@@ -32,7 +32,7 @@
             android:layout_centerVertical="true"
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"
-            android:src="@drawable/location" />
+            android:src="@drawable/ic_loc" />
 
         <EditText
             android:id="@+id/input_start"
@@ -55,7 +55,7 @@
             android:src="@drawable/ic_clear" />
     </RelativeLayout>
     <ListView
-            android:id="@+id/dept_places_listview"
+            android:id="@+id/dept_places_list"
             android:layout_width="match_parent"
             android:layout_height="100dp"
             android:layout_below="@id/Layout_start_location"
@@ -95,7 +95,7 @@
             android:layout_toRightOf="@id/search_img"
             android:background="@null"
             android:ems="10"
-            android:hint="Search here"
+            android:hint="@string/input_search"
             android:inputType="textPersonName"
             android:minHeight="48dp"
             android:singleLine="true"
@@ -110,7 +110,7 @@
             android:src="@drawable/ic_clear" />
     </RelativeLayout>
     <ListView
-        android:id="@+id/dest_places_listview"
+        android:id="@+id/dest_places_list"
         android:layout_width="match_parent"
         android:layout_height="100dp"
         android:layout_below="@id/Layout_search"
@@ -162,7 +162,7 @@
         android:layout_marginEnd="32dp"
         android:layout_marginBottom="220dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/ic_location_ar_camera"/>
+        android:src="@drawable/ic_ar_camera"/>
     <ImageView
         android:id="@+id/navigate"
         android:layout_width="40dp"
@@ -174,7 +174,7 @@
         android:layout_marginRight="30dp"
         android:layout_marginBottom="160dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/navigate" />
+        android:src="@drawable/ic_navigate" />
     <ImageView
         android:id="@+id/position"
         android:layout_width="40dp"
@@ -187,7 +187,7 @@
         android:layout_marginRight="30dp"
         android:layout_marginBottom="100dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/position" />
+        android:src="@drawable/ic_position" />
     <!--transportation-->
     <RelativeLayout
         android:layout_width="350dp"
@@ -207,7 +207,7 @@
                 android:layout_width="20dp"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="10dp"
-                android:src="@drawable/publictransport" />
+                android:src="@drawable/ic_public" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -215,7 +215,7 @@
                 android:layout_marginLeft="8dp"
                 android:layout_toRightOf="@+id/public_img"
                 android:gravity="center_vertical"
-                android:text="Public"
+                android:text="@string/trans_public"
                 android:textSize="15dp" />
         </RelativeLayout>
 
@@ -232,7 +232,7 @@
                 android:layout_width="20dp"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="10dp"
-                android:src="@drawable/walking" />
+                android:src="@drawable/ic_walking" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -240,7 +240,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_toRightOf="@+id/walk_img"
                 android:gravity="center_vertical"
-                android:text="Walk"
+                android:text="@string/trans_walk"
                 android:textSize="15dp" />
         </RelativeLayout>
 
@@ -257,7 +257,7 @@
                 android:layout_width="20dp"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="10dp"
-                android:src="@drawable/cycling" />
+                android:src="@drawable/ic_cycling" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -265,7 +265,7 @@
                 android:layout_marginLeft="5dp"
                 android:layout_toRightOf="@+id/cycling_img"
                 android:gravity="center_vertical"
-                android:text="Cycling"
+                android:text="@string/trans_cycling"
                 android:textSize="15dp" />
         </RelativeLayout>
     </RelativeLayout>
@@ -290,6 +290,7 @@
                 map:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
 
                 <ImageView
+                    android:id="@+id/remove_bar"
                     android:layout_width="70dp"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center|top"
@@ -302,10 +303,10 @@
                     android:layout_height="100dp"
                     android:layout_marginLeft="30dp"
                     android:layout_marginTop="50dp"
-                    android:src="@drawable/ic_location_unavaliable" />
+                    android:src="@drawable/ic_loc_img" />
 
                 <TextView
-                    android:id="@+id/btm_location_name_txt"
+                    android:id="@+id/loc_name_txt"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="150dp"
@@ -313,10 +314,10 @@
                     android:layout_marginRight="20dp"
                     android:text=" "
                     android:textSize="20dp" />
-                2
+
 
                 <TextView
-                    android:id="@+id/btm_location_detail_txt"
+                    android:id="@+id/loc_detail_txt"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="150dp"
@@ -326,7 +327,7 @@
                     android:textSize="15dp" />
 
                 <RelativeLayout
-                    android:id="@+id/set_departure_btn"
+                    android:id="@+id/set_dept_btn"
                     android:layout_width="120dp"
                     android:layout_height="45dp"
                     android:layout_marginLeft="30dp"
@@ -348,14 +349,14 @@
                         android:layout_marginLeft="5dp"
                         android:layout_toRightOf="@+id/set_departure"
                         android:gravity="center_vertical"
-                        android:text="Set departure"
+                        android:text="@string/Set_departure"
                         android:textColor="@color/white"
                         android:textSize="15dp"
                         android:textStyle="bold" />
                 </RelativeLayout>
 
                 <RelativeLayout
-                    android:id="@+id/set_destination_btn"
+                    android:id="@+id/set_dest_btn"
                     android:layout_width="120dp"
                     android:layout_height="45dp"
                     android:layout_marginLeft="250dp"
