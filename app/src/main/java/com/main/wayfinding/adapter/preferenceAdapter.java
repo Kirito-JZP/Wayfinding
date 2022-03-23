@@ -96,6 +96,41 @@ public class preferenceAdapter extends RecyclerView.Adapter<preferenceAdapter.Vi
                 return false;
             }
         });
+
+//        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
+//            @Override
+//            public boolean onLongClick(View view) {
+//
+//                AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
+//                builder.setTitle("Confirm");
+//                builder.setMessage("Are you sure?");
+//
+//                builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
+//
+//                    public void onClick(DialogInterface dialog, int which) {
+//
+//                        dialog.dismiss();
+//                        mRecentlySaved.remove(holder.getAdapterPosition());
+//                        notifyItemRemoved(position);
+//                    }
+//                });
+//
+//                builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
+//
+//                    @Override
+//                    public void onClick(DialogInterface dialog, int which) {
+//
+//                        dialog.dismiss();
+//                    }
+//                });
+//
+//                AlertDialog alert = builder.create();
+//                alert.show();
+//
+//                return false;
+//            }
+//        });
+//
     }
     @Override
     public int getItemCount()
