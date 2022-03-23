@@ -6,27 +6,22 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@drawable/account_bg2"
     tools:context=".fragment.account.AccountFragment"
     >
-
 
     <ImageView
         android:id="@+id/avatar"
         android:layout_width="match_parent"
-        android:layout_height="161dp"
-
-        android:layout_marginTop="50dp"
-        android:src="@drawable/ic_baseline_account_circle_24" />
-
+        android:layout_height="189dp"
+        android:layout_marginTop="0dp"
+        android:src="@drawable/ic_fragment_person"
+        />
 
     <ScrollView
         android:id="@+id/user_details"
-        android:layout_width="255dp"
+        android:layout_width="match_parent"
         android:layout_height="286dp"
         android:layout_below="@+id/avatar"
-        android:layout_marginLeft="80dp"
-        android:layout_marginRight="80dp"
         android:scrollbars="none">
 
         <LinearLayout
@@ -39,37 +34,45 @@
                 android:layout_width="match_parent"
                 android:layout_height="30dp"
                 android:layout_marginTop="20dp"
-                android:background="@drawable/border"
+                android:background="@drawable/fragment_border"
+                android:drawableLeft="@drawable/ic_fragement_email"
                 android:elevation="10dp"
+                android:enabled="false"
                 android:gravity="center_horizontal"
                 android:text="@string/email"
-                android:enabled="false"
                 android:textSize="20sp" />
-
-            <EditText
-                android:id="@+id/first_name"
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/border"
-                android:elevation="10dp"
-                android:gravity="center_horizontal"
-                android:text="@string/first_name"
-                android:enabled="false"
-                android:textSize="20sp" />
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <EditText
+                    android:id="@+id/first_name"
+                    android:layout_width="219dp"
+                    android:layout_height="30dp"
+                    android:layout_marginTop="20dp"
+                    android:background="@drawable/fragment_border"
+                    android:drawableLeft="@drawable/ic_fragment_person"
+                    android:enabled="false"
+                    android:gravity="center_horizontal"
+                    android:text="@string/first_name"
+                    android:textSize="20sp" />
+
+                <EditText
+                    android:id="@+id/surname"
+                    android:layout_width="210dp"
+                    android:layout_height="30dp"
+                    android:layout_marginTop="20dp"
+                    android:background="@drawable/fragment_border"
+                    android:elevation="10dp"
+                    android:enabled="false"
+                    android:gravity="center_horizontal"
+                    android:text="@string/surname"
+                    android:textSize="20sp" />
+
+            </LinearLayout>
 
 
-            <EditText
-                android:id="@+id/surname"
-                android:layout_width="match_parent"
-                android:layout_height="30dp"
-                android:layout_marginTop="20dp"
-                android:background="@drawable/border"
-                android:elevation="10dp"
-                android:gravity="center_horizontal"
-                android:text="@string/surname"
-                android:enabled="false"
-                android:textSize="20sp" />
 
 
             <EditText
@@ -77,11 +80,12 @@
                 android:layout_width="match_parent"
                 android:layout_height="30dp"
                 android:layout_marginTop="20dp"
-                android:background="@drawable/border"
+                android:background="@drawable/fragment_border"
+                android:drawableLeft="@drawable/ic_fragment_country"
                 android:elevation="10dp"
+                android:enabled="false"
                 android:gravity="center_horizontal"
                 android:text="@string/country"
-                android:enabled="false"
                 android:textSize="20sp" />
 
 
@@ -90,12 +94,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="30dp"
                 android:layout_marginTop="20dp"
-                android:background="@drawable/border"
+                android:background="@drawable/fragment_border"
+                android:drawableLeft="@drawable/ic_fragment_phone"
                 android:elevation="10dp"
+                android:enabled="false"
                 android:gravity="center_horizontal"
                 android:text="@string/phone_number"
-                android:enabled="false"
                 android:textSize="20sp" />
+
             <TextView
                 android:id="@+id/none"
                 android:layout_width="match_parent"
@@ -105,8 +111,8 @@
                 android:elevation="10dp"
                 android:gravity="center_horizontal"
                 android:text="@string/phone_number"
-                android:visibility="invisible"
-                android:textSize="20sp"/>
+                android:textSize="20sp"
+                android:visibility="invisible" />
 
         </LinearLayout>
     </ScrollView>
