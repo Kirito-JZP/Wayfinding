@@ -1,4 +1,5 @@
 package com.main.wayfinding.fragment.account;
+
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -23,6 +24,7 @@ import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+
 import androidx.activity.result.ActivityResult;
 import androidx.activity.result.ActivityResultCallback;
 import androidx.activity.result.ActivityResultLauncher;
@@ -30,6 +32,7 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -42,6 +45,7 @@ import com.main.wayfinding.databinding.FragmentAccountBinding;
 import com.main.wayfinding.dto.UserDto;
 import com.main.wayfinding.logic.AuthLogic;
 import com.main.wayfinding.logic.DB.UserDBLogic;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -63,6 +67,7 @@ public class AccountFragment extends Fragment {
     private AuthLogic accountLogic;
     private ActivityResultLauncher<Intent> intentActivityResultLauncher;
     private Uri imageSelected;
+    private boolean editing = false;
 
     //调取系统摄像头的请求码
     private static final int MY_ADD_CASE_CALL_PHONE = 6;
@@ -112,7 +117,6 @@ public class AccountFragment extends Fragment {
                             e.printStackTrace();
                         }
                     }
-
 
 
                 }
@@ -278,12 +282,12 @@ public class AccountFragment extends Fragment {
         view.findViewById(R.id.edit).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                editing = true;
+                ImageView stauts_avatar = getView().findViewById(R.id.avatar);
                 EditText status_firstname = getView().findViewById(R.id.first_name);
                 EditText status_surname = getView().findViewById(R.id.surname);
                 EditText status_country = getView().findViewById(R.id.country);
-                EditText status_email = getView().findViewById(R.id.email);
                 EditText status_phone = getView().findViewById(R.id.phone_number);
-                ImageView stauts_avatar = getView().findViewById(R.id.avatar);
                 // 设置为可编辑状态
                 status_firstname.setEnabled(true);
                 status_surname.setEnabled(true);
@@ -302,9 +306,8 @@ public class AccountFragment extends Fragment {
                     public void onClick(View view) {
                         // 回复两个按钮可见和两个不可见
                         getView().findViewById(R.id.edit_back).setVisibility(View.GONE);
-                        getView().findViewById(R.id.edit).setVisibility(View.VISIBLE);
                         getView().findViewById(R.id.confirm_edit).setVisibility(View.GONE);
-                        getView().findViewById(R.id.sign_out).setVisibility(View.VISIBLE);
+                        editing = false;
                         reload();
                     }
                 });
@@ -327,7 +330,7 @@ public class AccountFragment extends Fragment {
                         userDBLogic.update(userDto);
 
                         //这里confirm上传图片--------
-                        if(imageSelected!=null){
+                        if (imageSelected != null) {
                             try {
                                 InputStream is = requireActivity().getContentResolver().openInputStream(imageSelected);
                                 userDBLogic.uploadAvatar(is, new OnCompleteListener<UploadTask.TaskSnapshot>() {
@@ -346,13 +349,11 @@ public class AccountFragment extends Fragment {
                                 e.printStackTrace();
                             }
 
-                        }else{
+                        } else {
                             getView().findViewById(R.id.edit_back).setVisibility(View.GONE);
-                            getView().findViewById(R.id.edit).setVisibility(View.VISIBLE);
                             getView().findViewById(R.id.confirm_edit).setVisibility(View.GONE);
-                            getView().findViewById(R.id.sign_out).setVisibility(View.VISIBLE);
                         }
-
+                        editing = false;
                         reload();
                     }
                 });
@@ -408,19 +409,22 @@ public class AccountFragment extends Fragment {
     public void reload() {
         System.out.println("reload!!!!!!");
         FirebaseUser currentUser = auth.getCurrentUser();
+        ImageView stauts_avatar = getView().findViewById(R.id.avatar);
+        EditText status_email = getView().findViewById(R.id.email);
         EditText status_firstname = getView().findViewById(R.id.first_name);
         EditText status_surname = getView().findViewById(R.id.surname);
         EditText status_country = getView().findViewById(R.id.country);
-        EditText status_email = getView().findViewById(R.id.email);
         EditText status_phone = getView().findViewById(R.id.phone_number);
-        ImageView stauts_avatar = getView().findViewById(R.id.avatar);
 
-        status_firstname.setEnabled(false);
-        status_surname.setEnabled(false);
-        status_country.setEnabled(false);
-        status_email.setEnabled(false);
-        status_phone.setEnabled(false);
-        stauts_avatar.setEnabled(false);
+
+        if(!editing){
+            status_firstname.setEnabled(false);
+            status_surname.setEnabled(false);
+            status_country.setEnabled(false);
+            status_email.setEnabled(false);
+            status_phone.setEnabled(false);
+            stauts_avatar.setEnabled(false);
+        }
 
         if (currentUser != null) {
             // if logged in, query and render user information
@@ -438,24 +442,22 @@ public class AccountFragment extends Fragment {
                         status_phone.setText(userDto.getPhoneNumber());
 
 
-
                     } else {
                         System.out.println(task.getException().getMessage());
                     }
                 }
             });
 
-            userDBLogic.downloadAvatarInto(getContext(),stauts_avatar);
-
+            userDBLogic.downloadAvatarInto(getContext(), stauts_avatar);
 
 
             //如果roald时currentUser里有值 这只登录 和 注册 按钮为隐藏，登出显示
             getView().findViewById(R.id.login).setVisibility(View.GONE); //可以不要?
             getView().findViewById(R.id.sign_up).setVisibility(View.GONE);
-            getView().findViewById(R.id.sign_out).setVisibility(View.VISIBLE);
-            getView().findViewById(R.id.edit).setVisibility(View.VISIBLE);
-
-
+            if(!editing){
+                getView().findViewById(R.id.sign_out).setVisibility(View.VISIBLE);
+                getView().findViewById(R.id.edit).setVisibility(View.VISIBLE);
+            }
         } else {
             //如果没登录 currentUser == null
             //...
@@ -483,8 +485,9 @@ public class AccountFragment extends Fragment {
         Matcher mc = pattern.matcher(strEmail);
         return mc.matches();
     }
+
     // 设置bitmap 圆角
-    public Bitmap bitmapRound(Bitmap mBitmap,float index){
+    public Bitmap bitmapRound(Bitmap mBitmap, float index) {
         Bitmap bitmap = Bitmap.createBitmap(mBitmap.getWidth(), mBitmap.getHeight(), Bitmap.Config.ARGB_4444);
 
         Canvas canvas = new Canvas(bitmap);
@@ -492,7 +495,7 @@ public class AccountFragment extends Fragment {
         paint.setAntiAlias(true);
 
         //设置矩形大小
-        Rect rect = new Rect(0,0,mBitmap.getWidth(),mBitmap.getHeight());
+        Rect rect = new Rect(0, 0, mBitmap.getWidth(), mBitmap.getHeight());
         RectF rectf = new RectF(rect);
 
         // 相当于清屏
@@ -507,6 +510,7 @@ public class AccountFragment extends Fragment {
         return bitmap;
 
     }
+
     // bitmap转为圆形
     protected Bitmap makeRoundCorner(Bitmap bitmap) {
         int width = bitmap.getWidth();
