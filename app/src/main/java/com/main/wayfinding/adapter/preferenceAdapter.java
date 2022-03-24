@@ -49,9 +49,9 @@ public class preferenceAdapter extends RecyclerView.Adapter<preferenceAdapter.Vi
     @Override
     public preferenceAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
+        mRecentlySaved.sort((o1, o2)->o1.getDate().compareTo(o2.getDate()));
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-
         View RecentView = inflater.inflate(R.layout.preference_item, parent, false);
         ViewHolder viewHolder = new ViewHolder(RecentView);
         return viewHolder;
@@ -60,7 +60,6 @@ public class preferenceAdapter extends RecyclerView.Adapter<preferenceAdapter.Vi
     public void onBindViewHolder(preferenceAdapter.ViewHolder holder, @SuppressLint("RecyclerView") int position)
     {
         LocationDto recentlySaved = mRecentlySaved.get(position);
-
         if (StringUtils.isNotEmpty(recentlySaved.getGmImgUrl())) {
             new Thread(() -> {
                 try {
