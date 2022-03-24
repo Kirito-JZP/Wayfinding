@@ -58,6 +58,7 @@ public class PreferenceFragment extends Fragment {
 
         View rootView = inflater.inflate(R.layout.recyclerview, container, false);
         recyclerView = rootView.findViewById(R.id.rvLocations);
+        recyclerView_2 = rootView.findViewById(R.id.rvLocationsNearby);
         recyclerView.setAdapter(new preferenceAdapter(new ArrayList<LocationDto>()));
         recyclerView.setLayoutManager(new LinearLayoutManager(rootView.getContext(), LinearLayoutManager.HORIZONTAL, false));
 //        locations = RecentlySaved.createLocationList(reload());
@@ -77,6 +78,8 @@ public class PreferenceFragment extends Fragment {
         auth = FirebaseAuth.getInstance();
 
     }
+
+
 
     @Override
     public void onStart() {
