@@ -23,7 +23,7 @@
         android:layout_height="189dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="0dp"
-        android:src="@drawable/ic_fragment_person"/>
+        android:src="@drawable/ic_avatar"/>
 
     <ScrollView
         android:id="@+id/user_details"
@@ -43,7 +43,7 @@
                 android:layout_height="30dp"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/fragment_border"
-                android:drawableLeft="@drawable/ic_fragement_email"
+                android:drawableStart="@drawable/ic_email"
                 android:elevation="10dp"
                 android:enabled="false"
                 android:gravity="center_horizontal"
@@ -60,7 +60,7 @@
                     android:layout_height="30dp"
                     android:layout_marginTop="20dp"
                     android:background="@drawable/fragment_border"
-                    android:drawableLeft="@drawable/ic_fragment_person"
+                    android:drawableStart="@drawable/ic_avatar"
                     android:enabled="false"
                     android:gravity="center_horizontal"
                     android:text="@string/first_name"
@@ -89,7 +89,7 @@
                 android:layout_height="30dp"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/fragment_border"
-                android:drawableLeft="@drawable/ic_fragment_country"
+                android:drawableStart="@drawable/ic_fragment_country"
                 android:elevation="10dp"
                 android:enabled="false"
                 android:gravity="center_horizontal"
@@ -103,7 +103,7 @@
                 android:layout_height="30dp"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/fragment_border"
-                android:drawableLeft="@drawable/ic_fragment_phone"
+                android:drawableStart="@drawable/ic_fragment_phone"
                 android:elevation="10dp"
                 android:enabled="false"
                 android:gravity="center_horizontal"
@@ -169,8 +169,8 @@
             android:id="@+id/sign_up"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="120dp"
-            android:layout_toRightOf="@+id/login"
+            android:layout_marginStart="120dp"
+            android:layout_toEndOf="@+id/login"
             android:text="@string/sign_up" />
 
         <Button
