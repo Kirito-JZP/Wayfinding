@@ -306,7 +306,7 @@ public class AccountFragment extends Fragment {
                     public void onClick(View view) {
                         // 回复两个按钮可见和两个不可见
                         getView().findViewById(R.id.edit_back).setVisibility(View.GONE);
-                        getView().findViewById(R.id.confirm_edit).setVisibility(View.GONE);
+                        getView().findViewById(R.id.edit_confirm).setVisibility(View.GONE);
                         editing = false;
                         reload();
                     }
@@ -314,10 +314,10 @@ public class AccountFragment extends Fragment {
 
                 // 设置confirm事件
                 View editView = getView();
-                editView.findViewById(R.id.confirm_edit).setVisibility(View.VISIBLE);
+                editView.findViewById(R.id.edit_confirm).setVisibility(View.VISIBLE);
                 editView.findViewById(R.id.sign_out).setVisibility(View.GONE);
 
-                editView.findViewById(R.id.confirm_edit).setOnClickListener(new View.OnClickListener() {
+                editView.findViewById(R.id.edit_confirm).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         UserDto userDto = new UserDto();
@@ -339,7 +339,7 @@ public class AccountFragment extends Fragment {
                                         imageSelected = null;
                                         getView().findViewById(R.id.edit_back).setVisibility(View.GONE);
                                         getView().findViewById(R.id.edit).setVisibility(View.VISIBLE);
-                                        getView().findViewById(R.id.confirm_edit).setVisibility(View.GONE);
+                                        getView().findViewById(R.id.edit_confirm).setVisibility(View.GONE);
                                         getView().findViewById(R.id.sign_out).setVisibility(View.VISIBLE);
                                     }
                                 });
@@ -351,7 +351,7 @@ public class AccountFragment extends Fragment {
 
                         } else {
                             getView().findViewById(R.id.edit_back).setVisibility(View.GONE);
-                            getView().findViewById(R.id.confirm_edit).setVisibility(View.GONE);
+                            getView().findViewById(R.id.edit_confirm).setVisibility(View.GONE);
                         }
                         editing = false;
                         reload();

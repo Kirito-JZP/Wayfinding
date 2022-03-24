@@ -89,7 +89,7 @@
                 android:layout_height="30dp"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/fragment_border"
-                android:drawableStart="@drawable/ic_fragment_country"
+                android:drawableStart="@drawable/ic_country"
                 android:elevation="10dp"
                 android:enabled="false"
                 android:gravity="center_horizontal"
@@ -103,7 +103,7 @@
                 android:layout_height="30dp"
                 android:layout_marginTop="20dp"
                 android:background="@drawable/fragment_border"
-                android:drawableStart="@drawable/ic_fragment_phone"
+                android:drawableStart="@drawable/ic_phone"
                 android:elevation="10dp"
                 android:enabled="false"
                 android:gravity="center_horizontal"
@@ -131,7 +131,7 @@
             android:text="@string/sign_out" />
 
         <Button
-            android:id="@+id/confirm_edit"
+            android:id="@+id/edit_confirm"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
