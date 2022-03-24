@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.io.InputStream;
 import java.net.URL;
@@ -16,6 +17,7 @@ import java.util.List;
 
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.main.wayfinding.R;
 import com.main.wayfinding.dto.LocationDto;
 
@@ -30,6 +32,7 @@ public class preferenceAdapter extends RecyclerView.Adapter<preferenceAdapter.Vi
         public TextView nameTextView;
         public TextView addressTextView;
         public TextView countryTextView;
+        public FloatingActionButton floatingActionButton;
 
         public ViewHolder(View itemView)
         {
@@ -38,6 +41,7 @@ public class preferenceAdapter extends RecyclerView.Adapter<preferenceAdapter.Vi
             nameTextView = (TextView) itemView.findViewById(R.id.textName);
             addressTextView = (TextView) itemView.findViewById(R.id.textAddress);
             countryTextView = (TextView) itemView.findViewById(R.id.textCountry);
+            floatingActionButton = (FloatingActionButton) itemView.findViewById(R.id.preference_delete);
         }
     }
     private List<LocationDto> mRecentlySaved;
@@ -52,6 +56,7 @@ public class preferenceAdapter extends RecyclerView.Adapter<preferenceAdapter.Vi
         mRecentlySaved.sort((o1, o2)->o1.getDate().compareTo(o2.getDate()));
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
+
         View RecentView = inflater.inflate(R.layout.preference_item, parent, false);
         ViewHolder viewHolder = new ViewHolder(RecentView);
         return viewHolder;
@@ -60,6 +65,7 @@ public class preferenceAdapter extends RecyclerView.Adapter<preferenceAdapter.Vi
     public void onBindViewHolder(preferenceAdapter.ViewHolder holder, @SuppressLint("RecyclerView") int position)
     {
         LocationDto recentlySaved = mRecentlySaved.get(position);
+
         if (StringUtils.isNotEmpty(recentlySaved.getGmImgUrl())) {
             new Thread(() -> {
                 try {
@@ -86,50 +92,31 @@ public class preferenceAdapter extends RecyclerView.Adapter<preferenceAdapter.Vi
         TextView textView3 = holder.countryTextView;
         textView3.setText(recentlySaved.getCountry());
 
-        //delete cardview
-        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View view) {
-                mRecentlySaved.remove(holder.getAdapterPosition());
-                notifyItemRemoved(position);
-                return false;
-            }
-        });
+        FloatingActionButton f1 = holder.floatingActionButton;
 
+//        //delete cardview
 //        holder.itemView.setOnLongClickListener(new View.OnLongClickListener() {
 //            @Override
 //            public boolean onLongClick(View view) {
-//
-//                AlertDialog.Builder builder = new AlertDialog.Builder(view.getContext());
-//                builder.setTitle("Confirm");
-//                builder.setMessage("Are you sure?");
-//
-//                builder.setPositiveButton("YES", new DialogInterface.OnClickListener() {
-//
-//                    public void onClick(DialogInterface dialog, int which) {
-//
-//                        dialog.dismiss();
-//                        mRecentlySaved.remove(holder.getAdapterPosition());
-//                        notifyItemRemoved(position);
-//                    }
-//                });
-//
-//                builder.setNegativeButton("NO", new DialogInterface.OnClickListener() {
-//
-//                    @Override
-//                    public void onClick(DialogInterface dialog, int which) {
-//
-//                        dialog.dismiss();
-//                    }
-//                });
-//
-//                AlertDialog alert = builder.create();
-//                alert.show();
-//
+//                mRecentlySaved.remove(holder.getAdapterPosition());
+//                notifyItemRemoved(position);
 //                return false;
 //            }
 //        });
-//
+
+        f1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mRecentlySaved.remove(position);
+                notifyItemRemoved(position);
+                notifyItemRangeChanged(position,mRecentlySaved.size());
+                notifyItemChanged(position);
+            }
+        });
+
+
+
+
     }
     @Override
     public int getItemCount()
