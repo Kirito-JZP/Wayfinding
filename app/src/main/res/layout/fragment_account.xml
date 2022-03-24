@@ -52,10 +52,12 @@
                 android:layout_marginTop="30dp"
                 android:background="@drawable/fragment_border"
                 android:drawableStart="@drawable/ic_email"
-                android:elevation="10dp"
                 android:enabled="false"
                 android:gravity="center"
+                android:paddingLeft="25dp"
+                android:paddingRight="45dp"
                 android:text="@string/email"
+                android:textColor="#a9a9a9"
                 android:textSize="20sp" />
 
             <LinearLayout
@@ -71,20 +73,25 @@
                     android:background="@drawable/fragment_border"
                     android:drawableStart="@drawable/ic_avatar"
                     android:enabled="false"
-                    android:gravity="center"
+                    android:gravity="right|center_vertical"
+                    android:paddingLeft="25dp"
+                    android:paddingRight="10dp"
                     android:text="@string/first_name"
+                    android:textColor="#a9a9a9"
                     android:textSize="20sp" />
 
                 <EditText
                     android:id="@+id/surname"
-                    android:layout_width="210dp"
+                    android:layout_width="192dp"
                     android:layout_height="40dp"
                     android:layout_marginTop="30dp"
                     android:background="@drawable/fragment_border"
-                    android:elevation="10dp"
                     android:enabled="false"
-                    android:gravity="center"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="45dp"
+                    android:gravity="left|center_vertical"
                     android:text="@string/surname"
+                    android:textColor="#a9a9a9"
                     android:textSize="20sp" />
 
             </LinearLayout>
@@ -97,10 +104,12 @@
                 android:layout_marginTop="30dp"
                 android:background="@drawable/fragment_border"
                 android:drawableStart="@drawable/ic_country"
-                android:elevation="10dp"
                 android:enabled="false"
                 android:gravity="center"
+                android:paddingLeft="25dp"
+                android:paddingRight="45dp"
                 android:text="@string/country"
+                android:textColor="#a9a9a9"
                 android:textSize="20sp" />
 
 
@@ -111,10 +120,12 @@
                 android:layout_marginTop="30dp"
                 android:background="@drawable/fragment_border"
                 android:drawableStart="@drawable/ic_phone"
-                android:elevation="10dp"
                 android:enabled="false"
                 android:gravity="center"
+                android:paddingLeft="25dp"
+                android:paddingRight="45dp"
                 android:text="@string/phone_number"
+                android:textColor="#a9a9a9"
                 android:textSize="20sp" />
 
 
@@ -126,8 +137,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/user_details"
-        android:gravity="center"
-        android:layout_marginTop="20dp">
+        android:layout_marginTop="45dp"
+        android:gravity="center">
 
         <Button
             android:id="@+id/sign_out"
