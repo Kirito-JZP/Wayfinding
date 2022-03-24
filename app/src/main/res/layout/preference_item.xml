@@ -63,30 +63,45 @@
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:gravity="center"
                     android:orientation="horizontal">
 
-                    <com.google.android.material.floatingactionbutton.FloatingActionButton
-                        android:id="@+id/preference_nav"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:backgroundTint="#9EA8E1"
-                        android:clickable="true"
-                        app:backgroundTint="#FFFFFF"
-                        app:borderWidth="0dp"
-                        app:srcCompat="@drawable/ic_navigate" />
+                    <LinearLayout
+                        android:layout_width="96dp"
+                        android:layout_height="138dp"
+                        android:gravity="center|top"
+                        android:orientation="horizontal">
 
-                    <com.google.android.material.floatingactionbutton.FloatingActionButton
-                        android:id="@+id/preference_delete"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:backgroundTint="#FF0000"
-                        android:clickable="true"
-                        app:rippleColor="#00EA0303"
-                        app:srcCompat="@android:drawable/ic_delete" />
+                        <com.google.android.material.floatingactionbutton.FloatingActionButton
+                            android:id="@+id/preference_nav"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:backgroundTint="#9EA8E1"
+                            android:clickable="true"
+                            app:backgroundTint="#FFFFFF"
+                            app:borderWidth="0dp"
+                            app:srcCompat="@drawable/ic_navigate" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="96dp"
+                        android:layout_height="138dp"
+                        android:gravity="center|top"
+                        android:orientation="horizontal">
+
+                        <com.google.android.material.floatingactionbutton.FloatingActionButton
+                            android:id="@+id/preference_delete"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:backgroundTint="#FF0000"
+                            android:clickable="true"
+                            app:rippleColor="#00EA0303"
+                            app:srcCompat="@android:drawable/ic_delete" />
+                    </LinearLayout>
                 </LinearLayout>
+
             </LinearLayout>
 
         </LinearLayout>
