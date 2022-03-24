@@ -465,7 +465,7 @@ public class AccountFragment extends Fragment {
             status_surname.setText("Surname");
             status_country.setText("Country");
             status_email.setText("Email");
-            status_phone.setText("Phone Number");
+            status_phone.setText("Phone No.");
 
 
             //如果roald时currentUser里无值 这只login和sign_up button为显示，登出隐藏
