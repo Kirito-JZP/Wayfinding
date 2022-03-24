@@ -109,6 +109,7 @@ public class PreferenceFragment extends Fragment {
                         Iterator<Map.Entry<String, LocationDto>> iterator = map.entrySet().iterator();
                         while (iterator.hasNext()) {
                             Map.Entry<String, LocationDto> next = iterator.next();
+
                             String key = next.getKey();
                             LocationDto object = next.getValue();
 
