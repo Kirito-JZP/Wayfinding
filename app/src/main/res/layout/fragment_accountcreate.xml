@@ -5,7 +5,6 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@drawable/account_bg2"
     >
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -32,14 +31,14 @@
                     android:layout_height="89dp"
                     android:layout_centerHorizontal="true"
                     android:layout_marginTop="50dp"
-                    android:src="@drawable/ic_baseline_account_circle_24" />
+                    android:src="@drawable/ic_fragment_avatar_signup" />
 
                 <EditText
-                    android:id="@+id/username"
+                    android:id="@+id/email_signup"
                     android:layout_width="match_parent"
                     android:layout_height="30dp"
                     android:layout_marginTop="20dp"
-                    android:background="@drawable/border"
+                    android:background="@drawable/fragment_border"
                     android:elevation="10dp"
                     android:gravity="center_horizontal"
                     android:textSize="20sp"
@@ -48,11 +47,11 @@
                     android:minHeight="70dp" />
 
                 <EditText
-                    android:id="@+id/password"
+                    android:id="@+id/password_signup"
                     android:layout_width="match_parent"
                     android:layout_height="30dp"
                     android:layout_marginTop="20dp"
-                    android:background="@drawable/border"
+                    android:background="@drawable/fragment_border"
                     android:elevation="10dp"
                     android:gravity="center_horizontal"
                     android:textSize="20sp"
@@ -61,11 +60,11 @@
                     android:minHeight="70dp" />
 
                 <EditText
-                    android:id="@+id/first_name"
+                    android:id="@+id/first_name_signup"
                     android:layout_width="match_parent"
                     android:layout_height="30dp"
                     android:layout_marginTop="20dp"
-                    android:background="@drawable/border"
+                    android:background="@drawable/fragment_border"
                     android:elevation="10dp"
                     android:gravity="center_horizontal"
                     android:textSize="20sp"
@@ -73,11 +72,11 @@
                     />
 
                 <EditText
-                    android:id="@+id/surname"
+                    android:id="@+id/surname_signup"
                     android:layout_width="match_parent"
                     android:layout_height="30dp"
                     android:layout_marginTop="20dp"
-                    android:background="@drawable/border"
+                    android:background="@drawable/fragment_border"
                     android:elevation="10dp"
                     android:gravity="center_horizontal"
                     android:textSize="20sp"
@@ -86,23 +85,23 @@
                     />
 
                 <EditText
-                    android:id="@+id/country"
+                    android:id="@+id/country_signup"
                     android:layout_width="match_parent"
                     android:layout_height="30dp"
                     android:layout_marginTop="20dp"
-                    android:background="@drawable/border"
+                    android:background="@drawable/fragment_border"
                     android:elevation="10dp"
                     android:gravity="center_horizontal"
                     android:textSize="20sp"
-                    android:hint="Country"
+                    android:hint="@string/country"
                     android:minHeight="70dp" />
 
                 <EditText
-                    android:id="@+id/phone_number"
+                    android:id="@+id/phone_number_signup"
                     android:layout_width="match_parent"
                     android:layout_height="30dp"
                     android:layout_marginTop="20dp"
-                    android:background="@drawable/border"
+                    android:background="@drawable/fragment_border"
                     android:elevation="10dp"
                     android:gravity="center_horizontal"
                     android:textSize="20sp"
@@ -117,7 +116,8 @@
                     android:layout_gravity="center_horizontal"
                     android:layout_marginTop="1dp"
                     android:paddingStart="25dp"
-                    android:text="Agree with Term and Conditions" />
+                    android:text="Agree with Term and Conditions"
+                    android:textColor="#1a73e8"/>
 
                 <Button
                     android:id="@+id/create_account"

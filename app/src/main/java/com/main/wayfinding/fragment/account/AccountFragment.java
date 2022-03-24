@@ -105,9 +105,9 @@ public class AccountFragment extends Fragment {
                         is = requireActivity().getContentResolver().openInputStream(imageSelected); // inputStream
                         Bitmap bitmap = BitmapFactory.decodeStream(is);
                         ImageView imageView = getView().findViewById(R.id.avatar);
-                        //imageView.setImageBitmap(bitmap); // square image
+                        imageView.setImageBitmap(bitmap); // square image
                         //imageView.setImageBitmap(bitmapRound(bitmap,50)); // test round image method1
-                        imageView.setImageBitmap(makeRoundCorner(bitmap)); // test round image method2
+                        //imageView.setImageBitmap(makeRoundCorner(bitmap)); // test round image method2
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     } finally {
@@ -117,6 +117,7 @@ public class AccountFragment extends Fragment {
                             e.printStackTrace();
                         }
                     }
+
 
 
                 }
@@ -153,8 +154,8 @@ public class AccountFragment extends Fragment {
                 loginView.findViewById(R.id.confirm).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        EditText usernameComponent = loginView.findViewById(R.id.username);
-                        EditText passwordComponent = loginView.findViewById(R.id.password);
+                        EditText usernameComponent = loginView.findViewById(R.id.email_login);
+                        EditText passwordComponent = loginView.findViewById(R.id.password_login);
                         String username = usernameComponent.getText().toString();
                         String password = passwordComponent.getText().toString();
 
@@ -209,12 +210,12 @@ public class AccountFragment extends Fragment {
                 signUpView.findViewById(R.id.create_account).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        EditText usernameComponent = signUpView.findViewById(R.id.username);
-                        EditText passwordComponent = signUpView.findViewById(R.id.password);
-                        EditText firstNameComponent = signUpView.findViewById(R.id.first_name);
-                        EditText surnameComponent = signUpView.findViewById(R.id.surname);
-                        EditText countryComponent = signUpView.findViewById(R.id.country);
-                        EditText phoneNumberComponent = signUpView.findViewById(R.id.phone_number);
+                        EditText usernameComponent = signUpView.findViewById(R.id.email_signup);
+                        EditText passwordComponent = signUpView.findViewById(R.id.password_signup);
+                        EditText firstNameComponent = signUpView.findViewById(R.id.first_name_signup);
+                        EditText surnameComponent = signUpView.findViewById(R.id.surname_signup);
+                        EditText countryComponent = signUpView.findViewById(R.id.country_signup);
+                        EditText phoneNumberComponent = signUpView.findViewById(R.id.phone_number_signup);
                         String username = usernameComponent.getText().toString();
                         String password = passwordComponent.getText().toString();
                         UserDto userDto = new UserDto(
@@ -282,12 +283,12 @@ public class AccountFragment extends Fragment {
         view.findViewById(R.id.edit).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                editing = true;
-                ImageView stauts_avatar = getView().findViewById(R.id.avatar);
                 EditText status_firstname = getView().findViewById(R.id.first_name);
                 EditText status_surname = getView().findViewById(R.id.surname);
                 EditText status_country = getView().findViewById(R.id.country);
+                EditText status_email = getView().findViewById(R.id.email);
                 EditText status_phone = getView().findViewById(R.id.phone_number);
+                ImageView stauts_avatar = getView().findViewById(R.id.avatar);
                 // 设置为可编辑状态
                 status_firstname.setEnabled(true);
                 status_surname.setEnabled(true);
@@ -474,6 +475,9 @@ public class AccountFragment extends Fragment {
             getView().findViewById(R.id.login).setVisibility(View.VISIBLE);
             getView().findViewById(R.id.sign_up).setVisibility(View.VISIBLE);
 
+            //set default avatar
+            stauts_avatar.setImageResource(R.drawable.ic_fragment_avatar_default);
+
 
         }
 
@@ -486,65 +490,5 @@ public class AccountFragment extends Fragment {
         return mc.matches();
     }
 
-    // 设置bitmap 圆角
-    public Bitmap bitmapRound(Bitmap mBitmap, float index) {
-        Bitmap bitmap = Bitmap.createBitmap(mBitmap.getWidth(), mBitmap.getHeight(), Bitmap.Config.ARGB_4444);
-
-        Canvas canvas = new Canvas(bitmap);
-        Paint paint = new Paint();
-        paint.setAntiAlias(true);
-
-        //设置矩形大小
-        Rect rect = new Rect(0, 0, mBitmap.getWidth(), mBitmap.getHeight());
-        RectF rectf = new RectF(rect);
-
-        // 相当于清屏
-        canvas.drawARGB(0, 0, 0, 0);
-        //画圆角
-        canvas.drawRoundRect(rectf, index, index, paint);
-        // 取两层绘制，显示上层
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-
-        // 把原生的图片放到这个画布上，使之带有画布的效果
-        canvas.drawBitmap(mBitmap, rect, rect, paint);
-        return bitmap;
-
-    }
-
-    // bitmap转为圆形
-    protected Bitmap makeRoundCorner(Bitmap bitmap) {
-        int width = bitmap.getWidth();
-        int height = bitmap.getHeight();
-        int left = 0, top = 0, right = width, bottom = height;
-        float roundPx = height / 2;
-        if (width > height) {
-            left = (width - height) / 2;
-            top = 0;
-            right = left + height;
-            bottom = height;
-        } else if (height > width) {
-            left = 0;
-            top = (height - width) / 2;
-            right = width;
-            bottom = top + width;
-            roundPx = width / 2;
-        }
-
-        Bitmap output = Bitmap.createBitmap(width, height,
-                Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(output);
-        int color = 0xff424242;
-        Paint paint = new Paint();
-        Rect rect = new Rect(left, top, right, bottom);
-        RectF rectF = new RectF(rect);
-
-        paint.setAntiAlias(true);
-        canvas.drawARGB(0, 0, 0, 0);
-        paint.setColor(color);
-        canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-        canvas.drawBitmap(bitmap, rect, rect, paint);
-        return output;
-    }
 
 }
