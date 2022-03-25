@@ -31,6 +31,10 @@ android {
         viewBinding true
     }
 
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
+
     apply plugin: 'com.google.ar.sceneform.plugin'
     sceneform.asset('sampledata/arrow.obj',
             'default',
@@ -45,6 +49,9 @@ android {
 
 dependencies {
     implementation platform('com.google.firebase:firebase-bom:29.0.4')
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.jmockit:jmockit:1.49'
+    testImplementation 'org.mockito:mockito-core:4.4.0'
     implementation 'com.google.firebase:firebase-auth'
     implementation 'com.google.firebase:firebase-database'
     implementation 'com.google.firebase:firebase-storage'
