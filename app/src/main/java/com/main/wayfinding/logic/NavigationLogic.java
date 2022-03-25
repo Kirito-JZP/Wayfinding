@@ -2,13 +2,12 @@ package com.main.wayfinding.logic;
 
 import static com.main.wayfinding.utility.LatLngConverterUtils.convert;
 
-import android.util.Log;
-
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.main.wayfinding.dto.LocationDto;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.main.wayfinding.dto.RouteDto;
+import com.main.wayfinding.utility.LatLngConverterUtils;
 
 /**
  * Logic of Navigation
@@ -43,6 +42,7 @@ public class NavigationLogic {
         currentRoute = route;
         trackerLogic.registerLocationUpdateCompleteEvent(location -> {
             map.clear();
+            map.addPolyline(route.getPolylineOptions());
             map.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(),
                     location.getLongitude()))
                     .title("current location"));

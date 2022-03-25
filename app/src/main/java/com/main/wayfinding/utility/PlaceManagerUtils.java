@@ -2,6 +2,7 @@ package com.main.wayfinding.utility;
 
 
 import android.util.Log;
+import android.util.Pair;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -11,6 +12,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.DirectionsApi;
 import com.google.maps.DirectionsApiRequest;
 import com.google.maps.FindPlaceFromTextRequest;
+import com.google.maps.GeocodingApi;
 import com.google.maps.GeocodingApiRequest;
 import com.google.maps.NearbySearchRequest;
 import com.google.maps.PlaceAutocompleteRequest;
@@ -147,59 +149,55 @@ public class PlaceManagerUtils {
         }
     }
 
-    public static List<RouteDto> findRoute(LatLng orig, LatLng dest, String mode) {
+    public static Pair<List<RouteDto>, LatLngBounds> findRoute(LatLng orig, LatLng dest, String mode) {
         List<RouteDto> routes = new ArrayList<>();
         RouteDto route = new RouteDto();
-        double max_lat = 0.0;
-        double min_lat = 0.0;
-        double max_lng = 0.0;
-        double min_lng = 0.0;
         try {
             PlaceManagerUtils.map.clear();
             DirectionsResult result = getDirections(orig, dest, mode).await();
+            double max_lat = result.routes[0].bounds.northeast.lat;
+            double min_lat = result.routes[0].bounds.southwest.lat;
+            double max_lng = result.routes[0].bounds.northeast.lng;
+            double min_lng = result.routes[0].bounds.southwest.lng;
             for (DirectionsRoute r : result.routes) {
                 max_lat = Math.max(max_lat, r.bounds.northeast.lat);
                 min_lat = Math.min(min_lat, r.bounds.southwest.lat);
                 max_lng = Math.max(max_lng, r.bounds.northeast.lng);
                 min_lng = Math.min(min_lng, r.bounds.southwest.lng);
-                for (DirectionsLeg l : r.legs) {
-                    // add start location
-                    LocationDto location = new LocationDto();
-                    location.setLongitude(l.startLocation.lng);
-                    location.setLatitude(l.startLocation.lat);
-                    route.setStartLocation(location);
-                    // add end location
-                    location = new LocationDto();
-                    location.setLongitude(l.endLocation.lng);
-                    location.setLatitude(l.endLocation.lat);
-                }
-            }
-            // TODO: there can be more than one route
-            for (DirectionsRoute r : result.routes) {
-                PlaceManagerUtils.map.addPolyline(new PolylineOptions()
+                // add start location and end location
+                LocationDto startLocation = new LocationDto();
+                LocationDto endLocation = new LocationDto();
+                startLocation.setLatitude(r.legs[0].startLocation.lat);
+                startLocation.setLongitude(r.legs[0].startLocation.lng);
+                endLocation.setLatitude(r.legs[r.legs.length - 1].endLocation.lat);
+                endLocation.setLongitude(r.legs[r.legs.length - 1].endLocation.lng);
+                route.setStartLocation(startLocation);
+                route.setEndLocation(endLocation);
+                // save polyline options
+                route.setPolylineOptions(new PolylineOptions()
                         .clickable(true)
                         .addAll(LatLngConverterUtils.convert(r.overviewPolyline.decodePath())));
-
+                routes.add(route);
             }
             LatLngBounds bounds = new LatLngBounds(new LatLng(min_lat, min_lng),
                     new LatLng(max_lat, max_lng));
-            PlaceManagerUtils.map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 50));
             // TODO: customise line style
-            return routes;
+            return new Pair<>(routes, bounds);
         } catch (ZeroResultsException e) {
             // TODO: notify users if there are no routes available
-            return routes;
+            return null;
         } catch (InterruptedException | ApiException | IOException e) {
             e.printStackTrace();
-            return routes;
+            return null;
         }
     }
 
     public static LatLng queryLatLng(String placeID) {
         try {
-            PlaceDetails detail = PlacesApi.placeDetails(WayfindingApp.getGeoApiContext(),
-                    placeID).await();
-            return LatLngConverterUtils.convert(detail.geometry.location);
+            GeocodingApiRequest request = new GeocodingApiRequest(WayfindingApp.getGeoApiContext());
+            request.place(placeID);
+            GeocodingResult[] results = request.await();
+            return LatLngConverterUtils.convert(results[0].geometry.location);
         } catch (ApiException | InterruptedException | IOException e) {
             e.printStackTrace();
             return null;

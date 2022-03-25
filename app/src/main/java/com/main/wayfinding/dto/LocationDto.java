@@ -1,5 +1,6 @@
 package com.main.wayfinding.dto;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 
 import java.util.Date;
@@ -106,4 +107,7 @@ public class LocationDto {
         this.gmImgUrl = gmImgUrl;
     }
 
+    public LatLng getLatLng() {
+        return new LatLng(latitude, longitude);
+    }
 }
