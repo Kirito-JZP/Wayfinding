@@ -1,6 +1,8 @@
 package com.main.wayfinding.utility;
 
 
+import android.util.Log;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
@@ -8,12 +10,17 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.maps.DirectionsApi;
 import com.google.maps.DirectionsApiRequest;
+import com.google.maps.FindPlaceFromTextRequest;
 import com.google.maps.GeocodingApiRequest;
 import com.google.maps.NearbySearchRequest;
+import com.google.maps.PlaceAutocompleteRequest;
 import com.google.maps.PlacesApi;
 import com.google.maps.errors.ApiException;
 import com.google.maps.errors.ZeroResultsException;
 import com.google.maps.model.AddressComponent;
+import com.google.maps.model.AutocompletePrediction;
+import com.google.maps.model.ComponentFilter;
+import com.google.maps.model.DirectionsLeg;
 import com.google.maps.model.DirectionsResult;
 import com.google.maps.model.DirectionsRoute;
 import com.google.maps.model.GeocodingResult;
@@ -24,10 +31,15 @@ import com.google.maps.model.PlacesSearchResult;
 import com.google.maps.model.TravelMode;
 import com.main.wayfinding.WayfindingApp;
 import com.main.wayfinding.dto.LocationDto;
+import com.main.wayfinding.dto.RouteDto;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -44,6 +56,9 @@ public class PlaceManagerUtils {
     public static void SetMap(GoogleMap map) {
         PlaceManagerUtils.map = map;
     }
+
+    private static PlaceAutocompleteRequest.SessionToken autocompleteSessionToken;
+    private static boolean needNewSession = true;
 
     public static LocationDto findLocationGeoMsg(LatLng latLng) {
         LocationDto result = new LocationDto();
@@ -98,92 +113,92 @@ public class PlaceManagerUtils {
         return request;
     }
 
-    public static void findRoute(String orig, String dest) {
+    public static List<LocationDto> autocompletePlaces(String keyword, LatLng location) {
+        Log.d("[TEST]", "Here!");
+        List<LocationDto> locations = new ArrayList<>();
         try {
-            DirectionsResult result = DirectionsApi.getDirections(WayfindingApp.getGeoApiContext(), orig, dest).await();
-            // TODO: there can be more than one route
-            double max_lat = result.routes[0].bounds.northeast.lat;
-            double min_lat = result.routes[0].bounds.southwest.lat;
-            double max_lng = result.routes[0].bounds.northeast.lng;
-            double min_lng = result.routes[0].bounds.southwest.lng;
-            for (DirectionsRoute route : result.routes) {
-                PlaceManagerUtils.map.addPolyline(new PolylineOptions()
-                        .clickable(true)
-                        .addAll(LatLngConverterUtils.convert(route.overviewPolyline.decodePath())));
-                max_lat = Math.max(max_lat, route.bounds.northeast.lat);
-                min_lat = Math.min(min_lat, route.bounds.southwest.lat);
-                max_lng = Math.max(max_lng, route.bounds.northeast.lng);
-                min_lng = Math.min(min_lng, route.bounds.southwest.lng);
+            if (needNewSession) {
+                autocompleteSessionToken = new PlaceAutocompleteRequest.SessionToken();
+                needNewSession = false;
             }
-            LatLngBounds bounds = new LatLngBounds(new LatLng(min_lat, min_lng), new LatLng(max_lat, max_lng));
-            PlaceManagerUtils.map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 50));
-            // TODO: customise line style
-        } catch (ZeroResultsException e) {
-            // TODO: notify users if there are no routes available
-        } catch (InterruptedException | ApiException | IOException e) {
+            PlaceAutocompleteRequest request =
+                    PlacesApi.placeAutocomplete(WayfindingApp.getGeoApiContext(), keyword,
+                            autocompleteSessionToken);
+            request.components(ComponentFilter.country("ie"))
+                    .origin(LatLngConverterUtils.convert(location))
+                    .location(LatLngConverterUtils.convert(location));
+            List<AutocompletePrediction> predictions = Arrays.asList(request.await());
+            Comparator<AutocompletePrediction> compareByDistance =
+                    Comparator.comparingInt(p -> p.distanceMeters != null ? p.distanceMeters : 0);  // some predictions have no distance data, in such cases, use 0 for comparison
+            Comparator<AutocompletePrediction> compareByMatchedLength =
+                    Comparator.comparingInt(p -> p.matchedSubstrings[0].length);
+            predictions.sort(compareByMatchedLength.thenComparing(compareByDistance));
+            for (AutocompletePrediction prediction : predictions) {
+                LocationDto loc = new LocationDto();
+                loc.setGmPlaceID(prediction.placeId);
+                loc.setName(prediction.structuredFormatting.mainText);
+                loc.setAddress(prediction.description);
+                locations.add(loc);
+            }
+            return locations;
+        } catch (Exception e) {
             e.printStackTrace();
+            return locations;
         }
     }
 
-    public static void findRoute(LatLng orig, LatLng dest) {
-        try {
-            PlaceManagerUtils.map.clear();
-            DirectionsResult result = getDirections(orig, dest).await();
-            // TODO: there can be more than one route
-            double max_lat = result.routes[0].bounds.northeast.lat;
-            double min_lat = result.routes[0].bounds.southwest.lat;
-            double max_lng = result.routes[0].bounds.northeast.lng;
-            double min_lng = result.routes[0].bounds.southwest.lng;
-            for (DirectionsRoute route : result.routes) {
-                PlaceManagerUtils.map.addPolyline(new PolylineOptions()
-                        .clickable(true)
-                        .addAll(LatLngConverterUtils.convert(route.overviewPolyline.decodePath())));
-                max_lat = Math.max(max_lat, route.bounds.northeast.lat);
-                min_lat = Math.min(min_lat, route.bounds.southwest.lat);
-                max_lng = Math.max(max_lng, route.bounds.northeast.lng);
-                min_lng = Math.min(min_lng, route.bounds.southwest.lng);
-            }
-            LatLngBounds bounds = new LatLngBounds(new LatLng(min_lat, min_lng), new LatLng(max_lat, max_lng));
-            PlaceManagerUtils.map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 50));
-            // TODO: customise line style
-        } catch (ZeroResultsException e) {
-            // TODO: notify users if there are no routes available
-        } catch (InterruptedException | ApiException | IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void findRoute(LatLng orig, LatLng dest, String mode) {
+    public static List<RouteDto> findRoute(LatLng orig, LatLng dest, String mode) {
+        List<RouteDto> routes = new ArrayList<>();
+        RouteDto route = new RouteDto();
+        double max_lat = 0.0;
+        double min_lat = 0.0;
+        double max_lng = 0.0;
+        double min_lng = 0.0;
         try {
             PlaceManagerUtils.map.clear();
             DirectionsResult result = getDirections(orig, dest, mode).await();
+            for (DirectionsRoute r : result.routes) {
+                max_lat = Math.max(max_lat, r.bounds.northeast.lat);
+                min_lat = Math.min(min_lat, r.bounds.southwest.lat);
+                max_lng = Math.max(max_lng, r.bounds.northeast.lng);
+                min_lng = Math.min(min_lng, r.bounds.southwest.lng);
+                for (DirectionsLeg l : r.legs) {
+                    // add start location
+                    LocationDto location = new LocationDto();
+                    location.setLongitude(l.startLocation.lng);
+                    location.setLatitude(l.startLocation.lat);
+                    route.setStartLocation(location);
+                    // add end location
+                    location = new LocationDto();
+                    location.setLongitude(l.endLocation.lng);
+                    location.setLatitude(l.endLocation.lat);
+                }
+            }
             // TODO: there can be more than one route
-            double max_lat = result.routes[0].bounds.northeast.lat;
-            double min_lat = result.routes[0].bounds.southwest.lat;
-            double max_lng = result.routes[0].bounds.northeast.lng;
-            double min_lng = result.routes[0].bounds.southwest.lng;
-            for (DirectionsRoute route : result.routes) {
+            for (DirectionsRoute r : result.routes) {
                 PlaceManagerUtils.map.addPolyline(new PolylineOptions()
                         .clickable(true)
-                        .addAll(LatLngConverterUtils.convert(route.overviewPolyline.decodePath())));
-                max_lat = Math.max(max_lat, route.bounds.northeast.lat);
-                min_lat = Math.min(min_lat, route.bounds.southwest.lat);
-                max_lng = Math.max(max_lng, route.bounds.northeast.lng);
-                min_lng = Math.min(min_lng, route.bounds.southwest.lng);
+                        .addAll(LatLngConverterUtils.convert(r.overviewPolyline.decodePath())));
+
             }
-            LatLngBounds bounds = new LatLngBounds(new LatLng(min_lat, min_lng), new LatLng(max_lat, max_lng));
+            LatLngBounds bounds = new LatLngBounds(new LatLng(min_lat, min_lng),
+                    new LatLng(max_lat, max_lng));
             PlaceManagerUtils.map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 50));
             // TODO: customise line style
+            return routes;
         } catch (ZeroResultsException e) {
             // TODO: notify users if there are no routes available
+            return routes;
         } catch (InterruptedException | ApiException | IOException e) {
             e.printStackTrace();
+            return routes;
         }
     }
 
     public static LatLng queryLatLng(String placeID) {
         try {
-            PlaceDetails detail = PlacesApi.placeDetails(WayfindingApp.getGeoApiContext(), placeID).await();
+            PlaceDetails detail = PlacesApi.placeDetails(WayfindingApp.getGeoApiContext(),
+                    placeID).await();
             return LatLngConverterUtils.convert(detail.geometry.location);
         } catch (ApiException | InterruptedException | IOException e) {
             e.printStackTrace();
@@ -192,8 +207,14 @@ public class PlaceManagerUtils {
     }
 
     public static LocationDto queryDetail(String placeID) {
+        // end the autocomplete session otherwise it produces extra cost
+        if (!needNewSession) {
+            needNewSession = true;
+            autocompleteSessionToken = null;
+        }
         try {
-            PlaceDetails details = PlacesApi.placeDetails(WayfindingApp.getGeoApiContext(), placeID).await();
+            PlaceDetails details = PlacesApi.placeDetails(WayfindingApp.getGeoApiContext(),
+                    placeID).await();
             LocationDto location = new LocationDto();
             List<AddressComponent> comps = Arrays.stream(details.addressComponents)
                     .filter(comp -> Arrays.stream(comp.types)
@@ -245,7 +266,8 @@ public class PlaceManagerUtils {
         }
     }
 
-    public static PlacesSearchResponse nearbySearchQuery(String keyword, LatLng location, int radius) {
+    public static PlacesSearchResponse nearbySearchQuery(String keyword, LatLng location,
+                                                         int radius) {
         NearbySearchRequest request = new NearbySearchRequest(WayfindingApp.getGeoApiContext());
         request.keyword(keyword);
         request.location(LatLngConverterUtils.convert(location));
