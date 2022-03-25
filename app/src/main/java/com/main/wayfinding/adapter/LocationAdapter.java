@@ -1,5 +1,6 @@
 package com.main.wayfinding.adapter;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -35,11 +36,13 @@ public class LocationAdapter extends ArrayAdapter<LocationDto> {
     @Override
     public View getView(int position, @Nullable View convertView, @NonNull ViewGroup parent) {
         LocationDto location = getItem(position);
-        View view = LayoutInflater.from(getContext()).inflate(resourceID, parent, false);
+        @SuppressLint("ViewHolder") View view = LayoutInflater.from(getContext()).inflate(resourceID, parent, false);
         TextView name = view.findViewById(R.id.autocomplete_location_name);
         TextView address = view.findViewById(R.id.autocomplete_location_address);
         name.setText(location.getName());
         address.setText(location.getAddress());
         return view;
     }
+
+
 }

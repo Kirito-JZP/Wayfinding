@@ -69,7 +69,7 @@ import javadz.beanutils.BeanUtils;
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
 
-    private int autocompleteDelay = 500;
+    private int autocompleteDelay = 50;
     private String mode = "walking";
     private FragmentMapBinding binding;
     private String destinationKeyword;
@@ -492,6 +492,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             } else {
                 UIHandler.post(() -> deptPlacesListView.setAdapter(new LocationAdapter(getContext(),
                         R.layout.autocomplete_location_item, deptLocList)));
+
             }
         }).start();
     }
