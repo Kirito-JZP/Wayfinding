@@ -39,7 +39,7 @@
         <!-- android:value="@string/google_maps_key" /> -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyCw22dPUG1-s666qK4gTyemXQXnWEIoqic" />
+            android:value="AIzaSyB6Rwr9h2TQe1AzMF5NFVU_3KNfHjUfwhc" />
 
         <meta-data
             android:name="com.google.ar.core"

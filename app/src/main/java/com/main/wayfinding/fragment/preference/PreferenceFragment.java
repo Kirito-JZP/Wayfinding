@@ -1,17 +1,9 @@
 package com.main.wayfinding.fragment.preference;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.app.Activity;
 
 
 import androidx.annotation.NonNull;
@@ -28,10 +20,8 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.main.wayfinding.R;
 import com.main.wayfinding.adapter.preferenceAdapter;
-import com.main.wayfinding.databinding.FragmentPreferenceBinding;
 import com.main.wayfinding.dto.LocationDto;
-import com.main.wayfinding.logic.AuthLogic;
-import com.main.wayfinding.logic.DB.LocationDBLogic;
+import com.main.wayfinding.logic.db.LocationDBLogic;
 
 import java.util.ArrayList;
 import java.util.HashMap;

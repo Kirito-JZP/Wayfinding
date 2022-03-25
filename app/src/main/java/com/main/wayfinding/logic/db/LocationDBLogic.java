@@ -1,19 +1,12 @@
-package com.main.wayfinding.logic.DB;
+package com.main.wayfinding.logic.db;
 
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.tasks.OnCanceledListener;
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.main.wayfinding.dto.LocationDto;
-
-import java.util.ArrayList;
 
 /**
  * Database operation for location node

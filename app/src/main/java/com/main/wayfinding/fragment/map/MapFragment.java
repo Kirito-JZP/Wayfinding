@@ -41,7 +41,7 @@ import com.main.wayfinding.R;
 import com.main.wayfinding.adapter.LocationAdapter;
 import com.main.wayfinding.databinding.FragmentMapBinding;
 import com.main.wayfinding.dto.LocationDto;
-import com.main.wayfinding.logic.DB.LocationDBLogic;
+import com.main.wayfinding.logic.db.LocationDBLogic;
 import com.main.wayfinding.logic.GPSTrackerLogic;
 import com.main.wayfinding.logic.NavigationLogic;
 import com.main.wayfinding.utility.AutoCompleteUtils;
