@@ -25,7 +25,7 @@
                 android:layout_width="179dp"
                 android:layout_height="match_parent"
                 android:scaleType="fitCenter"
-                android:src="@drawable/cafe" />
+                android:src="@drawable/ic_loc_img" />
 
             <LinearLayout
                 android:layout_width="191dp"
