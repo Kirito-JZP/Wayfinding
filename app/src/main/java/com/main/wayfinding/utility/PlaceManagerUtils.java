@@ -149,47 +149,55 @@ public class PlaceManagerUtils {
         }
     }
 
-    public static Pair<List<RouteDto>, LatLngBounds> findRoute(LatLng orig, LatLng dest, String mode) {
-        List<RouteDto> routes = new ArrayList<>();
-        RouteDto route = new RouteDto();
-        try {
-            PlaceManagerUtils.map.clear();
-            DirectionsResult result = getDirections(orig, dest, mode).await();
-            double max_lat = result.routes[0].bounds.northeast.lat;
-            double min_lat = result.routes[0].bounds.southwest.lat;
-            double max_lng = result.routes[0].bounds.northeast.lng;
-            double min_lng = result.routes[0].bounds.southwest.lng;
-            for (DirectionsRoute r : result.routes) {
-                max_lat = Math.max(max_lat, r.bounds.northeast.lat);
-                min_lat = Math.min(min_lat, r.bounds.southwest.lat);
-                max_lng = Math.max(max_lng, r.bounds.northeast.lng);
-                min_lng = Math.min(min_lng, r.bounds.southwest.lng);
-                // add start location and end location
-                LocationDto startLocation = new LocationDto();
-                LocationDto endLocation = new LocationDto();
-                startLocation.setLatitude(r.legs[0].startLocation.lat);
-                startLocation.setLongitude(r.legs[0].startLocation.lng);
-                endLocation.setLatitude(r.legs[r.legs.length - 1].endLocation.lat);
-                endLocation.setLongitude(r.legs[r.legs.length - 1].endLocation.lng);
-                route.setStartLocation(startLocation);
-                route.setEndLocation(endLocation);
-                // save polyline options
-                route.setPolylineOptions(new PolylineOptions()
-                        .clickable(true)
-                        .addAll(LatLngConverterUtils.convert(r.overviewPolyline.decodePath())));
-                routes.add(route);
+    public static Pair<List<RouteDto>, LatLngBounds> findRoute(
+            LocationDto startLocDto, LocationDto targetLocDto, String mode) {
+        if (startLocDto != null && targetLocDto != null) {
+            LatLng orig = startLocDto.getLatLng();
+            LatLng dest = targetLocDto.getLatLng();
+            if (orig != null && dest != null) {
+                List<RouteDto> routes = new ArrayList<>();
+                RouteDto route = new RouteDto();
+                try {
+                    PlaceManagerUtils.map.clear();
+                    DirectionsResult result = getDirections(orig, dest, mode).await();
+                    double max_lat = result.routes[0].bounds.northeast.lat;
+                    double min_lat = result.routes[0].bounds.southwest.lat;
+                    double max_lng = result.routes[0].bounds.northeast.lng;
+                    double min_lng = result.routes[0].bounds.southwest.lng;
+                    for (DirectionsRoute r : result.routes) {
+                        max_lat = Math.max(max_lat, r.bounds.northeast.lat);
+                        min_lat = Math.min(min_lat, r.bounds.southwest.lat);
+                        max_lng = Math.max(max_lng, r.bounds.northeast.lng);
+                        min_lng = Math.min(min_lng, r.bounds.southwest.lng);
+                        // add start location and end location
+                        LocationDto startLocation = new LocationDto();
+                        LocationDto endLocation = new LocationDto();
+                        startLocation.setLatitude(r.legs[0].startLocation.lat);
+                        startLocation.setLongitude(r.legs[0].startLocation.lng);
+                        endLocation.setLatitude(r.legs[r.legs.length - 1].endLocation.lat);
+                        endLocation.setLongitude(r.legs[r.legs.length - 1].endLocation.lng);
+                        route.setStartLocation(startLocation);
+                        route.setEndLocation(endLocation);
+                        // save polyline options
+                        route.setPolylineOptions(new PolylineOptions()
+                                .clickable(true)
+                                .addAll(LatLngConverterUtils.convert(r.overviewPolyline.decodePath())));
+                        routes.add(route);
+                    }
+                    LatLngBounds bounds = new LatLngBounds(new LatLng(min_lat, min_lng),
+                            new LatLng(max_lat, max_lng));
+                    // TODO: customise line style
+                    return new Pair<>(routes, bounds);
+                } catch (ZeroResultsException e) {
+                    // TODO: notify users if there are no routes available
+                    return null;
+                } catch (InterruptedException | ApiException | IOException e) {
+                    e.printStackTrace();
+                    return null;
+                }
             }
-            LatLngBounds bounds = new LatLngBounds(new LatLng(min_lat, min_lng),
-                    new LatLng(max_lat, max_lng));
-            // TODO: customise line style
-            return new Pair<>(routes, bounds);
-        } catch (ZeroResultsException e) {
-            // TODO: notify users if there are no routes available
-            return null;
-        } catch (InterruptedException | ApiException | IOException e) {
-            e.printStackTrace();
-            return null;
         }
+        return null;
     }
 
     public static LatLng queryLatLng(String placeID) {

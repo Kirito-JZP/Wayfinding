@@ -2,7 +2,6 @@ package com.main.wayfinding.fragment.map;
 
 import static com.main.wayfinding.utility.AlertDialogUtils.createAlertDialog;
 import static com.main.wayfinding.utility.PlaceManagerUtils.findLocationGeoMsg;
-import static com.main.wayfinding.utility.LatLngConverterUtils.convert;
 import static com.main.wayfinding.utility.PlaceManagerUtils.queryDetail;
 import static com.main.wayfinding.utility.PlaceManagerUtils.queryLatLng;
 
@@ -79,14 +78,13 @@ import javadz.beanutils.BeanUtils;
  */
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
-
     private int autocompleteDelay = 500;
-    private String mode = "walking";
+    private String mode;
     private FragmentMapBinding binding;
     private String destinationKeyword;
     private String departureKeyword;
 
-    private FrameLayout bottomsheet;
+    private FrameLayout bottomSheet;
     private Handler UIHandler;
 
     /********** JAVA DATA Structure ***********/
@@ -166,9 +164,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-        //bottom sheet
-        //BottomSheetBehavior.from().apply
+        mode = getString(R.string.walking);
         return root;
     }
 
@@ -197,7 +193,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         locationImg = view.findViewById(R.id.location_img);
         arBtn = view.findViewById(R.id.arBtn);
         //bottom sheet
-        bottomsheet = view.findViewById(R.id.bottomsheet);
+        bottomSheet = view.findViewById(R.id.bottomsheet);
 
         // ListView
         destPlacesListView = view.findViewById(R.id.dest_places_list);
@@ -223,6 +219,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
             }
         });
+
         arBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -230,6 +227,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 startActivity(intent);
             }
         });
+
         exchangeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -252,10 +250,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         destTxt.setText("");
                     }
                 }
-                if (startLocDto != null && targetLocDto != null && StringUtils.isNotEmpty(mode)) {
-                    PlaceManagerUtils.findRoute(startLocDto.getLatLng(), targetLocDto.getLatLng(),
-                            mode);
-                }
+                PlaceManagerUtils.findRoute(startLocDto, targetLocDto, mode);
+                //TODO
             }
         });
 
@@ -280,42 +276,24 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         publicBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mode = "transit";
-                if (startLocDto != null && targetLocDto != null) {
-                    PlaceManagerUtils.findRoute(
-                            startLocDto.getLatLng(),
-                            targetLocDto.getLatLng(),
-                            mode.equals("") ? "walking" : mode
-                    );
-                }
+                PlaceManagerUtils.findRoute(startLocDto, targetLocDto, getString(R.string.transit));
+                //TODO
             }
         });
 
         walkBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mode = "walking";
-                if (startLocDto != null && targetLocDto != null) {
-                    PlaceManagerUtils.findRoute(
-                            startLocDto.getLatLng(),
-                            targetLocDto.getLatLng(),
-                            mode.equals("") ? "walking" : mode
-                    );
-                }
+                PlaceManagerUtils.findRoute(startLocDto, targetLocDto, getString(R.string.walking));
+                //TODO
             }
         });
 
         cycBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mode = "bicycling";
-                if (startLocDto != null && targetLocDto != null) {
-                    PlaceManagerUtils.findRoute(
-                            startLocDto.getLatLng(),
-                            targetLocDto.getLatLng(),
-                            mode.equals("") ? "walking" : mode
-                    );
-                }
+                PlaceManagerUtils.findRoute(startLocDto, targetLocDto,getString(R.string.bicycling));
+                //TODO
             }
         });
 
@@ -327,10 +305,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     resetCurrentPosition(location);
                 });
                 deptPlacesListView.setVisibility(View.INVISIBLE);
-                if (startLocDto != null && targetLocDto != null && StringUtils.isNotEmpty(mode)) {
-                    PlaceManagerUtils.findRoute(startLocDto.getLatLng(), targetLocDto.getLatLng(),
-                            mode);
-                }
+                PlaceManagerUtils.findRoute(startLocDto, targetLocDto, mode);
+                //TODO
             }
         });
 
@@ -405,11 +381,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 if (manager != null)
                     manager.hideSoftInputFromWindow(getView().findFocus().getWindowToken(), 0);
                 destTxt.clearFocus();
-                if (startLocDto != null && targetLocDto != null && StringUtils.isNotEmpty(mode)) {
-                    Pair<List<RouteDto>, LatLngBounds> result =
-                            PlaceManagerUtils.findRoute(startLocDto.getLatLng(),
-                                    targetLocDto.getLatLng(),
-                            mode);
+                Pair<List<RouteDto>, LatLngBounds> result =
+                            PlaceManagerUtils.findRoute(startLocDto, targetLocDto, mode);
+                if (result != null) {
                     possibleRoutes = result.first;
                     LatLngBounds bounds = result.second;
                     map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
@@ -437,11 +411,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 if (manager != null)
                     manager.hideSoftInputFromWindow(getView().findFocus().getWindowToken(), 0);
                 deptTxt.clearFocus();
-                if (startLocDto != null && targetLocDto != null && StringUtils.isNotEmpty(mode)) {
-                    Pair<List<RouteDto>, LatLngBounds> result =
-                            PlaceManagerUtils.findRoute(startLocDto.getLatLng(),
-                                    targetLocDto.getLatLng(),
-                            mode);
+                Pair<List<RouteDto>, LatLngBounds> result =
+                            PlaceManagerUtils.findRoute(startLocDto, targetLocDto, mode);
+                if (result != null) {
                     possibleRoutes = result.first;
                     LatLngBounds bounds = result.second;
                     map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
@@ -588,7 +560,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             map.clear();
             map.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(),
                     location.getLongitude())));
-            BottomSheetBehavior<FrameLayout> sheetBehavior = BottomSheetBehavior.from(bottomsheet);
+            BottomSheetBehavior<FrameLayout> sheetBehavior = BottomSheetBehavior.from(bottomSheet);
 
             if (sheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
                 sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
@@ -620,10 +592,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 public void onClick(View v) {
                     startLocDto = location;
                     deptTxt.setText(startLocDto.getName());
-                    if (startLocDto != null && targetLocDto != null && StringUtils.isNotEmpty(mode)) {
-                        PlaceManagerUtils.findRoute(startLocDto.getLatLng(),
-                                targetLocDto.getLatLng(), mode);
-                    }
+                    PlaceManagerUtils.findRoute(startLocDto, targetLocDto, mode);
                 }
             });
             setDestBtn.setOnClickListener(new View.OnClickListener() {
@@ -631,10 +600,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 public void onClick(View view) {
                     targetLocDto = location;
                     destTxt.setText(targetLocDto.getName());
-                    if (startLocDto != null && targetLocDto != null && StringUtils.isNotEmpty(mode)) {
-                        PlaceManagerUtils.findRoute(startLocDto.getLatLng(),
-                                targetLocDto.getLatLng(), mode);
-                    }
+                    PlaceManagerUtils.findRoute(startLocDto, targetLocDto, mode);
                 }
             });
             new Thread(() -> {
