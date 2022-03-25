@@ -6,6 +6,7 @@ import static com.main.wayfinding.utility.LatLngConverterUtils.convert;
 import static com.main.wayfinding.utility.PlaceManagerUtils.queryDetail;
 import static com.main.wayfinding.utility.PlaceManagerUtils.queryLatLng;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -56,7 +57,6 @@ import android.widget.TextView;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
-import com.main.wayfinding.utility.LatLngConverterUtils;
 import com.main.wayfinding.utility.PlaceManagerUtils;
 
 import java.io.InputStream;
@@ -137,21 +137,24 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     // Autocomplete logic
     private Timer autocompleteTimer;
+    private enum AutocompleteType {
+        DEST, DEPT
+    }
+    AutocompleteType autocompleteType;
 
-    class AutocompleteDeptTask extends TimerTask {
+    class AutocompleteTask extends TimerTask {
         @Override
         public void run() {
-            queryAutocompleteDept();
+            switch (autocompleteType){
+                case DEST:
+                    queryAutocomplete(AutoCompleteUtils.AutocompleteType.DEST);
+                    break;
+                case DEPT:
+                    queryAutocomplete(AutoCompleteUtils.AutocompleteType.DEPT);
+                    break;
+            }
         }
     }
-
-    class AutocompleteDestTask extends TimerTask {
-        @Override
-        public void run() {
-            queryAutocompleteDest();
-        }
-    }
-
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -351,7 +354,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     autocompleteTimer.purge();
                     autocompleteTimer.cancel();
                     autocompleteTimer = new Timer();
-                    autocompleteTimer.schedule(new AutocompleteDeptTask(), autocompleteDelay);
+                    autocompleteType = AutocompleteType.DEPT;
+                    autocompleteTimer.schedule(new AutocompleteTask(), autocompleteDelay);
                 }
             }
 
@@ -373,7 +377,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     autocompleteTimer.purge();
                     autocompleteTimer.cancel();
                     autocompleteTimer = new Timer();
-                    autocompleteTimer.schedule(new AutocompleteDestTask(), autocompleteDelay);
+                    autocompleteType = AutocompleteType.DEST;
+                    autocompleteTimer.schedule(new AutocompleteTask(), autocompleteDelay);
                 }
             }
 
@@ -477,6 +482,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         map = googleMap;
@@ -544,32 +550,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             UIHandler.post(() -> deptPlacesListView.setAdapter(new LocationAdapter(getContext(),
                     R.layout.autocomplete_location_item, deptLocList)));
         }
-    }
-
-    public void queryAutocompleteDept() {
-        deptLocList.clear();
-        if (StringUtils.isNotEmpty(departureKeyword)) {
-            List<LocationDto> places = PlaceManagerUtils.autocompletePlaces(departureKeyword,
-                    targetLocDto != null ? targetLocDto.getLatLng() : currentLocDto.getLatLng());
-            deptLocList.clear();
-            deptLocList.addAll(places);
-        }
-        // pass the results to original thread so that UI elements can be updated
-        UIHandler.post(() -> deptPlacesListView.setAdapter(new LocationAdapter(getContext(),
-                R.layout.autocomplete_location_item, deptLocList)));
-    }
-
-    public void queryAutocompleteDest() {
-        destLocList.clear();
-        if (StringUtils.isNotEmpty(destinationKeyword)) {
-            List<LocationDto> places = PlaceManagerUtils.autocompletePlaces(destinationKeyword,
-                    startLocDto != null ? startLocDto.getLatLng() : currentLocDto.getLatLng());
-            destLocList.clear();
-            destLocList.addAll(places);
-        }
-        // pass the results to original thread so that UI elements can be updated
-        UIHandler.post(() -> destPlacesListView.setAdapter(new LocationAdapter(getContext(),
-                R.layout.autocomplete_location_item, destLocList)));
     }
 
     /**
