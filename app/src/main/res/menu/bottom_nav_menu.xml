@@ -3,12 +3,12 @@
 
     <item
         android:id="@+id/navigation_map"
-        android:icon="@drawable/ic_baseline_place_24"
+        android:icon="@drawable/ic_place"
         android:title="@string/title_map" />
 
     <item
         android:id="@+id/navigation_preference"
-        android:icon="@drawable/ic_baseline_star_24"
+        android:icon="@drawable/ic_star"
         android:title="@string/title_preference" />
 
     <item

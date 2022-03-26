@@ -14,7 +14,7 @@
         android:layout_height="144dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="50dp"
-        android:src="@drawable/ic_fragment_avatar_signup" />
+        android:src="@drawable/ic_avatar_signup" />
 
     <RelativeLayout
         android:layout_width="match_parent"
@@ -27,8 +27,8 @@
             android:id="@+id/email_login"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/fragment_border"
-            android:drawableLeft="@drawable/ic_baseline_email_24"
+            android:background="@drawable/account_border"
+            android:drawableLeft="@drawable/ic__email"
             android:hint="@string/email"
             android:inputType="textEmailAddress"
             android:minHeight="70dp"
@@ -44,8 +44,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_below="@id/email_login"
-            android:background="@drawable/fragment_border"
-            android:drawableLeft="@drawable/ic_baseline_lock_24"
+            android:background="@drawable/account_border"
+            android:drawableLeft="@drawable/ic_lock"
             android:hint="@string/password"
             android:inputType="textPassword"
             android:minHeight="70dp"

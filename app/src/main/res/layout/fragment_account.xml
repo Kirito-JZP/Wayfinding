@@ -21,7 +21,7 @@
         android:layout_height="187dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="-5dp"
-        android:src="@drawable/fragment_avatar_bg" />
+        android:src="@drawable/ic_avatar_bg" />
 
     <com.main.wayfinding.fragment.account.RoundImageView
         android:id="@+id/avatar"
@@ -29,7 +29,7 @@
         android:layout_height="154dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
-        android:src="@drawable/ic_fragment_avatar_default" />
+        android:src="@drawable/ic_avatar_default" />
 
 
     <ScrollView
@@ -50,7 +50,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:layout_marginTop="30dp"
-                android:background="@drawable/fragment_border"
+                android:background="@drawable/account_border"
                 android:drawableStart="@drawable/ic_email"
                 android:enabled="false"
                 android:gravity="center"
@@ -70,7 +70,7 @@
                     android:layout_width="219dp"
                     android:layout_height="40dp"
                     android:layout_marginTop="30dp"
-                    android:background="@drawable/fragment_border"
+                    android:background="@drawable/account_border"
                     android:drawableStart="@drawable/ic_avatar"
                     android:enabled="false"
                     android:gravity="right|center_vertical"
@@ -85,7 +85,7 @@
                     android:layout_width="192dp"
                     android:layout_height="40dp"
                     android:layout_marginTop="30dp"
-                    android:background="@drawable/fragment_border"
+                    android:background="@drawable/account_border"
                     android:enabled="false"
                     android:paddingLeft="10dp"
                     android:paddingRight="45dp"
@@ -102,7 +102,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:layout_marginTop="30dp"
-                android:background="@drawable/fragment_border"
+                android:background="@drawable/account_border"
                 android:drawableStart="@drawable/ic_country"
                 android:enabled="false"
                 android:gravity="center"
@@ -114,11 +114,11 @@
 
 
             <EditText
-                android:id="@+id/phone_number"
+                android:id="@+id/phone_no"
                 android:layout_width="match_parent"
                 android:layout_height="40dp"
                 android:layout_marginTop="30dp"
-                android:background="@drawable/fragment_border"
+                android:background="@drawable/account_border"
                 android:drawableStart="@drawable/ic_phone"
                 android:enabled="false"
                 android:gravity="center"

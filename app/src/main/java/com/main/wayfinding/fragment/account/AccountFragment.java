@@ -50,8 +50,8 @@ import java.io.InputStream;
  *
  * @author Gang
  * @author Last Modified By hu
- * @version Revision: 0
- * Date: 2022/2/3 21:58
+ * @version Revision: 1
+ * Date: 2022/3/26 21:58
  */
 
 public class AccountFragment extends Fragment {
@@ -102,14 +102,11 @@ public class AccountFragment extends Fragment {
                     System.out.println(imageSelected); // test
 
                     InputStream is = null;
-
                     try {
                         is = requireActivity().getContentResolver().openInputStream(imageSelected); // inputStream
                         Bitmap bitmap = BitmapFactory.decodeStream(is);
                         ImageView imageView = getView().findViewById(R.id.avatar);
                         imageView.setImageBitmap(bitmap); // square image
-                        //imageView.setImageBitmap(bitmapRound(bitmap,50)); // test round image method1
-                        //imageView.setImageBitmap(makeRoundCorner(bitmap)); // test round image method2
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
                     } finally {
@@ -119,8 +116,6 @@ public class AccountFragment extends Fragment {
                             e.printStackTrace();
                         }
                     }
-
-
                 }
                 System.out.println(result.getResultCode());
             }
@@ -140,26 +135,25 @@ public class AccountFragment extends Fragment {
                 signUpView.findViewById(R.id.create_account).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        EditText usernameComponent = signUpView.findViewById(R.id.email_signup);
-                        EditText passwordComponent = signUpView.findViewById(R.id.password_signup);
-                        EditText firstNameComponent = signUpView.findViewById(R.id.first_name_signup);
-                        EditText surnameComponent = signUpView.findViewById(R.id.surname_signup);
-                        EditText countryComponent = signUpView.findViewById(R.id.country_signup);
-                        EditText phoneNumberComponent = signUpView.findViewById(R.id.phone_number_signup);
-                        String username = usernameComponent.getText().toString();
-                        String password = passwordComponent.getText().toString();
+                        EditText emailSignup = signUpView.findViewById(R.id.email_signup);
+                        EditText passwordSignup = signUpView.findViewById(R.id.password_signup);
+                        EditText firstNameSignup = signUpView.findViewById(R.id.first_name_signup);
+                        EditText surnameSignup = signUpView.findViewById(R.id.surname_signup);
+                        EditText countrySignup = signUpView.findViewById(R.id.country_signup);
+                        EditText phoneNoSignup = signUpView.findViewById(R.id.phone_no_signup);
+                        String email = emailSignup.getText().toString();
+                        String password = passwordSignup.getText().toString();
                         UserDto userDto = new UserDto(
-                                firstNameComponent.getText().toString(),
-                                surnameComponent.getText().toString(),
-                                countryComponent.getText().toString(),
-                                phoneNumberComponent.getText().toString());
+                                firstNameSignup.getText().toString(),
+                                surnameSignup.getText().toString(),
+                                countrySignup.getText().toString(),
+                                phoneNoSignup.getText().toString());
                         //获取单选框
                         CheckBox checkbox = signUpView.findViewById(R.id.checkBox);
 
-
                         //1.验证字符串规格（邮箱格式是否正确，密码最少6位等）
                         // 非空验证
-                        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password) ||
+                        if (StringUtils.isEmpty(email) || StringUtils.isEmpty(password) ||
                                 StringUtils.isEmpty(userDto.getFirstName()) ||
                                 StringUtils.isEmpty(userDto.getSurname()) ||
                                 StringUtils.isEmpty(userDto.getCountry()) ||
@@ -169,7 +163,7 @@ public class AccountFragment extends Fragment {
                         } else if (!checkbox.isChecked()) {
                             AlertDialog dialogCheckbox = new AlertDialog.Builder(getActivity()).
                                     setTitle("Please agree with terms.").show();
-                        } else if (!accountCheckLogic.checkEmail(username)) {
+                        } else if (!accountCheckLogic.checkEmail(email)) {
                             AlertDialog dialogError = new AlertDialog.Builder(getActivity()).
                                     setTitle(accountCheckLogic.getErrorMessage()).show();
                         } else if (password.length() < 6) {
@@ -177,7 +171,7 @@ public class AccountFragment extends Fragment {
                                     setTitle("Password too short!").show();
                         } else {
                             //登录
-                            accountLogic.signUp(username, password, new OnCompleteListener<AuthResult>() {
+                            accountLogic.signUp(email, password, new OnCompleteListener<AuthResult>() {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
@@ -191,12 +185,8 @@ public class AccountFragment extends Fragment {
                             //关闭dialoglogin
                             dialogCreate.dismiss();
                         }
-
-
                     }
                 });
-
-
             }
         });
 
@@ -204,27 +194,24 @@ public class AccountFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 View loginView = View.inflate(getContext(), R.layout.fragment_accountlogin, null);
-
                 AlertDialog dialogLogin = new AlertDialog.Builder(getActivity()).setView(loginView).show();
-
-
                 loginView.findViewById(R.id.confirm).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        EditText usernameComponent = loginView.findViewById(R.id.email_login);
-                        EditText passwordComponent = loginView.findViewById(R.id.password_login);
-                        String username = usernameComponent.getText().toString();
-                        String password = passwordComponent.getText().toString();
+                        EditText usernameLogin= loginView.findViewById(R.id.email_login);
+                        EditText passwordLogin = loginView.findViewById(R.id.password_login);
+                        String email = usernameLogin.getText().toString();
+                        String password = passwordLogin.getText().toString();
 
                         //登录验证 字符串规格（邮箱格式是否正确，密码最少多少位，复杂程度等）
-                        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)) {
+                        if (StringUtils.isEmpty(email) || StringUtils.isEmpty(password)) {
                             AlertDialog dialogEmpty = new AlertDialog.Builder(getActivity()).
                                     setTitle("Empty! Please input").show();
-                        } else if (!accountCheckLogic.checkEmail(username)) {
+                        } else if (!accountCheckLogic.checkEmail(email)) {
                             AlertDialog dialogError = new AlertDialog.Builder(getActivity()).
                                     setTitle(accountCheckLogic.getErrorMessage()).show();
                         } else {
-                            accountLogic.login(username, password, new OnCompleteListener<AuthResult>() {
+                            accountLogic.login(email, password, new OnCompleteListener<AuthResult>() {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
@@ -241,16 +228,12 @@ public class AccountFragment extends Fragment {
                                             AlertDialog dialogErrorPassword = new AlertDialog.Builder(getActivity()).
                                                     setTitle("Error Password!").show();
                                         }
-
                                     }
                                 }
                             });
-
                         }
                     }
                 });
-
-
             }
         });
 
@@ -265,26 +248,25 @@ public class AccountFragment extends Fragment {
         view.findViewById(R.id.edit).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EditText status_firstname = getView().findViewById(R.id.first_name);
-                EditText status_surname = getView().findViewById(R.id.surname);
-                EditText status_country = getView().findViewById(R.id.country);
-                EditText status_email = getView().findViewById(R.id.email);
-                EditText status_phone = getView().findViewById(R.id.phone_number);
-                ImageView stauts_avatar = getView().findViewById(R.id.avatar);
+                View editView = getView();
+                EditText firstname = editView.findViewById(R.id.first_name);
+                EditText surname = editView.findViewById(R.id.surname);
+                EditText country = editView.findViewById(R.id.country);
+                EditText phone = editView.findViewById(R.id.phone_no);
+                ImageView avatar = editView.findViewById(R.id.avatar);
                 // 设置为可编辑状态
-                status_firstname.setEnabled(true);
-                status_surname.setEnabled(true);
-                status_country.setEnabled(true);
-                status_phone.setEnabled(true);
-                stauts_avatar.setEnabled(true);
+                firstname.setEnabled(true);
+                surname.setEnabled(true);
+                country.setEnabled(true);
+                phone.setEnabled(true);
+                avatar.setEnabled(true);
 
                 // set color black
-                status_firstname.setTextColor(Color.BLACK);
-                status_surname.setTextColor(Color.BLACK);
-                status_country.setTextColor(Color.BLACK);
-                status_phone.setTextColor(Color.BLACK);
+                firstname.setTextColor(Color.BLACK);
+                surname.setTextColor(Color.BLACK);
+                country.setTextColor(Color.BLACK);
+                phone.setTextColor(Color.BLACK);
 
-                View editView = getView();
                 //Btn
                 buttonActions(BtnActions.EDIT);
 
@@ -294,7 +276,6 @@ public class AccountFragment extends Fragment {
                     public void onClick(View view) {
                         //Btn
                         buttonActions(BtnActions.BACK);
-
                         editing = false;
                         reload();
                     }
@@ -304,13 +285,12 @@ public class AccountFragment extends Fragment {
                     @Override
                     public void onClick(View view) {
                         UserDto userDto = new UserDto();
-                        userDto.setFisrtName(status_firstname.getText().toString());
-                        userDto.setSurname(status_surname.getText().toString());
-                        userDto.setCountry(status_country.getText().toString());
-                        userDto.setPhoneNumber(status_phone.getText().toString());
+                        userDto.setFisrtName(firstname.getText().toString());
+                        userDto.setSurname(surname.getText().toString());
+                        userDto.setCountry(country.getText().toString());
+                        userDto.setPhoneNumber(phone.getText().toString());
                         // 更新数据
                         userDBLogic.update(userDto);
-
                         //Btn
                         buttonActions(BtnActions.CONFIRM);
 
@@ -328,7 +308,6 @@ public class AccountFragment extends Fragment {
                             } catch (FileNotFoundException e) {
                                 e.printStackTrace();
                             }
-
                         }
                         editing = false;
                         reload();
@@ -336,15 +315,15 @@ public class AccountFragment extends Fragment {
                 });
 
                 // 修改头像
-                stauts_avatar.setOnClickListener(new View.OnClickListener() {
+                avatar.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
                         View avatarView = View.inflate(getContext(), R.layout.fragment_avatar, null);
                         AlertDialog dialogAvatar = new AlertDialog.Builder(getActivity()).setView(avatarView).show();
-                        TextView avatar_photo = (TextView) avatarView.findViewById(R.id.photo);//album
-                        TextView avatar_cancel = (TextView) avatarView.findViewById(R.id.cancel);
+                        TextView avatarPhoto = (TextView) avatarView.findViewById(R.id.photo);//album
+                        TextView avatarCancel = (TextView) avatarView.findViewById(R.id.cancel);
 
-                        avatar_photo.setOnClickListener(new View.OnClickListener() {
+                        avatarPhoto.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
                                 Intent album = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -352,22 +331,17 @@ public class AccountFragment extends Fragment {
                             }
                         });
 
-                        avatar_cancel.setOnClickListener(new View.OnClickListener() {
+                        avatarCancel.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
                                 dialogAvatar.dismiss();
                             }
                         });
-
-
                     }
                 });
-
             }
         });
-
     }
-
 
     //when click the AccountFragment page, execute
     public void reload() {
@@ -378,7 +352,7 @@ public class AccountFragment extends Fragment {
         EditText firstName = view.findViewById(R.id.first_name);
         EditText surname = view.findViewById(R.id.surname);
         EditText country = view.findViewById(R.id.country);
-        EditText phoneNo = view.findViewById(R.id.phone_number);
+        EditText phoneNo = view.findViewById(R.id.phone_no);
 
         if (currentUser != null) {
             // if logged in, query and render user information
@@ -414,30 +388,21 @@ public class AccountFragment extends Fragment {
                     }
                 }
             });
-
             userDBLogic.downloadAvatarInto(getContext(), avatar);
 
         } else {
             //如果没登录 currentUser == null
-            //...
-            firstName.setText("First Name");
-            surname.setText("Surname");
-            country.setText("Country");
-            email.setText("Email");
-            phoneNo.setText("Phone No.");
+            firstName.setText(getString(R.string.first_name));
+            surname.setText(getString(R.string.surname));
+            country.setText(getString(R.string.country));
+            email.setText(getString(R.string.email));
+            phoneNo.setText(getString(R.string.phone_number));
 
             //Btn
             buttonActions(BtnActions.SIGNOUT);
-
             //set default avatar
-            avatar.setImageResource(R.drawable.ic_fragment_avatar_default);
-
-
+            avatar.setImageResource(R.drawable.ic_avatar_default);
         }
-
-
-
-
     }
 
     public void buttonActions(BtnActions btnActions){
@@ -477,7 +442,4 @@ public class AccountFragment extends Fragment {
                 break;
         }
     }
-
-
-
 }
