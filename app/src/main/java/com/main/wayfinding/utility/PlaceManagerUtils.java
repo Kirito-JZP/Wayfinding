@@ -1,14 +1,22 @@
 package com.main.wayfinding.utility;
 
 
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.util.Log;
 import android.util.Pair;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.Cap;
+import com.google.android.gms.maps.model.Dot;
+import com.google.android.gms.maps.model.Gap;
+import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
+import com.google.android.gms.maps.model.PatternItem;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.maps.model.RoundCap;
 import com.google.maps.DirectionsApi;
 import com.google.maps.DirectionsApiRequest;
 import com.google.maps.FindPlaceFromTextRequest;
@@ -25,6 +33,7 @@ import com.google.maps.model.ComponentFilter;
 import com.google.maps.model.DirectionsLeg;
 import com.google.maps.model.DirectionsResult;
 import com.google.maps.model.DirectionsRoute;
+import com.google.maps.model.DirectionsStep;
 import com.google.maps.model.GeocodingResult;
 import com.google.maps.model.LocationType;
 import com.google.maps.model.PlaceDetails;
@@ -156,7 +165,6 @@ public class PlaceManagerUtils {
             LatLng dest = targetLocDto.getLatLng();
             if (orig != null && dest != null) {
                 List<RouteDto> routes = new ArrayList<>();
-                RouteDto route = new RouteDto();
                 try {
                     PlaceManagerUtils.map.clear();
                     DirectionsResult result = getDirections(orig, dest, mode).await();
@@ -165,6 +173,7 @@ public class PlaceManagerUtils {
                     double max_lng = result.routes[0].bounds.northeast.lng;
                     double min_lng = result.routes[0].bounds.southwest.lng;
                     for (DirectionsRoute r : result.routes) {
+                        RouteDto route = new RouteDto();
                         max_lat = Math.max(max_lat, r.bounds.northeast.lat);
                         min_lat = Math.min(min_lat, r.bounds.southwest.lat);
                         max_lng = Math.max(max_lng, r.bounds.northeast.lng);
@@ -179,14 +188,40 @@ public class PlaceManagerUtils {
                         route.setStartLocation(startLocation);
                         route.setEndLocation(endLocation);
                         // save polyline options
-                        route.setPolylineOptions(new PolylineOptions()
-                                .clickable(true)
-                                .addAll(LatLngConverterUtils.convert(r.overviewPolyline.decodePath())));
+                        List<PatternItem> walkingPattern = Arrays.asList(new Dot(), new Gap(20));
+                        for (DirectionsLeg leg : r.legs) {
+                            for (DirectionsStep step : leg.steps) {
+                                int colour;
+                                PolylineOptions options = new PolylineOptions();
+                                switch (step.travelMode) {
+                                    case WALKING:
+                                        colour = Color.BLUE;
+                                        break;
+                                    case TRANSIT:
+                                        colour = Color.YELLOW;
+                                        break;
+                                    case BICYCLING:
+                                        colour = Color.GREEN;
+                                        break;
+                                    default:
+                                        colour = Color.DKGRAY;
+                                }
+                                options.addAll(LatLngConverterUtils.convert(step.polyline.decodePath()))
+                                        .color(colour)
+                                        .width(25)
+                                        .startCap(new RoundCap())
+                                        .endCap(new RoundCap())
+                                        .geodesic(true);
+                                if (step.travelMode == TravelMode.WALKING) {
+                                    options.pattern(walkingPattern);
+                                }
+                                route.addPolylineOptions(options);
+                            }
+                        }
                         routes.add(route);
                     }
                     LatLngBounds bounds = new LatLngBounds(new LatLng(min_lat, min_lng),
                             new LatLng(max_lat, max_lng));
-                    // TODO: customise line style
                     return new Pair<>(routes, bounds);
                 } catch (ZeroResultsException e) {
                     // TODO: notify users if there are no routes available

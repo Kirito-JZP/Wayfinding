@@ -42,7 +42,9 @@ public class NavigationLogic {
         currentRoute = route;
         trackerLogic.registerLocationUpdateCompleteEvent(location -> {
             map.clear();
-            map.addPolyline(route.getPolylineOptions());
+            for (PolylineOptions options : route.getAllPolylineOptions()) {
+                map.addPolyline(options);
+            }
             map.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(),
                     location.getLongitude()))
                     .title("current location"));

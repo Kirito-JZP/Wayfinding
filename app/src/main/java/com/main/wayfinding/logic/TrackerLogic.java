@@ -18,6 +18,7 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationSettingsRequest;
 import com.google.android.gms.location.SettingsClient;
+import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.OnTokenCanceledListener;
 import com.google.android.material.snackbar.Snackbar;
@@ -36,7 +37,17 @@ import java.util.Map;
  * @version Revision: 0
  * Date: 2022/1/29 0:58
  */
-public class TrackerLogic {
+public class TrackerLogic implements LocationSource {
+
+    @Override
+    public void activate(@NonNull OnLocationChangedListener onLocationChangedListener) {
+        mapSourceDataListener = onLocationChangedListener;
+    }
+
+    @Override
+    public void deactivate() {
+        mapSourceDataListener = null;
+    }
 
     // callback for asyncronously getting values
     public interface RequestLocationCompleteCallback {
@@ -48,7 +59,7 @@ public class TrackerLogic {
     }
 
     // The minimum distance to change Updates in meters
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 10; // 10 meters
+    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 5; // 5 meters
     // The minimum time between updates in milliseconds
     private static final long MIN_TIME_BW_UPDATES = 1000 * 2; // 2 seconds
     // Request code for location permission request.
@@ -67,7 +78,8 @@ public class TrackerLogic {
     private final LocationSettingsRequest settingsRequest;
     private static TrackerLogic instance;
     private static int locationUpdateCompleteCallbackNum;
-    private Map<Integer, LocationUpdateCompleteCallback> locationUpdateCompleteCallbackList;
+    private final Map<Integer, LocationUpdateCompleteCallback> locationUpdateCompleteCallbackList;
+    private OnLocationChangedListener mapSourceDataListener;
 
     public static TrackerLogic getInstance() {
         return instance;
@@ -86,11 +98,15 @@ public class TrackerLogic {
 
         locationClient = LocationServices.getFusedLocationProviderClient(activity);
         settingsClient = LocationServices.getSettingsClient(activity);
+
         locationCallback = new LocationCallback() {
             @Override
             public void onLocationResult(@NonNull LocationResult locationResult) {
                 super.onLocationResult(locationResult);
                 location = locationResult.getLastLocation();
+                // provide data to the my location layer for the Google Map instance
+                mapSourceDataListener.onLocationChanged(location);
+                // broadcast new location
                 for (LocationUpdateCompleteCallback callback :
                         locationUpdateCompleteCallbackList.values()) {
                     callback.onLocationUpdateComplete(location);
@@ -106,6 +122,7 @@ public class TrackerLogic {
         locationRequest = LocationRequest.create();
         locationRequest.setInterval(MIN_TIME_BW_UPDATES);
         locationRequest.setFastestInterval(1000);
+        locationRequest.setSmallestDisplacement(MIN_DISTANCE_CHANGE_FOR_UPDATES);
         locationRequest.setWaitForAccurateLocation(false);
         locationRequest.setPriority(PRIORITY_HIGH_ACCURACY);
 
@@ -117,8 +134,12 @@ public class TrackerLogic {
         // ask for permissions
         askForLocationPermissions();
 
+        // use the last available location
+        requestLastLocation(loc -> {
+            location = loc;
+        });
+
         // start requesting location updates
-        updateLocationInstantly();
         startUpdateLocation();
     }
 
