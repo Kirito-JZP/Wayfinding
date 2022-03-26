@@ -26,7 +26,7 @@ public class AccountCheckLogic {
 
     public boolean isEmpty(String key, String str) {
         if (StringUtils.isEmpty(str)) {
-            this.errorMessage = key + "is empty\n";
+            this.errorMessage = key + " is empty\n";
             return true;
         } else {
             return false;
