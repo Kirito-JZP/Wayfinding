@@ -41,8 +41,10 @@ import com.main.wayfinding.logic.AccountCheckLogic;
 import com.main.wayfinding.logic.AuthLogic;
 import com.main.wayfinding.logic.db.UserDBLogic;
 import com.main.wayfinding.utility.AlertDialogUtils;
+import com.main.wayfinding.utility.FileReaderUtils;
 
 import org.apache.commons.lang3.StringUtils;
+
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
@@ -133,6 +135,29 @@ public class AccountFragment extends Fragment {
                 WindowManager.LayoutParams lp = dialogCreate.getWindow().getAttributes();
                 lp.alpha = 1.0f;
                 dialogCreate.getWindow().setAttributes(lp);
+                // protocol
+                TextView protocol = signUpView.findViewById(R.id.tv_xieyi);
+                protocol.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String str = FileReaderUtils.initAssets(getContext(),"privacy.txt");
+                        final View inflate = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_protocol, null);
+                        TextView tv_title = (TextView) inflate.findViewById(R.id.tv_title);
+                        tv_title.setText("Privacy Protocol");
+                        TextView tv_content = (TextView) inflate.findViewById(R.id.tv_content);
+                        tv_content.setText(str);
+                        final AlertDialog dialog = new AlertDialog
+                                .Builder(getActivity())
+                                .setView(inflate)
+                                .show();
+                        final WindowManager.LayoutParams params = dialog.getWindow().getAttributes();
+                        params.width = 800;
+                        params.height = 1200;
+                        dialog.getWindow().setAttributes(params);
+                        dialog.getWindow().setBackgroundDrawableResource(android.R.color.transparent);
+                    }
+                });
+
                 // 注册验证
                 signUpView.findViewById(R.id.create_account).setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -152,7 +177,6 @@ public class AccountFragment extends Fragment {
                                 phoneNoSignup.getText().toString());
                         //获取单选框
                         CheckBox checkbox = signUpView.findViewById(R.id.checkBox);
-                        //加chebox的点击事件
 
                         //1.验证字符串规格（邮箱格式是否正确，密码最少6位等）
                         // 非空验证
@@ -459,4 +483,5 @@ public class AccountFragment extends Fragment {
                 break;
         }
     }
+
 }
