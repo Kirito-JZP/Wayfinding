@@ -5,9 +5,11 @@ import static com.main.wayfinding.utility.PlaceManagerUtils.findLocationGeoMsg;
 import static com.main.wayfinding.utility.PlaceManagerUtils.queryDetail;
 import static com.main.wayfinding.utility.PlaceManagerUtils.queryLatLng;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
@@ -28,6 +30,7 @@ import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -398,7 +401,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
+        // Create tracker object
+        trackerLogic = TrackerLogic.getInstance(getActivity());
+        // trackerLogic
+        trackerLogic.requestLastLocation(this::resetCurrentPosition);
+
+        // Set map
         map = googleMap;
+        map.setLocationSource(trackerLogic);    // replace the default location source with
         map.setMyLocationEnabled(true);
         map.getUiSettings().setCompassEnabled(false);
         map.getUiSettings().setMyLocationButtonEnabled(false);
@@ -412,12 +422,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 }
             }
         });
-
-        // Create tracker object
-        trackerLogic = TrackerLogic.getInstance(getActivity());
-        map.setLocationSource(trackerLogic);    // replace the default location source with
-        // trackerLogic
-        trackerLogic.requestLastLocation(this::resetCurrentPosition);
 
         // Create navigation object
         NavigationLogic.createInstance(map);
