@@ -103,17 +103,40 @@
                     android:inputType="phone"
                     android:minHeight="70dp" />
 
-                <CheckBox
-                    android:id="@+id/checkBox"
+
+                <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_marginTop="1dp"
-                    android:paddingStart="25dp"
-                    android:text="Agree with Term and Conditions"
-                    android:textColor="#1a73e8"/>
+                    android:layout_height="30dp"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_marginTop="15dp"
+                    >
+
+                    <CheckBox
+                        android:id="@+id/checkBox"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Agree with "
+                        android:textSize="14sp"
+                        />
+                    <TextView
+                        android:id="@+id/tv_xieyi"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Privacy Policy of Wayfinding"
+                        android:textSize="14sp"
+                        android:textColor="#1a73e8"
+                        />
+
+                </LinearLayout>
 
                 <Button
+                    android:layout_marginTop="20dp"
                     android:id="@+id/create_account"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
