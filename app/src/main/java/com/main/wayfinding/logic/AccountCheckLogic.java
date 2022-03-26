@@ -26,10 +26,20 @@ public class AccountCheckLogic {
 
     public boolean isEmpty(String key, String str) {
         if (StringUtils.isEmpty(str)) {
-            this.errorMessage = key + "is empty";
-            return false;
-        } else {
+            this.errorMessage = key + "is empty\n";
             return true;
+        } else {
+            return false;
         }
     }
+
+    public boolean checkLength(int n){
+        if(n < 6){
+            this.errorMessage = "Password too short!";
+            return true;
+        }else {
+            return false;
+        }
+    }
+
 }

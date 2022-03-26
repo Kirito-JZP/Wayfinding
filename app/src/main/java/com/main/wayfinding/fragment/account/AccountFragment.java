@@ -40,6 +40,8 @@ import com.main.wayfinding.dto.UserDto;
 import com.main.wayfinding.logic.AccountCheckLogic;
 import com.main.wayfinding.logic.AuthLogic;
 import com.main.wayfinding.logic.db.UserDBLogic;
+import com.main.wayfinding.utility.AlertDialogUtils;
+
 import org.apache.commons.lang3.StringUtils;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -150,25 +152,42 @@ public class AccountFragment extends Fragment {
                                 phoneNoSignup.getText().toString());
                         //获取单选框
                         CheckBox checkbox = signUpView.findViewById(R.id.checkBox);
+                        //加chebox的点击事件
 
                         //1.验证字符串规格（邮箱格式是否正确，密码最少6位等）
                         // 非空验证
-                        if (StringUtils.isEmpty(email) || StringUtils.isEmpty(password) ||
-                                StringUtils.isEmpty(userDto.getFirstName()) ||
-                                StringUtils.isEmpty(userDto.getSurname()) ||
-                                StringUtils.isEmpty(userDto.getCountry()) ||
-                                StringUtils.isEmpty(userDto.getPhoneNumber())) {
-                            AlertDialog dialogEmpty = new AlertDialog.Builder(getActivity()).
-                                    setTitle("Empty! Please input").show();
-                        } else if (!checkbox.isChecked()) {
-                            AlertDialog dialogCheckbox = new AlertDialog.Builder(getActivity()).
-                                    setTitle("Please agree with terms.").show();
-                        } else if (!accountCheckLogic.checkEmail(email)) {
-                            AlertDialog dialogError = new AlertDialog.Builder(getActivity()).
-                                    setTitle(accountCheckLogic.getErrorMessage()).show();
-                        } else if (password.length() < 6) {
-                            AlertDialog dialogError = new AlertDialog.Builder(getActivity()).
-                                    setTitle("Password too short!").show();
+                        String errorMsg = "";
+                        if (accountCheckLogic.isEmpty(getString(R.string.email), email)) {
+                            errorMsg += accountCheckLogic.getErrorMessage();
+                            System.out.println(errorMsg);
+                        }
+                        if (accountCheckLogic.isEmpty(getString(R.string.password), password)) {
+                            errorMsg += accountCheckLogic.getErrorMessage();
+                        }
+                        if (accountCheckLogic.isEmpty(getString(R.string.first_name), userDto.getFirstName())) {
+                            errorMsg += accountCheckLogic.getErrorMessage();
+                        }
+                        if (accountCheckLogic.isEmpty(getString(R.string.surname), userDto.getSurname())) {
+                            errorMsg += accountCheckLogic.getErrorMessage();
+                        }
+                        if (accountCheckLogic.isEmpty(getString(R.string.country), userDto.getCountry())) {
+                            errorMsg += accountCheckLogic.getErrorMessage();
+                        }
+                        if (accountCheckLogic.isEmpty(getString(R.string.phone_number), userDto.getPhoneNumber())) {
+                            errorMsg += accountCheckLogic.getErrorMessage();
+                        }
+                        if (!checkbox.isChecked()) {
+                            errorMsg += "Please agree with terms. \n";
+                        }
+                        if (!accountCheckLogic.checkEmail(email)) {
+                            errorMsg += accountCheckLogic.getErrorMessage();
+                        }
+                        if (accountCheckLogic.checkLength(password.length())) {
+                            errorMsg += accountCheckLogic.getErrorMessage();
+                        }
+
+                        if (StringUtils.isNotEmpty(errorMsg)){
+                            AlertDialogUtils.createAlertDialog(getContext(),errorMsg);
                         } else {
                             //登录
                             accountLogic.signUp(email, password, new OnCompleteListener<AuthResult>() {
@@ -182,8 +201,6 @@ public class AccountFragment extends Fragment {
                                     }
                                 }
                             });
-                            //关闭dialoglogin
-                            dialogCreate.dismiss();
                         }
                     }
                 });
