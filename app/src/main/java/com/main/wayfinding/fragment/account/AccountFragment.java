@@ -70,6 +70,10 @@ public class AccountFragment extends Fragment {
     private Button backBtn;
     private Button confirmBtn;
 
+    private enum BtnActions {
+        LOGIN, EDIT, BACK, CONFIRM, SIGNOUT
+    }
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentAccountBinding.inflate(inflater, container, false);
@@ -255,8 +259,6 @@ public class AccountFragment extends Fragment {
             public void onClick(View view) {
                 accountLogic.signOut();
                 reload();
-
-
             }
         });
 
@@ -275,33 +277,28 @@ public class AccountFragment extends Fragment {
                 status_country.setEnabled(true);
                 status_phone.setEnabled(true);
                 stauts_avatar.setEnabled(true);
+
                 // set color black
                 status_firstname.setTextColor(Color.BLACK);
                 status_surname.setTextColor(Color.BLACK);
                 status_country.setTextColor(Color.BLACK);
                 status_phone.setTextColor(Color.BLACK);
 
+                View editView = getView();
+                //Btn
+                buttonActions(BtnActions.EDIT);
 
-                // 有值的情况下点edit 修改两个隐藏按钮back&confirm为可见，
-                // 修改两个按钮(edit&signout)为gone,并设置点击事件
-                getView().findViewById(R.id.edit_back).setVisibility(View.VISIBLE);
-                getView().findViewById(R.id.edit).setVisibility(View.GONE);
                 // 设置back按钮的点击事件....
-                getView().findViewById(R.id.edit_back).setOnClickListener(new View.OnClickListener() {
+                editView.findViewById(R.id.edit_back).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        // 回复两个按钮可见和两个不可见
-                        getView().findViewById(R.id.edit_back).setVisibility(View.GONE);
-                        getView().findViewById(R.id.edit_confirm).setVisibility(View.GONE);
+                        //Btn
+                        buttonActions(BtnActions.BACK);
+
                         editing = false;
                         reload();
                     }
                 });
-
-                // 设置confirm事件
-                View editView = getView();
-                editView.findViewById(R.id.edit_confirm).setVisibility(View.VISIBLE);
-                editView.findViewById(R.id.sign_out).setVisibility(View.GONE);
 
                 editView.findViewById(R.id.edit_confirm).setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -314,6 +311,9 @@ public class AccountFragment extends Fragment {
                         // 更新数据
                         userDBLogic.update(userDto);
 
+                        //Btn
+                        buttonActions(BtnActions.CONFIRM);
+
                         //这里confirm上传图片--------
                         if (imageSelected != null) {
                             try {
@@ -322,20 +322,13 @@ public class AccountFragment extends Fragment {
                                     @Override
                                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                                         imageSelected = null;
-                                        getView().findViewById(R.id.edit_back).setVisibility(View.GONE);
-                                        getView().findViewById(R.id.edit_confirm).setVisibility(View.GONE);
-
                                     }
                                 });
-
                                 //未关闭，记得在回调里关闭流
                             } catch (FileNotFoundException e) {
                                 e.printStackTrace();
                             }
 
-                        } else {
-                            getView().findViewById(R.id.edit_back).setVisibility(View.GONE);
-                            getView().findViewById(R.id.edit_confirm).setVisibility(View.GONE);
                         }
                         editing = false;
                         reload();
@@ -348,14 +341,12 @@ public class AccountFragment extends Fragment {
                     public void onClick(View view) {
                         View avatarView = View.inflate(getContext(), R.layout.fragment_avatar, null);
                         AlertDialog dialogAvatar = new AlertDialog.Builder(getActivity()).setView(avatarView).show();
-                        //在这里优化？
                         TextView avatar_photo = (TextView) avatarView.findViewById(R.id.photo);//album
                         TextView avatar_cancel = (TextView) avatarView.findViewById(R.id.cancel);
 
                         avatar_photo.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                System.out.println("从相册选择");
                                 Intent album = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                                 intentActivityResultLauncher.launch(album);
                             }
@@ -389,24 +380,24 @@ public class AccountFragment extends Fragment {
         EditText country = view.findViewById(R.id.country);
         EditText phoneNo = view.findViewById(R.id.phone_number);
 
-        if (!editing) {
-            firstName.setEnabled(false);
-            surname.setEnabled(false);
-            country.setEnabled(false);
-            email.setEnabled(false);
-            phoneNo.setEnabled(false);
-            avatar.setEnabled(false);
-            //set color gray
-            firstName.setTextColor(Color.GRAY);
-            surname.setTextColor(Color.GRAY);
-            country.setTextColor(Color.GRAY);
-            phoneNo.setTextColor(Color.GRAY);
-            view.findViewById(R.id.edit).setVisibility(View.VISIBLE);
-            view.findViewById(R.id.sign_out).setVisibility(View.VISIBLE);
-        }
-
         if (currentUser != null) {
             // if logged in, query and render user information
+            if (!editing) {
+                firstName.setEnabled(false);
+                surname.setEnabled(false);
+                country.setEnabled(false);
+                email.setEnabled(false);
+                phoneNo.setEnabled(false);
+                avatar.setEnabled(false);
+                //set color gray
+                firstName.setTextColor(Color.GRAY);
+                surname.setTextColor(Color.GRAY);
+                country.setTextColor(Color.GRAY);
+                phoneNo.setTextColor(Color.GRAY);
+            }
+            //Btn
+            buttonActions(BtnActions.LOGIN);
+
             userDBLogic.select(new OnCompleteListener<DataSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DataSnapshot> task) {
@@ -426,9 +417,6 @@ public class AccountFragment extends Fragment {
 
             userDBLogic.downloadAvatarInto(getContext(), avatar);
 
-            //如果roald时currentUser里有值 这只登录 和 注册 按钮为隐藏，登出显示
-            view.findViewById(R.id.login).setVisibility(View.GONE); //可以不要?
-            view.findViewById(R.id.sign_up).setVisibility(View.GONE);
         } else {
             //如果没登录 currentUser == null
             //...
@@ -438,12 +426,8 @@ public class AccountFragment extends Fragment {
             email.setText("Email");
             phoneNo.setText("Phone No.");
 
-            //如果roald时currentUser里无值 这只login和sign_up button为显示，登出隐藏
-            view.findViewById(R.id.login).setVisibility(View.VISIBLE);
-            view.findViewById(R.id.sign_up).setVisibility(View.VISIBLE);
-            view.findViewById(R.id.edit).setVisibility(View.GONE);
-            view.findViewById(R.id.sign_out).setVisibility(View.GONE);
-
+            //Btn
+            buttonActions(BtnActions.SIGNOUT);
 
             //set default avatar
             avatar.setImageResource(R.drawable.ic_fragment_avatar_default);
@@ -452,6 +436,46 @@ public class AccountFragment extends Fragment {
         }
 
 
+
+
+    }
+
+    public void buttonActions(BtnActions btnActions){
+        switch (btnActions){
+            case LOGIN:
+                // show editBtn signoutBtn
+                signOutBtn.setVisibility(View.VISIBLE);
+                editBtn.setVisibility(View.VISIBLE);
+                // hide loginBtn和sinupBtn
+                loginBtn.setVisibility(View.GONE);
+                signUpBtn.setVisibility(View.GONE);
+                break;
+            case SIGNOUT:
+                // 显示loginBtn和sinupBtn
+                loginBtn.setVisibility(View.VISIBLE);
+                signUpBtn.setVisibility(View.VISIBLE);
+                // editBtn signoutBtn hidden
+                signOutBtn.setVisibility(View.GONE);
+                editBtn.setVisibility(View.GONE);
+                break;
+            case BACK:
+            case CONFIRM:
+                // editview 中 点击backBtn后 show editBtn 和 signoutBtn
+                signOutBtn.setVisibility(View.VISIBLE);
+                editBtn.setVisibility(View.VISIBLE);
+                //hide backBtn confirmBtn
+                backBtn.setVisibility(View.GONE);
+                confirmBtn.setVisibility(View.GONE);
+                break;
+            case EDIT:
+                //editView中点击editBtn后 show backBtn confirmBtn
+                backBtn.setVisibility(View.VISIBLE);
+                confirmBtn.setVisibility(View.VISIBLE);
+                // hide editBtn signoutBtn
+                editBtn.setVisibility(View.GONE);
+                signOutBtn.setVisibility(View.GONE);
+                break;
+        }
     }
 
 
