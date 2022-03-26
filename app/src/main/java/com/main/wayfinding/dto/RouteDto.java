@@ -1,5 +1,9 @@
 package com.main.wayfinding.dto;
 
+import com.google.android.gms.maps.model.PolylineOptions;
+
+import java.util.List;
+
 /**
  * Description
  *
@@ -30,8 +34,25 @@ public class RouteDto {
         this.endLocation = endLocation;
     }
 
+    public List<LocationDto> getWaypoints() {
+        return waypoints;
+    }
+
+    public void addWaypoint(LocationDto waypoint) {
+        waypoints.add(waypoint);
+    }
+
+    public PolylineOptions getPolylineOptions() {
+        return polylineOptions;
+    }
+
+    public void setPolylineOptions(PolylineOptions polylineOptions) {
+        this.polylineOptions = polylineOptions;
+    }
+
     private LocationDto startLocation;
     private LocationDto endLocation;
-
+    private List<LocationDto> waypoints;
+    private PolylineOptions polylineOptions;
 
 }

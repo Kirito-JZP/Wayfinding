@@ -20,6 +20,9 @@
     <string name="back">Back</string>
     
     <!-- Map -->
+    <string name="transit">transit</string>
+    <string name="walking">walking</string>
+    <string name="bicycling">bicycling</string>
     <string name="your_location">Your location</string>
     <string name="dialog_msg_no_inputs">No inputs in destination!</string>
     <string name="dialog_msg_add">Added a destination!</string>

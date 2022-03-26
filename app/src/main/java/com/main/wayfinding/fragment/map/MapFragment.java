@@ -2,9 +2,10 @@ package com.main.wayfinding.fragment.map;
 
 import static com.main.wayfinding.utility.AlertDialogUtils.createAlertDialog;
 import static com.main.wayfinding.utility.PlaceManagerUtils.findLocationGeoMsg;
-import static com.main.wayfinding.utility.LatLngConverterUtils.convert;
 import static com.main.wayfinding.utility.PlaceManagerUtils.queryDetail;
+import static com.main.wayfinding.utility.PlaceManagerUtils.queryLatLng;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -14,6 +15,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Pair;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,32 +25,39 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PointOfInterest;
-import com.google.maps.model.PlacesSearchResult;
 import com.main.wayfinding.ARNavigationActivity;
 import com.main.wayfinding.R;
 import com.main.wayfinding.adapter.LocationAdapter;
 import com.main.wayfinding.databinding.FragmentMapBinding;
 import com.main.wayfinding.dto.LocationDto;
+import com.main.wayfinding.dto.RouteDto;
 import com.main.wayfinding.logic.db.LocationDBLogic;
 import com.main.wayfinding.logic.TrackerLogic;
 import com.main.wayfinding.logic.NavigationLogic;
 import com.main.wayfinding.utility.AutoCompleteUtils;
+
 import android.widget.FrameLayout;
 import android.widget.TextView;
+
 import org.apache.commons.lang3.StringUtils;
+
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.main.wayfinding.utility.PlaceManagerUtils;
+
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -69,22 +78,22 @@ import javadz.beanutils.BeanUtils;
  */
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
-
     private int autocompleteDelay = 500;
-    private String mode = "walking";
+    private String mode;
     private FragmentMapBinding binding;
     private String destinationKeyword;
     private String departureKeyword;
 
-    private FrameLayout bottomsheet;
+    private FrameLayout bottomSheet;
     private Handler UIHandler;
-    private RelativeLayout rootLayout;
 
     /********** JAVA DATA Structure ***********/
     // Dto
     private LocationDto currentLocDto;
     private LocationDto startLocDto;
     private LocationDto targetLocDto;
+    private RouteDto currentRouteDto;
+    private List<RouteDto> possibleRoutes;
     private List<LocationDto> deptLocList;
     private List<LocationDto> destLocList;
 
@@ -126,21 +135,24 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     // Autocomplete logic
     private Timer autocompleteTimer;
+    private enum AutocompleteType {
+        DEST, DEPT
+    }
+    AutocompleteType autocompleteType;
 
-    class AutocompleteDeptTask extends TimerTask {
+    class AutocompleteTask extends TimerTask {
         @Override
         public void run() {
-            queryAutocompleteDept();
+            switch (autocompleteType){
+                case DEST:
+                    queryAutocomplete(AutoCompleteUtils.AutocompleteType.DEST);
+                    break;
+                case DEPT:
+                    queryAutocomplete(AutoCompleteUtils.AutocompleteType.DEPT);
+                    break;
+            }
         }
     }
-
-    class AutocompleteDestTask extends TimerTask {
-        @Override
-        public void run() {
-            queryAutocompleteDest();
-        }
-    }
-
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -152,18 +164,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-
-        //bottom sheet
-        //BottomSheetBehavior.from().apply
+        mode = getString(R.string.walking);
         return root;
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        // Map
-        rootLayout = view.findViewById(R.id.map_root_layout);
 
         // TextView
         deptTxt = view.findViewById(R.id.input_start);
@@ -186,7 +193,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         locationImg = view.findViewById(R.id.location_img);
         arBtn = view.findViewById(R.id.arBtn);
         //bottom sheet
-        bottomsheet = view.findViewById(R.id.bottomsheet);
+        bottomSheet = view.findViewById(R.id.bottomsheet);
 
         // ListView
         destPlacesListView = view.findViewById(R.id.dest_places_list);
@@ -212,6 +219,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
             }
         });
+
         arBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -219,6 +227,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 startActivity(intent);
             }
         });
+
         exchangeBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -241,10 +250,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         destTxt.setText("");
                     }
                 }
-                if (startLocDto != null && targetLocDto != null && StringUtils.isNotEmpty(mode)) {
-                    PlaceManagerUtils.findRoute(convert(startLocDto), convert(targetLocDto),
-                            mode);
-                }
+                PlaceManagerUtils.findRoute(startLocDto, targetLocDto, mode);
+                //TODO
             }
         });
 
@@ -269,42 +276,24 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         publicBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mode = "transit";
-                if (startLocDto != null && targetLocDto != null) {
-                    PlaceManagerUtils.findRoute(
-                            convert(startLocDto),
-                            convert(targetLocDto),
-                            mode.equals("") ? "walking" : mode
-                    );
-                }
+                PlaceManagerUtils.findRoute(startLocDto, targetLocDto, getString(R.string.transit));
+                //TODO
             }
         });
 
         walkBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mode = "walking";
-                if (startLocDto != null && targetLocDto != null) {
-                    PlaceManagerUtils.findRoute(
-                            convert(startLocDto),
-                            convert(targetLocDto),
-                            mode.equals("") ? "walking" : mode
-                    );
-                }
+                PlaceManagerUtils.findRoute(startLocDto, targetLocDto, getString(R.string.walking));
+                //TODO
             }
         });
 
         cycBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                mode = "bicycling";
-                if (startLocDto != null && targetLocDto != null) {
-                    PlaceManagerUtils.findRoute(
-                            convert(startLocDto),
-                            convert(targetLocDto),
-                            mode.equals("") ? "walking" : mode
-                    );
-                }
+                PlaceManagerUtils.findRoute(startLocDto, targetLocDto,getString(R.string.bicycling));
+                //TODO
             }
         });
 
@@ -316,10 +305,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     resetCurrentPosition(location);
                 });
                 deptPlacesListView.setVisibility(View.INVISIBLE);
-                if (startLocDto != null && targetLocDto != null && StringUtils.isNotEmpty(mode)) {
-                    PlaceManagerUtils.findRoute(convert(startLocDto), convert(targetLocDto),
-                            mode);
-                }
+                PlaceManagerUtils.findRoute(startLocDto, targetLocDto, mode);
+                //TODO
             }
         });
 
@@ -327,7 +314,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         navigateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                navigationLogic.startNavigation(null);
+                navigationLogic.startNavigation(currentRouteDto);
             }
         });
 
@@ -343,7 +330,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     autocompleteTimer.purge();
                     autocompleteTimer.cancel();
                     autocompleteTimer = new Timer();
-                    autocompleteTimer.schedule(new AutocompleteDeptTask(), autocompleteDelay);
+                    autocompleteType = AutocompleteType.DEPT;
+                    autocompleteTimer.schedule(new AutocompleteTask(), autocompleteDelay);
                 }
             }
 
@@ -365,7 +353,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     autocompleteTimer.purge();
                     autocompleteTimer.cancel();
                     autocompleteTimer = new Timer();
-                    autocompleteTimer.schedule(new AutocompleteDestTask(), autocompleteDelay);
+                    autocompleteType = AutocompleteType.DEST;
+                    autocompleteTimer.schedule(new AutocompleteTask(), autocompleteDelay);
                 }
             }
 
@@ -380,6 +369,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 LocationDto location = destLocList.get(i);
                 destPlacesListView.setAdapter(null);
+                // query geological coordinates
+                LatLng latlng = queryLatLng(location.getGmPlaceID());
+                location.setLatitude(latlng.latitude);
+                location.setLongitude(latlng.longitude);
                 targetLocDto = location;
                 destTxt.setText(targetLocDto.getName());
                 // hide the soft keyboard after clicking on an item
@@ -388,9 +381,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 if (manager != null)
                     manager.hideSoftInputFromWindow(getView().findFocus().getWindowToken(), 0);
                 destTxt.clearFocus();
-                if (startLocDto != null && targetLocDto != null && StringUtils.isNotEmpty(mode)) {
-                    PlaceManagerUtils.findRoute(convert(startLocDto), convert(targetLocDto),
-                            mode);
+                Pair<List<RouteDto>, LatLngBounds> result =
+                            PlaceManagerUtils.findRoute(startLocDto, targetLocDto, mode);
+                if (result != null) {
+                    possibleRoutes = result.first;
+                    LatLngBounds bounds = result.second;
+                    map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+                    // use the first route by default
+                    currentRouteDto = possibleRoutes.get(0);
+                    map.addPolyline(currentRouteDto.getPolylineOptions());
                 }
             }
         });
@@ -400,6 +399,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 LocationDto location = deptLocList.get(i);
                 deptPlacesListView.setAdapter(null);
+                // query geological coordinates
+                LatLng latlng = queryLatLng(location.getGmPlaceID());
+                location.setLatitude(latlng.latitude);
+                location.setLongitude(latlng.longitude);
                 startLocDto = location;
                 deptTxt.setText(startLocDto.getName());
                 // hide the soft keyboard after clicking on an item
@@ -408,9 +411,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 if (manager != null)
                     manager.hideSoftInputFromWindow(getView().findFocus().getWindowToken(), 0);
                 deptTxt.clearFocus();
-                if (startLocDto != null && targetLocDto != null && StringUtils.isNotEmpty(mode)) {
-                    PlaceManagerUtils.findRoute(convert(startLocDto), convert(targetLocDto),
-                            mode);
+                Pair<List<RouteDto>, LatLngBounds> result =
+                            PlaceManagerUtils.findRoute(startLocDto, targetLocDto, mode);
+                if (result != null) {
+                    possibleRoutes = result.first;
+                    LatLngBounds bounds = result.second;
+                    map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+                    // use the first route by default
+                    currentRouteDto = possibleRoutes.get(0);
+                    map.addPolyline(currentRouteDto.getPolylineOptions());
                 }
             }
         });
@@ -445,6 +454,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
     }
 
+    @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
         map = googleMap;
@@ -466,6 +476,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         });
 
         // Create navigation object
+        NavigationLogic.createInstance(map);
         navigationLogic = NavigationLogic.getInstance();
 
         // Add map click listener
@@ -490,7 +501,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             destLocList.clear();
             if (StringUtils.isNotEmpty(destinationKeyword)) {
                 places = PlaceManagerUtils.autocompletePlaces(destinationKeyword,
-                        convert(startLocDto != null ? startLocDto : currentLocDto));
+                        startLocDto != null ? startLocDto.getLatLng() : currentLocDto.getLatLng());
                 destLocList.clear();
                 destLocList.addAll(places);
             }
@@ -498,7 +509,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             deptLocList.clear();
             if (StringUtils.isNotEmpty(departureKeyword)) {
                 places = PlaceManagerUtils.autocompletePlaces(departureKeyword,
-                        convert(targetLocDto != null ? targetLocDto : currentLocDto));
+                        targetLocDto != null ? targetLocDto.getLatLng() :
+                                currentLocDto.getLatLng());
                 deptLocList.addAll(places);
             }
         }
@@ -510,32 +522,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             UIHandler.post(() -> deptPlacesListView.setAdapter(new LocationAdapter(getContext(),
                     R.layout.autocomplete_location_item, deptLocList)));
         }
-    }
-
-    public void queryAutocompleteDept() {
-        deptLocList.clear();
-        if (StringUtils.isNotEmpty(departureKeyword)) {
-            List<LocationDto> places = PlaceManagerUtils.autocompletePlaces(departureKeyword,
-                    convert(targetLocDto != null ? targetLocDto : currentLocDto));
-            deptLocList.clear();
-            deptLocList.addAll(places);
-        }
-        // pass the results to original thread so that UI elements can be updated
-        UIHandler.post(() -> deptPlacesListView.setAdapter(new LocationAdapter(getContext(),
-                R.layout.autocomplete_location_item, deptLocList)));
-    }
-
-    public void queryAutocompleteDest() {
-        destLocList.clear();
-        if (StringUtils.isNotEmpty(destinationKeyword)) {
-            List<LocationDto> places = PlaceManagerUtils.autocompletePlaces(destinationKeyword,
-                    convert(startLocDto != null ? startLocDto : currentLocDto));
-            destLocList.clear();
-            destLocList.addAll(places);
-        }
-        // pass the results to original thread so that UI elements can be updated
-        UIHandler.post(() -> destPlacesListView.setAdapter(new LocationAdapter(getContext(),
-                R.layout.autocomplete_location_item, destLocList)));
     }
 
     /**
@@ -564,9 +550,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
         // reset map
         map.clear();
-        map.addMarker(new MarkerOptions().position(convert(currentLocDto))
+        map.addMarker(new MarkerOptions().position(currentLocDto.getLatLng())
                 .title("current location"));
-        map.moveCamera(CameraUpdateFactory.newLatLng(convert(currentLocDto)));
+        map.moveCamera(CameraUpdateFactory.newLatLng(currentLocDto.getLatLng()));
     }
 
     private void showPlaceDetail(LocationDto location) {
@@ -574,7 +560,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             map.clear();
             map.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(),
                     location.getLongitude())));
-            BottomSheetBehavior<FrameLayout> sheetBehavior = BottomSheetBehavior.from(bottomsheet);
+            BottomSheetBehavior<FrameLayout> sheetBehavior = BottomSheetBehavior.from(bottomSheet);
 
             if (sheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
                 sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
@@ -606,10 +592,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 public void onClick(View v) {
                     startLocDto = location;
                     deptTxt.setText(startLocDto.getName());
-                    if (startLocDto != null && targetLocDto != null && StringUtils.isNotEmpty(mode)) {
-                        PlaceManagerUtils.findRoute(convert(startLocDto),
-                                convert(targetLocDto), mode);
-                    }
+                    PlaceManagerUtils.findRoute(startLocDto, targetLocDto, mode);
                 }
             });
             setDestBtn.setOnClickListener(new View.OnClickListener() {
@@ -617,10 +600,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 public void onClick(View view) {
                     targetLocDto = location;
                     destTxt.setText(targetLocDto.getName());
-                    if (startLocDto != null && targetLocDto != null && StringUtils.isNotEmpty(mode)) {
-                        PlaceManagerUtils.findRoute(convert(startLocDto),
-                                convert(targetLocDto), mode);
-                    }
+                    PlaceManagerUtils.findRoute(startLocDto, targetLocDto, mode);
                 }
             });
             new Thread(() -> {
