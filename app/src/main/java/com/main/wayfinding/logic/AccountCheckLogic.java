@@ -19,7 +19,7 @@ public class AccountCheckLogic {
         if (mc.matches()) {
             return true;
         } else {
-            this.errorMessage = "Error Email Format!";
+            this.errorMessage = "Error Email Format!\n";
             return false;
         }
     }
@@ -35,7 +35,7 @@ public class AccountCheckLogic {
 
     public boolean checkLength(int n){
         if(n < 6){
-            this.errorMessage = "Password too short!";
+            this.errorMessage = "Password is too short!\n";
             return true;
         }else {
             return false;
