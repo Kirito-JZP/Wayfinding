@@ -136,7 +136,7 @@ public class AccountFragment extends Fragment {
                 lp.alpha = 1.0f;
                 dialogCreate.getWindow().setAttributes(lp);
                 // protocol
-                TextView protocol = signUpView.findViewById(R.id.tv_xieyi);
+                TextView protocol = signUpView.findViewById(R.id.protocol);
                 protocol.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {

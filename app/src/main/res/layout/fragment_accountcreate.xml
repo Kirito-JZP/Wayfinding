@@ -125,10 +125,10 @@
                         android:textSize="14sp"
                         />
                     <TextView
-                        android:id="@+id/tv_xieyi"
+                        android:id="@+id/protocol"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Privacy Policy of Wayfinding"
+                        android:text="Term and Conditions"
                         android:textSize="14sp"
                         android:textColor="#1a73e8"
                         />
