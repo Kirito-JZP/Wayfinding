@@ -107,7 +107,7 @@ public class AccountFragment extends Fragment {
                     try {
                         is = requireActivity().getContentResolver().openInputStream(imageSelected); // inputStream
                         Bitmap bitmap = BitmapFactory.decodeStream(is);
-                        ImageView imageView = getView().findViewById(R.id.avatar);
+                        ImageView imageView = getView().findViewById(R.id.avatar_login);
                         imageView.setImageBitmap(bitmap); // square image
                     } catch (FileNotFoundException e) {
                         e.printStackTrace();
@@ -270,7 +270,7 @@ public class AccountFragment extends Fragment {
                 EditText surname = editView.findViewById(R.id.surname);
                 EditText country = editView.findViewById(R.id.country);
                 EditText phone = editView.findViewById(R.id.phone_no);
-                ImageView avatar = editView.findViewById(R.id.avatar);
+                ImageView avatar = editView.findViewById(R.id.avatar_login);
                 // 设置为可编辑状态
                 firstname.setEnabled(true);
                 surname.setEnabled(true);
@@ -364,7 +364,7 @@ public class AccountFragment extends Fragment {
     public void reload() {
         FirebaseUser currentUser = auth.getCurrentUser();
         View view = requireView();
-        ImageView avatar = view.findViewById(R.id.avatar);
+        ImageView avatar = view.findViewById(R.id.avatar_login);
         EditText email = view.findViewById(R.id.email);
         EditText firstName = view.findViewById(R.id.first_name);
         EditText surname = view.findViewById(R.id.surname);

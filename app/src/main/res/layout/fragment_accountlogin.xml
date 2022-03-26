@@ -9,7 +9,7 @@
 
 
     <ImageView
-        android:id="@+id/avatar"
+        android:id="@+id/avatar_login"
         android:layout_width="383dp"
         android:layout_height="144dp"
         android:layout_centerHorizontal="true"
@@ -20,7 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/login_list"
-        android:layout_below="@+id/avatar"
+        android:layout_below="@+id/avatar_login"
         >
 
         <EditText
@@ -28,7 +28,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/account_border"
-            android:drawableLeft="@drawable/ic__email"
+            android:drawableLeft="@drawable/ic_email_blue"
             android:hint="@string/email"
             android:inputType="textEmailAddress"
             android:minHeight="70dp"

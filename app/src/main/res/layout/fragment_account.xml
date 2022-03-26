@@ -24,7 +24,7 @@
         android:src="@drawable/ic_avatar_bg" />
 
     <com.main.wayfinding.fragment.account.RoundImageView
-        android:id="@+id/avatar"
+        android:id="@+id/avatar_login"
         android:layout_width="147dp"
         android:layout_height="154dp"
         android:layout_centerHorizontal="true"
@@ -36,7 +36,7 @@
         android:id="@+id/user_details"
         android:layout_width="match_parent"
         android:layout_height="286dp"
-        android:layout_below="@+id/avatar"
+        android:layout_below="@+id/avatar_login"
         android:layout_marginTop="50dp"
         android:scrollbars="none">
 
