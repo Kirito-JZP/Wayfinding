@@ -14,39 +14,11 @@
         android:orientation="vertical">
 
         <TextView
-            android:id="@+id/dialog_title"
-            android:layout_width="match_parent"
-            android:layout_height="37dp"
-            android:gravity="center"
-            android:text="请选择上传方式"
-            android:textColor="#777777"
-            android:textSize="14sp" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.2dp"
-            android:background="#e5e5e5" />
-
-        <TextView
-            android:id="@+id/photograph"
-            android:layout_width="match_parent"
-            android:layout_height="41dp"
-            android:gravity="center"
-            android:text="拍照"
-            android:textColor="#444444"
-            android:textSize="18sp" />
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="0.2dp"
-            android:background="#e5e5e5" />
-
-        <TextView
             android:id="@+id/photo"
             android:layout_width="match_parent"
             android:layout_height="41dp"
             android:gravity="center"
-            android:text="从相册中选择"
+            android:text="@string/select_from_album"
             android:textColor="#444444"
             android:textSize="18sp" />
     </LinearLayout>
@@ -61,7 +33,7 @@
             android:layout_width="match_parent"
             android:layout_height="47dp"
             android:gravity="center"
-            android:text="取消"
+            android:text="@string/cancel"
             android:textColor="#444444"
             android:textSize="18sp" />
     </LinearLayout>

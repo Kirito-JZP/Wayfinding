@@ -37,12 +37,14 @@ import com.google.firebase.storage.UploadTask;
 import com.main.wayfinding.R;
 import com.main.wayfinding.databinding.FragmentAccountBinding;
 import com.main.wayfinding.dto.UserDto;
+import com.main.wayfinding.logic.AccountCheckLogic;
 import com.main.wayfinding.logic.AuthLogic;
 import com.main.wayfinding.logic.db.UserDBLogic;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -62,30 +64,20 @@ public class AccountFragment extends Fragment {
     private ActivityResultLauncher<Intent> intentActivityResultLauncher;
     private Uri imageSelected;
     private boolean editing = false;
+    private AccountCheckLogic accountCheckLogic;
 
-    //调取系统摄像头的请求码
-    private static final int MY_ADD_CASE_CALL_PHONE = 6;
-    //打开相册的请求码
-    private static final int MY_ADD_CASE_CALL_PHONE2 = 7;
-
-    private static Bitmap bitmap;
-
-    public static Pattern p =
-            Pattern.compile("\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*");
-
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentAccountBinding.inflate(inflater, container, false);
-        View root = binding.getRoot();
-
-        return root;
+        return binding.getRoot();
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         auth = FirebaseAuth.getInstance();
         accountLogic = new AuthLogic();
-
+        accountCheckLogic = new AccountCheckLogic();
         intentActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override
             public void onActivityResult(ActivityResult result) {
@@ -113,29 +105,11 @@ public class AccountFragment extends Fragment {
                     }
 
 
-
                 }
                 System.out.println(result.getResultCode());
             }
         });
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
         reload();
-    }
-
-    @Override
-    public void onDestroyView() {
-        super.onDestroyView();
-        binding = null;
-    }
-
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
         // 登录检验 jump by dialogue
         view.findViewById(R.id.login).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -157,7 +131,7 @@ public class AccountFragment extends Fragment {
                         if (TextUtils.isEmpty(username) || TextUtils.isEmpty(password)) {
                             AlertDialog dialogEmpty = new AlertDialog.Builder(getActivity()).
                                     setTitle("Empty! Please input").show();
-                        } else if (!isEmail(username)) {
+                        } else if (!accountCheckLogic.isEmail(username)) {
                             AlertDialog dialogError = new AlertDialog.Builder(getActivity()).
                                     setTitle("Error Email Format!").show();
                         } else {
@@ -233,7 +207,7 @@ public class AccountFragment extends Fragment {
                         } else if (!checkbox.isChecked()) {
                             AlertDialog dialogCheckbox = new AlertDialog.Builder(getActivity()).
                                     setTitle("Please agree with terms.").show();
-                        } else if (!isEmail(username)) {
+                        } else if (!accountCheckLogic.isEmail(username)) {
                             AlertDialog dialogError = new AlertDialog.Builder(getActivity()).
                                     setTitle("Error Email Format!").show();
                         } else if (password.length() < 6) {
@@ -361,7 +335,6 @@ public class AccountFragment extends Fragment {
                         AlertDialog dialogAvatar = new AlertDialog.Builder(getActivity()).setView(avatarView).show();
                         //在这里优化？
                         TextView avatar_photo = (TextView) avatarView.findViewById(R.id.photo);//album
-                        TextView avatar_photograph = (TextView) avatarView.findViewById(R.id.photograph);//take photo
                         TextView avatar_cancel = (TextView) avatarView.findViewById(R.id.cancel);
 
                         avatar_photo.setOnClickListener(new View.OnClickListener() {
@@ -370,16 +343,6 @@ public class AccountFragment extends Fragment {
                                 System.out.println("从相册选择");
                                 Intent album = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                                 intentActivityResultLauncher.launch(album);
-                            }
-                        });
-                        // 拍照
-                        avatar_photograph.setOnClickListener(new View.OnClickListener() {
-                            @Override
-                            public void onClick(View view) {
-                                System.out.println("拍照");
-                                // 待写------
-
-
                             }
                         });
 
@@ -400,25 +363,23 @@ public class AccountFragment extends Fragment {
     }
 
     //when click the AccountFragment page, execute
-    @SuppressLint("SetTextI18n")
     public void reload() {
-        System.out.println("reload!!!!!!");
         FirebaseUser currentUser = auth.getCurrentUser();
-        ImageView stauts_avatar = getView().findViewById(R.id.avatar);
-        EditText status_email = getView().findViewById(R.id.email);
-        EditText status_firstname = getView().findViewById(R.id.first_name);
-        EditText status_surname = getView().findViewById(R.id.surname);
-        EditText status_country = getView().findViewById(R.id.country);
-        EditText status_phone = getView().findViewById(R.id.phone_number);
+        View view = requireView();
+        ImageView avatar = view.findViewById(R.id.avatar);
+        EditText email = view.findViewById(R.id.email);
+        EditText firstName = view.findViewById(R.id.first_name);
+        EditText surname = view.findViewById(R.id.surname);
+        EditText country = view.findViewById(R.id.country);
+        EditText phoneNo = view.findViewById(R.id.phone_number);
 
-
-        if(!editing){
-            status_firstname.setEnabled(false);
-            status_surname.setEnabled(false);
-            status_country.setEnabled(false);
-            status_email.setEnabled(false);
-            status_phone.setEnabled(false);
-            stauts_avatar.setEnabled(false);
+        if (!editing) {
+            firstName.setEnabled(false);
+            surname.setEnabled(false);
+            country.setEnabled(false);
+            email.setEnabled(false);
+            phoneNo.setEnabled(false);
+            avatar.setEnabled(false);
         }
 
         if (currentUser != null) {
@@ -430,11 +391,11 @@ public class AccountFragment extends Fragment {
                     if (task.isSuccessful()) {
                         UserDto userDto = task.getResult().getValue(UserDto.class);
                         // 3 输出到layout
-                        status_firstname.setText(userDto.getFirstName());
-                        status_surname.setText(userDto.getSurname());
-                        status_country.setText(userDto.getCountry());
-                        status_email.setText(currentUser.getEmail());
-                        status_phone.setText(userDto.getPhoneNumber());
+                        firstName.setText(userDto.getFirstName());
+                        surname.setText(userDto.getSurname());
+                        country.setText(userDto.getCountry());
+                        email.setText(currentUser.getEmail());
+                        phoneNo.setText(userDto.getPhoneNumber());
 
 
                     } else {
@@ -443,34 +404,34 @@ public class AccountFragment extends Fragment {
                 }
             });
 
-            userDBLogic.downloadAvatarInto(getContext(), stauts_avatar);
+            userDBLogic.downloadAvatarInto(getContext(), avatar);
 
 
             //如果roald时currentUser里有值 这只登录 和 注册 按钮为隐藏，登出显示
-            getView().findViewById(R.id.login).setVisibility(View.GONE); //可以不要?
-            getView().findViewById(R.id.sign_up).setVisibility(View.GONE);
-            if(!editing){
-                getView().findViewById(R.id.sign_out).setVisibility(View.VISIBLE);
-                getView().findViewById(R.id.edit).setVisibility(View.VISIBLE);
+            view.findViewById(R.id.login).setVisibility(View.GONE); //可以不要?
+            view.findViewById(R.id.sign_up).setVisibility(View.GONE);
+            if (!editing) {
+                view.findViewById(R.id.sign_out).setVisibility(View.VISIBLE);
+                view.findViewById(R.id.edit).setVisibility(View.VISIBLE);
             }
         } else {
             //如果没登录 currentUser == null
             //...
-            status_firstname.setText("First Name");
-            status_surname.setText("Surname");
-            status_country.setText("Country");
-            status_email.setText("Email");
-            status_phone.setText("Phone No.");
+            firstName.setText("First Name");
+            surname.setText("Surname");
+            country.setText("Country");
+            email.setText("Email");
+            phoneNo.setText("Phone No.");
 
 
             //如果roald时currentUser里无值 这只login和sign_up button为显示，登出隐藏
-            getView().findViewById(R.id.sign_out).setVisibility(View.GONE);
-            getView().findViewById(R.id.edit).setVisibility(View.GONE);
-            getView().findViewById(R.id.login).setVisibility(View.VISIBLE);
-            getView().findViewById(R.id.sign_up).setVisibility(View.VISIBLE);
+            view.findViewById(R.id.sign_out).setVisibility(View.GONE);
+            view.findViewById(R.id.edit).setVisibility(View.GONE);
+            view.findViewById(R.id.login).setVisibility(View.VISIBLE);
+            view.findViewById(R.id.sign_up).setVisibility(View.VISIBLE);
 
             //set default avatar
-            stauts_avatar.setImageResource(R.drawable.ic_fragment_avatar_default);
+            avatar.setImageResource(R.drawable.ic_fragment_avatar_default);
 
 
         }
@@ -478,11 +439,6 @@ public class AccountFragment extends Fragment {
 
     }
 
-    public static boolean isEmail(String strEmail) {
-        Pattern pattern = Pattern.compile("\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*");
-        Matcher mc = pattern.matcher(strEmail);
-        return mc.matches();
-    }
 
 
 }
