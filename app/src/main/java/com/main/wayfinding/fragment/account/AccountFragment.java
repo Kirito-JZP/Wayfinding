@@ -1,6 +1,5 @@
 package com.main.wayfinding.fragment.account;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -10,11 +9,11 @@ import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -41,13 +40,10 @@ import com.main.wayfinding.dto.UserDto;
 import com.main.wayfinding.logic.AccountCheckLogic;
 import com.main.wayfinding.logic.AuthLogic;
 import com.main.wayfinding.logic.db.UserDBLogic;
-
+import org.apache.commons.lang3.StringUtils;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Define the fragment used for displaying and changing user info
@@ -66,6 +62,13 @@ public class AccountFragment extends Fragment {
     private Uri imageSelected;
     private boolean editing = false;
     private AccountCheckLogic accountCheckLogic;
+    private UserDBLogic userDBLogic;
+    private Button loginBtn;
+    private Button signUpBtn;
+    private Button editBtn;
+    private Button signOutBtn;
+    private Button backBtn;
+    private Button confirmBtn;
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -79,6 +82,14 @@ public class AccountFragment extends Fragment {
         auth = FirebaseAuth.getInstance();
         accountLogic = new AuthLogic();
         accountCheckLogic = new AccountCheckLogic();
+        userDBLogic = new UserDBLogic();
+        loginBtn = view.findViewById(R.id.login);
+        signUpBtn = view.findViewById(R.id.sign_up);
+        editBtn = view.findViewById(R.id.edit);
+        signOutBtn = view.findViewById(R.id.sign_out);
+        backBtn = view.findViewById(R.id.edit_back);
+        confirmBtn = view.findViewById(R.id.edit_confirm);
+
         intentActivityResultLauncher = registerForActivityResult(new ActivityResultContracts.StartActivityForResult(), new ActivityResultCallback<ActivityResult>() {
             @Override
             public void onActivityResult(ActivityResult result) {
@@ -110,62 +121,8 @@ public class AccountFragment extends Fragment {
                 System.out.println(result.getResultCode());
             }
         });
+        
         reload();
-        // 登录检验 jump by dialogue
-        view.findViewById(R.id.login).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                View loginView = View.inflate(getContext(), R.layout.fragment_accountlogin, null);
-
-                AlertDialog dialogLogin = new AlertDialog.Builder(getActivity()).setView(loginView).show();
-
-
-                loginView.findViewById(R.id.confirm).setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        EditText usernameComponent = loginView.findViewById(R.id.email_login);
-                        EditText passwordComponent = loginView.findViewById(R.id.password_login);
-                        String username = usernameComponent.getText().toString();
-                        String password = passwordComponent.getText().toString();
-
-                        //登录验证 字符串规格（邮箱格式是否正确，密码最少多少位，复杂程度等）
-                        if (TextUtils.isEmpty(username) || TextUtils.isEmpty(password)) {
-                            AlertDialog dialogEmpty = new AlertDialog.Builder(getActivity()).
-                                    setTitle("Empty! Please input").show();
-                        } else if (!accountCheckLogic.isEmail(username)) {
-                            AlertDialog dialogError = new AlertDialog.Builder(getActivity()).
-                                    setTitle("Error Email Format!").show();
-                        } else {
-                            accountLogic.login(username, password, new OnCompleteListener<AuthResult>() {
-                                @Override
-                                public void onComplete(@NonNull Task<AuthResult> task) {
-                                    if (task.isSuccessful()) {
-                                        //关闭dialoglogin
-                                        dialogLogin.dismiss();
-                                        reload();
-
-                                    } else {
-                                        //如果密码输入错误
-                                        String msg = task.getException().getMessage();
-                                        System.out.println(msg);
-                                        if (msg.equals("The password is invalid or the user does " +
-                                                "not have a password.")) {
-                                            AlertDialog dialogErrorPassword = new AlertDialog.Builder(getActivity()).
-                                                    setTitle("Error Password!").show();
-                                        }
-
-                                    }
-                                }
-                            });
-
-                        }
-                    }
-                });
-
-
-            }
-        });
-
         view.findViewById(R.id.sign_up).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -198,19 +155,19 @@ public class AccountFragment extends Fragment {
 
                         //1.验证字符串规格（邮箱格式是否正确，密码最少6位等）
                         // 非空验证
-                        if (TextUtils.isEmpty(username) || TextUtils.isEmpty(password) ||
-                                TextUtils.isEmpty(userDto.getFirstName()) ||
-                                TextUtils.isEmpty(userDto.getSurname()) ||
-                                TextUtils.isEmpty(userDto.getCountry()) ||
-                                TextUtils.isEmpty(userDto.getPhoneNumber())) {
+                        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password) ||
+                                StringUtils.isEmpty(userDto.getFirstName()) ||
+                                StringUtils.isEmpty(userDto.getSurname()) ||
+                                StringUtils.isEmpty(userDto.getCountry()) ||
+                                StringUtils.isEmpty(userDto.getPhoneNumber())) {
                             AlertDialog dialogEmpty = new AlertDialog.Builder(getActivity()).
                                     setTitle("Empty! Please input").show();
                         } else if (!checkbox.isChecked()) {
                             AlertDialog dialogCheckbox = new AlertDialog.Builder(getActivity()).
                                     setTitle("Please agree with terms.").show();
-                        } else if (!accountCheckLogic.isEmail(username)) {
+                        } else if (!accountCheckLogic.checkEmail(username)) {
                             AlertDialog dialogError = new AlertDialog.Builder(getActivity()).
-                                    setTitle("Error Email Format!").show();
+                                    setTitle(accountCheckLogic.getErrorMessage()).show();
                         } else if (password.length() < 6) {
                             AlertDialog dialogError = new AlertDialog.Builder(getActivity()).
                                     setTitle("Password too short!").show();
@@ -220,7 +177,7 @@ public class AccountFragment extends Fragment {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
-                                        new UserDBLogic().insert(userDto);
+                                        userDBLogic.insert(userDto);
                                         reload();
                                     } else {
                                         System.out.println(task.getException());
@@ -232,6 +189,60 @@ public class AccountFragment extends Fragment {
                         }
 
 
+                    }
+                });
+
+
+            }
+        });
+
+        view.findViewById(R.id.login).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                View loginView = View.inflate(getContext(), R.layout.fragment_accountlogin, null);
+
+                AlertDialog dialogLogin = new AlertDialog.Builder(getActivity()).setView(loginView).show();
+
+
+                loginView.findViewById(R.id.confirm).setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        EditText usernameComponent = loginView.findViewById(R.id.email_login);
+                        EditText passwordComponent = loginView.findViewById(R.id.password_login);
+                        String username = usernameComponent.getText().toString();
+                        String password = passwordComponent.getText().toString();
+
+                        //登录验证 字符串规格（邮箱格式是否正确，密码最少多少位，复杂程度等）
+                        if (StringUtils.isEmpty(username) || StringUtils.isEmpty(password)) {
+                            AlertDialog dialogEmpty = new AlertDialog.Builder(getActivity()).
+                                    setTitle("Empty! Please input").show();
+                        } else if (!accountCheckLogic.checkEmail(username)) {
+                            AlertDialog dialogError = new AlertDialog.Builder(getActivity()).
+                                    setTitle(accountCheckLogic.getErrorMessage()).show();
+                        } else {
+                            accountLogic.login(username, password, new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+                                    if (task.isSuccessful()) {
+                                        //关闭dialoglogin
+                                        dialogLogin.dismiss();
+                                        reload();
+
+                                    } else {
+                                        //如果密码输入错误
+                                        String msg = task.getException().getMessage();
+                                        System.out.println(msg);
+                                        if (msg.equals("The password is invalid or the user does " +
+                                                "not have a password.")) {
+                                            AlertDialog dialogErrorPassword = new AlertDialog.Builder(getActivity()).
+                                                    setTitle("Error Password!").show();
+                                        }
+
+                                    }
+                                }
+                            });
+
+                        }
                     }
                 });
 
@@ -301,7 +312,6 @@ public class AccountFragment extends Fragment {
                         userDto.setCountry(status_country.getText().toString());
                         userDto.setPhoneNumber(status_phone.getText().toString());
                         // 更新数据
-                        UserDBLogic userDBLogic = new UserDBLogic();
                         userDBLogic.update(userDto);
 
                         //这里confirm上传图片--------
@@ -313,9 +323,8 @@ public class AccountFragment extends Fragment {
                                     public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
                                         imageSelected = null;
                                         getView().findViewById(R.id.edit_back).setVisibility(View.GONE);
-                                        getView().findViewById(R.id.edit).setVisibility(View.VISIBLE);
                                         getView().findViewById(R.id.edit_confirm).setVisibility(View.GONE);
-                                        getView().findViewById(R.id.sign_out).setVisibility(View.VISIBLE);
+
                                     }
                                 });
 
@@ -368,6 +377,7 @@ public class AccountFragment extends Fragment {
 
     }
 
+
     //when click the AccountFragment page, execute
     public void reload() {
         FirebaseUser currentUser = auth.getCurrentUser();
@@ -391,11 +401,12 @@ public class AccountFragment extends Fragment {
             surname.setTextColor(Color.GRAY);
             country.setTextColor(Color.GRAY);
             phoneNo.setTextColor(Color.GRAY);
+            view.findViewById(R.id.edit).setVisibility(View.VISIBLE);
+            view.findViewById(R.id.sign_out).setVisibility(View.VISIBLE);
         }
 
         if (currentUser != null) {
             // if logged in, query and render user information
-            UserDBLogic userDBLogic = new UserDBLogic();
             userDBLogic.select(new OnCompleteListener<DataSnapshot>() {
                 @Override
                 public void onComplete(@NonNull Task<DataSnapshot> task) {
@@ -407,8 +418,6 @@ public class AccountFragment extends Fragment {
                         country.setText(userDto.getCountry());
                         email.setText(currentUser.getEmail());
                         phoneNo.setText(userDto.getPhoneNumber());
-
-
                     } else {
                         System.out.println(task.getException().getMessage());
                     }
@@ -417,14 +426,9 @@ public class AccountFragment extends Fragment {
 
             userDBLogic.downloadAvatarInto(getContext(), avatar);
 
-
             //如果roald时currentUser里有值 这只登录 和 注册 按钮为隐藏，登出显示
             view.findViewById(R.id.login).setVisibility(View.GONE); //可以不要?
             view.findViewById(R.id.sign_up).setVisibility(View.GONE);
-            if (!editing) {
-                view.findViewById(R.id.sign_out).setVisibility(View.VISIBLE);
-                view.findViewById(R.id.edit).setVisibility(View.VISIBLE);
-            }
         } else {
             //如果没登录 currentUser == null
             //...
@@ -434,12 +438,12 @@ public class AccountFragment extends Fragment {
             email.setText("Email");
             phoneNo.setText("Phone No.");
 
-
             //如果roald时currentUser里无值 这只login和sign_up button为显示，登出隐藏
-            view.findViewById(R.id.sign_out).setVisibility(View.GONE);
-            view.findViewById(R.id.edit).setVisibility(View.GONE);
             view.findViewById(R.id.login).setVisibility(View.VISIBLE);
             view.findViewById(R.id.sign_up).setVisibility(View.VISIBLE);
+            view.findViewById(R.id.edit).setVisibility(View.GONE);
+            view.findViewById(R.id.sign_out).setVisibility(View.GONE);
+
 
             //set default avatar
             avatar.setImageResource(R.drawable.ic_fragment_avatar_default);
