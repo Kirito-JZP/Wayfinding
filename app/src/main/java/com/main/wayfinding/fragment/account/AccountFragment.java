@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
@@ -263,6 +264,11 @@ public class AccountFragment extends Fragment {
                 status_country.setEnabled(true);
                 status_phone.setEnabled(true);
                 stauts_avatar.setEnabled(true);
+                // set color black
+                status_firstname.setTextColor(Color.BLACK);
+                status_surname.setTextColor(Color.BLACK);
+                status_country.setTextColor(Color.BLACK);
+                status_phone.setTextColor(Color.BLACK);
 
 
                 // 有值的情况下点edit 修改两个隐藏按钮back&confirm为可见，
@@ -380,6 +386,11 @@ public class AccountFragment extends Fragment {
             email.setEnabled(false);
             phoneNo.setEnabled(false);
             avatar.setEnabled(false);
+            //set color gray
+            firstName.setTextColor(Color.GRAY);
+            surname.setTextColor(Color.GRAY);
+            country.setTextColor(Color.GRAY);
+            phoneNo.setTextColor(Color.GRAY);
         }
 
         if (currentUser != null) {
