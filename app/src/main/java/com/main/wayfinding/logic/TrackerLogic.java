@@ -6,28 +6,22 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.location.Location;
-import android.os.Looper;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.maps.LocationSource;
 import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.OnTokenCanceledListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.main.wayfinding.R;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Class for GPS tracking
@@ -61,7 +55,7 @@ public class TrackerLogic implements LocationSource {
     // The minimum distance to change Updates in meters
     private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 5; // 5 meters
     // The minimum time between updates in milliseconds
-    private static final long MIN_TIME_BW_UPDATES = 1000 * 2; // 2 seconds
+    private static final long MIN_TIME_BW_UPDATES = 1000 * 5; // 5 seconds
     // Request code for location permission request.
     private static final int LOCATION_PERMISSION_REQUEST_CODE = 1;
 
@@ -72,14 +66,11 @@ public class TrackerLogic implements LocationSource {
 
     private final Activity activity;
     private final FusedLocationProviderClient locationClient;
-    private final SettingsClient settingsClient;
-    private final LocationCallback locationCallback;
-    private final LocationRequest locationRequest;
-    private final LocationSettingsRequest settingsRequest;
     private static TrackerLogic instance;
     private static int locationUpdateCompleteCallbackNum;
     private final Map<Integer, LocationUpdateCompleteCallback> locationUpdateCompleteCallbackList;
     private OnLocationChangedListener mapSourceDataListener;
+    private Timer trackerTimer;
 
     public static TrackerLogic getInstance() {
         return instance;
@@ -97,39 +88,10 @@ public class TrackerLogic implements LocationSource {
         activity = act;
 
         locationClient = LocationServices.getFusedLocationProviderClient(activity);
-        settingsClient = LocationServices.getSettingsClient(activity);
-
-        locationCallback = new LocationCallback() {
-            @Override
-            public void onLocationResult(@NonNull LocationResult locationResult) {
-                super.onLocationResult(locationResult);
-                location = locationResult.getLastLocation();
-                // provide data to the my location layer for the Google Map instance
-                mapSourceDataListener.onLocationChanged(location);
-                // broadcast new location
-                for (LocationUpdateCompleteCallback callback :
-                        locationUpdateCompleteCallbackList.values()) {
-                    callback.onLocationUpdateComplete(location);
-                }
-            }
-        };  // callback for periodically updating the current location
 
         // initialise delegate lists
         locationUpdateCompleteCallbackList = new HashMap<>();
         locationUpdateCompleteCallbackNum = 0;
-
-        // create a location request
-        locationRequest = LocationRequest.create();
-        locationRequest.setInterval(MIN_TIME_BW_UPDATES);
-        locationRequest.setFastestInterval(1000);
-        locationRequest.setSmallestDisplacement(MIN_DISTANCE_CHANGE_FOR_UPDATES);
-        locationRequest.setWaitForAccurateLocation(false);
-        locationRequest.setPriority(PRIORITY_HIGH_ACCURACY);
-
-        // create a location settings request
-        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder();
-        builder.addLocationRequest(locationRequest);
-        settingsRequest = builder.build();
 
         // ask for permissions
         askForLocationPermissions();
@@ -137,6 +99,7 @@ public class TrackerLogic implements LocationSource {
         // use the last available location
         requestLastLocation(loc -> {
             location = loc;
+            mapSourceDataListener.onLocationChanged(location);
         });
 
         // start requesting location updates
@@ -228,6 +191,13 @@ public class TrackerLogic implements LocationSource {
             }
         }).addOnSuccessListener(activity, loc -> {
             location = loc;
+            // provide data to the my location layer for the Google Map instance
+            mapSourceDataListener.onLocationChanged(location);
+            // broadcast new location
+            for (LocationUpdateCompleteCallback callback :
+                    locationUpdateCompleteCallbackList.values()) {
+                callback.onLocationUpdateComplete(location);
+            }
         }).addOnFailureListener(activity, exception -> {
             // UI notice
             showNoticeUI("Unable to get the latest location");
@@ -237,14 +207,13 @@ public class TrackerLogic implements LocationSource {
 
     @SuppressLint("MissingPermission")
     public void startUpdateLocation() {
-        settingsClient.checkLocationSettings(settingsRequest).addOnSuccessListener(activity,
-                locationSettingsResponse -> {
-                    locationClient.requestLocationUpdates(locationRequest, locationCallback,
-                            Looper.myLooper());
-                }).addOnFailureListener(activity, exception -> {
-            // UI notice
-            showNoticeUI("Unable to get the latest location");
-        });
+        trackerTimer = new Timer();
+        trackerTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                updateLocationInstantly();
+            }
+        }, MIN_TIME_BW_UPDATES, MIN_TIME_BW_UPDATES);
     }
 
     private void showNoticeUI(String content) {
@@ -256,10 +225,9 @@ public class TrackerLogic implements LocationSource {
     }
 
     public void stopUpdateLocation() {
-        locationClient.removeLocationUpdates(locationCallback).addOnCompleteListener(activity,
-                task -> {
-                    // TODO: do something
-                });
+        trackerTimer.purge();
+        trackerTimer.cancel();
+        trackerTimer = null;
     }
 
     /**
