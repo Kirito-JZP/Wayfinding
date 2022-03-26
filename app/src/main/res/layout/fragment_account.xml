@@ -29,7 +29,7 @@
         android:layout_height="154dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
-        android:src="@drawable/ic_avatar_default" />
+        android:src="@drawable/ic_avatar_white" />
 
 
     <ScrollView

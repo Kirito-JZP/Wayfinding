@@ -337,7 +337,7 @@ public class AccountFragment extends Fragment {
                     public void onClick(View view) {
                         View avatarView = View.inflate(getContext(), R.layout.fragment_avatar, null);
                         AlertDialog dialogAvatar = new AlertDialog.Builder(getActivity()).setView(avatarView).show();
-                        TextView avatarPhoto = (TextView) avatarView.findViewById(R.id.photo);//album
+                        TextView avatarPhoto = (TextView) avatarView.findViewById(R.id.album);//album
                         TextView avatarCancel = (TextView) avatarView.findViewById(R.id.cancel);
 
                         avatarPhoto.setOnClickListener(new View.OnClickListener() {
@@ -418,7 +418,7 @@ public class AccountFragment extends Fragment {
             //Btn
             buttonActions(BtnActions.SIGNOUT);
             //set default avatar
-            avatar.setImageResource(R.drawable.ic_avatar_default);
+            avatar.setImageResource(R.drawable.ic_avatar_white);
         }
     }
 
