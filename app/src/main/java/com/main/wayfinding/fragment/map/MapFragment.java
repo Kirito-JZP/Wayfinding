@@ -401,14 +401,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
-        // Create tracker object
-        trackerLogic = TrackerLogic.getInstance(getActivity());
-        // trackerLogic
-        trackerLogic.requestLastLocation(this::resetCurrentPosition);
-
         // Set map
         map = googleMap;
-        map.setLocationSource(trackerLogic);    // replace the default location source with
         map.setMyLocationEnabled(true);
         map.getUiSettings().setCompassEnabled(false);
         map.getUiSettings().setMyLocationButtonEnabled(false);
@@ -422,6 +416,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 }
             }
         });
+
+        // Create tracker object
+        trackerLogic = TrackerLogic.getInstance(getActivity());
+        // trackerLogic
+        trackerLogic.requestLastLocation(this::resetCurrentPosition);
+        map.setLocationSource(trackerLogic);    // replace the default location source with
 
         // Create navigation object
         NavigationLogic.createInstance(map);
