@@ -408,6 +408,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     public void onMapReady(@NonNull GoogleMap googleMap) {
         // Set map
         map = googleMap;
+        // Create tracker object
+        trackerLogic = TrackerLogic.getInstance(getActivity());
+        // trackerLogic
+        trackerLogic.requestLastLocation(this::resetCurrentPosition);
+        map.setLocationSource(trackerLogic);    // replace the default location source with
         map.setMyLocationEnabled(true);
         map.getUiSettings().setCompassEnabled(false);
         map.getUiSettings().setMyLocationButtonEnabled(false);
