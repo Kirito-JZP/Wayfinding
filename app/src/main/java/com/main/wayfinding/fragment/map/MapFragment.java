@@ -43,6 +43,7 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PointOfInterest;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.firebase.auth.FirebaseAuth;
 import com.main.wayfinding.ARNavigationActivity;
 import com.main.wayfinding.R;
 import com.main.wayfinding.adapter.LocationAdapter;
@@ -240,12 +241,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (targetLocDto != null && StringUtils.isNotEmpty(targetLocDto.getName())) {
-                    targetLocDto.setDate(new Date());
-                    new LocationDBLogic().insert(targetLocDto);
-                    createAlertDialog(getContext(), getString(R.string.dialog_msg_add));
+                if (FirebaseAuth.getInstance().getCurrentUser() != null) {
+                    if (targetLocDto != null && StringUtils.isNotEmpty(targetLocDto.getName())) {
+                        targetLocDto.setDate(new Date());
+                        new LocationDBLogic().insert(targetLocDto);
+                        createAlertDialog(getContext(), getString(R.string.dialog_msg_add));
+                    } else {
+                        createAlertDialog(getContext(), getString(R.string.dialog_msg_no_inputs));
+                    }
                 } else {
-                    createAlertDialog(getContext(), getString(R.string.dialog_msg_no_inputs));
+                    createAlertDialog(getContext(), "Cannot add it without logging in!");
                 }
             }
         });
