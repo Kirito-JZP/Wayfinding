@@ -25,8 +25,8 @@
 
     <com.main.wayfinding.fragment.account.RoundImageView
         android:id="@+id/avatar_login"
-        android:layout_width="147dp"
-        android:layout_height="154dp"
+        android:layout_width="120dp"
+        android:layout_height="120dp"
         android:layout_centerHorizontal="true"
         android:layout_marginTop="10dp"
         android:src="@drawable/ic_avatar_white" />
