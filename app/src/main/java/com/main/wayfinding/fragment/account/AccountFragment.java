@@ -26,6 +26,8 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -34,9 +36,11 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.storage.UploadTask;
+import com.main.wayfinding.MainActivity;
 import com.main.wayfinding.R;
 import com.main.wayfinding.databinding.FragmentAccountBinding;
 import com.main.wayfinding.dto.UserDto;
+import com.main.wayfinding.fragment.map.MapFragment;
 import com.main.wayfinding.logic.AccountCheckLogic;
 import com.main.wayfinding.logic.AuthLogic;
 import com.main.wayfinding.logic.db.UserDBLogic;
@@ -124,7 +128,7 @@ public class AccountFragment extends Fragment {
                 System.out.println(result.getResultCode());
             }
         });
-        
+
         reload();
         view.findViewById(R.id.sign_up).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -140,7 +144,7 @@ public class AccountFragment extends Fragment {
                 protocol.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        String str = FileReaderUtils.initAssets(getContext(),"privacy.txt");
+                        String str = FileReaderUtils.initAssets(getContext(), "privacy.txt");
                         final View inflate = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_protocol, null);
                         TextView tv_title = (TextView) inflate.findViewById(R.id.tv_title);
                         tv_title.setText("Privacy Protocol");
@@ -210,8 +214,8 @@ public class AccountFragment extends Fragment {
                             errorMsg += accountCheckLogic.getErrorMessage();
                         }
 
-                        if (StringUtils.isNotEmpty(errorMsg)){
-                            AlertDialogUtils.createAlertDialog(getContext(),errorMsg);
+                        if (StringUtils.isNotEmpty(errorMsg)) {
+                            AlertDialogUtils.createAlertDialog(getContext(), errorMsg);
                         } else {
                             //登录
                             accountLogic.signUp(email, password, new OnCompleteListener<AuthResult>() {
@@ -239,7 +243,7 @@ public class AccountFragment extends Fragment {
                 loginView.findViewById(R.id.confirm).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        EditText usernameLogin= loginView.findViewById(R.id.email_login);
+                        EditText usernameLogin = loginView.findViewById(R.id.email_login);
                         EditText passwordLogin = loginView.findViewById(R.id.password_login);
                         String email = usernameLogin.getText().toString();
                         String password = passwordLogin.getText().toString();
@@ -289,6 +293,8 @@ public class AccountFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 accountLogic.signOut();
+//                NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment_activity_main);
+//                navController.navigate(R.id.navigation_map);
                 reload();
             }
         });
@@ -454,8 +460,8 @@ public class AccountFragment extends Fragment {
         }
     }
 
-    public void buttonActions(BtnActions btnActions){
-        switch (btnActions){
+    public void buttonActions(BtnActions btnActions) {
+        switch (btnActions) {
             case LOGIN:
                 // show editBtn signoutBtn
                 signOutBtn.setVisibility(View.VISIBLE);
