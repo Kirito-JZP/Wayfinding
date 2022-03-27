@@ -16,10 +16,10 @@ public class AccountCheckLogic {
     public boolean checkEmail(String email) {
         Pattern pattern = Pattern.compile("\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*");
         Matcher mc = pattern.matcher(email);
-        if (mc.matches()) {
+        if (!mc.matches()) {
+            this.errorMessage = "Error Email Format!\n";
             return true;
         } else {
-            this.errorMessage = "Error Email Format!\n";
             return false;
         }
     }
