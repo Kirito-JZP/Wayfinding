@@ -376,6 +376,7 @@ public class AccountFragment extends Fragment {
                             public void onClick(View view) {
                                 Intent album = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                                 intentActivityResultLauncher.launch(album);
+                                dialogAvatar.dismiss();
                             }
                         });
 
