@@ -203,7 +203,7 @@ public class AccountFragment extends Fragment {
                         if (!checkbox.isChecked()) {
                             errorMsg += "Please agree with terms. \n";
                         }
-                        if (!accountCheckLogic.checkEmail(email)) {
+                        if (accountCheckLogic.checkEmail(email)) {
                             errorMsg += accountCheckLogic.getErrorMessage();
                         }
                         if (accountCheckLogic.checkLength(password.length())) {
@@ -244,13 +244,20 @@ public class AccountFragment extends Fragment {
                         String email = usernameLogin.getText().toString();
                         String password = passwordLogin.getText().toString();
 
-                        //登录验证 字符串规格（邮箱格式是否正确，密码最少多少位，复杂程度等）
-                        if (StringUtils.isEmpty(email) || StringUtils.isEmpty(password)) {
-                            AlertDialog dialogEmpty = new AlertDialog.Builder(getActivity()).
-                                    setTitle("Empty! Please input").show();
-                        } else if (!accountCheckLogic.checkEmail(email)) {
-                            AlertDialog dialogError = new AlertDialog.Builder(getActivity()).
-                                    setTitle(accountCheckLogic.getErrorMessage()).show();
+                        //登录验证 字符串规格（邮箱格式是否正确，密码最少多少位，<复杂程度>等）
+                        String errorMsg = "";
+                        if (accountCheckLogic.isEmpty(getString(R.string.email), email)) {
+                            errorMsg += accountCheckLogic.getErrorMessage();
+                            System.out.println(errorMsg);
+                        }
+                        if (accountCheckLogic.isEmpty(getString(R.string.password), password)) {
+                            errorMsg += accountCheckLogic.getErrorMessage();
+                        }
+                        if (accountCheckLogic.checkEmail(email)) {
+                            errorMsg += accountCheckLogic.getErrorMessage();
+                        }
+                        if (StringUtils.isNotEmpty(errorMsg)){
+                            AlertDialogUtils.createAlertDialog(getContext(),errorMsg);
                         } else {
                             accountLogic.login(email, password, new OnCompleteListener<AuthResult>() {
                                 @Override
@@ -259,7 +266,6 @@ public class AccountFragment extends Fragment {
                                         //关闭dialoglogin
                                         dialogLogin.dismiss();
                                         reload();
-
                                     } else {
                                         //如果密码输入错误
                                         String msg = task.getException().getMessage();
@@ -273,6 +279,7 @@ public class AccountFragment extends Fragment {
                                 }
                             });
                         }
+
                     }
                 });
             }
