@@ -71,7 +71,7 @@ public class PreferenceFragment extends Fragment {
         //example for iterate locations stored in database
         FirebaseUser currentUser = auth.getCurrentUser();
 
-        List<LocationDto> locationDtos = new ArrayList<LocationDto>();
+        List<LocationDto> locationDtoList = new ArrayList<LocationDto>();
 
         if (currentUser != null) {
             View view = getView();
@@ -91,11 +91,11 @@ public class PreferenceFragment extends Fragment {
                             String key = next.getKey();
                             LocationDto object = next.getValue();
 
-                            locationDtos.add(object);
+                            locationDtoList.add(object);
                         }
                         //example for delete location
                         //new LocationDBLogic().delete("-MvVkRv0fWWEHa1SOqWs");
-                        recyclerAdapter.setLocationList(locationDtos);
+                        recyclerAdapter.setLocationList(locationDtoList);
                         recyclerAdapter.notifyDataSetChanged();
 
                     } else {
