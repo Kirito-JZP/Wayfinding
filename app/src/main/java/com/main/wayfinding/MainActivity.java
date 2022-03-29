@@ -26,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -43,6 +45,9 @@ public class MainActivity extends AppCompatActivity {
         //NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
 
+//        navController.navigate(R.id.navigation_account);
+
+
         DisplayMetrics dm = new DisplayMetrics();
         getWindowManager().getDefaultDisplay().getMetrics(dm);
         float dpWidth = dm.widthPixels / (dm.xdpi) * 160;
@@ -53,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
         if (id == 1) {
             getSupportFragmentManager()
                     .beginTransaction()
-                    .replace(R.id.map,new MapFragment())
+                    .replace(R.id.map, new MapFragment())
                     .addToBackStack(null)
                     .commit();
         }
