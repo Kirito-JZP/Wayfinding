@@ -190,7 +190,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
-
         binding = FragmentMapBinding.inflate(getLayoutInflater());
         View root = binding.getRoot();
 
@@ -401,6 +400,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 }
             }
         });
+
+
     }
 
     @SuppressLint("MissingPermission")
@@ -456,6 +457,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 return true;
             }
         });
+        //unpack data
+        //if accepted data from broadcast, set destination and do corresponding process
+        Bundle arguments = this.getArguments();
+        if(arguments!=null){
+            String keyword = arguments.getString("name");
+            destTxt.setText(keyword);
+
+            targetLocDto = PlaceManagerUtils.autocompletePlaces(keyword,
+                    startLocDto != null ? startLocDto.getLatLng() : currentLocDto.getLatLng()).get(0);
+            LatLng latlng = queryLatLng(targetLocDto.getGmPlaceID());
+            targetLocDto.setLatitude(latlng.latitude);
+            targetLocDto.setLongitude(latlng.longitude);
+            parseRouteData(PlaceManagerUtils.findRoute(startLocDto, targetLocDto, mode));
+        }
     }
 
     public void queryAutocomplete(AutocompleteType type, String keyword) {
@@ -621,4 +636,5 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             updateRouteUI(currentRouteDto, bounds);
         }
     }
+
 }

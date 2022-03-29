@@ -26,8 +26,6 @@ import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -293,8 +291,6 @@ public class AccountFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 accountLogic.signOut();
-//                NavController navController = Navigation.findNavController(getActivity(), R.id.nav_host_fragment_activity_main);
-//                navController.navigate(R.id.navigation_map);
                 reload();
             }
         });

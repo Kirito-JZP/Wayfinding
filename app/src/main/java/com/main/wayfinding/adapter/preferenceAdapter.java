@@ -1,7 +1,11 @@
 package com.main.wayfinding.adapter;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,12 +13,17 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
+
+import androidx.navigation.NavController;
+import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.main.wayfinding.MainActivity;
 import com.main.wayfinding.R;
 import com.main.wayfinding.dto.LocationDto;
+import com.main.wayfinding.fragment.map.MapFragment;
 import com.main.wayfinding.logic.db.LocationDBLogic;
 import com.squareup.picasso.Picasso;
 
@@ -94,7 +103,15 @@ public class preferenceAdapter extends RecyclerView.Adapter<preferenceAdapter.Vi
         holder.navigateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                //TODO
+                //get navigation controller in mainActivity
+                NavController navController = Navigation.findNavController((Activity) context, R.id.nav_host_fragment_activity_main);
+//                navController.navigate(R.id.navigation_map);
+                //package data
+                Bundle bundle = new Bundle();
+                bundle.putString("name",locationDto.getName());
+                //switch to map fragment and post data
+                navController.navigate(R.id.navigation_map,bundle);
+
             }
         });
 
