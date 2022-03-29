@@ -13,6 +13,7 @@ import android.widget.Toast;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import androidx.recyclerview.widget.RecyclerView;
@@ -20,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.main.wayfinding.R;
 import com.main.wayfinding.dto.LocationDto;
+import com.squareup.picasso.Picasso;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -45,46 +47,35 @@ public class preferenceAdapter extends RecyclerView.Adapter<preferenceAdapter.Vi
         }
     }
     private List<LocationDto> mRecentlySaved;
+    private Context context;
 
-    public preferenceAdapter(List<LocationDto> RecentlySaved)
+    public preferenceAdapter() {
+        mRecentlySaved = new ArrayList<LocationDto>();
+    }
+    public void setLocationList(List<LocationDto> RecentlySaved)
     {
         mRecentlySaved = RecentlySaved;
     }
+
     @Override
     public preferenceAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
         mRecentlySaved.sort((o1, o2)->o1.getDate().compareTo(o2.getDate()));
-        Context context = parent.getContext();
+        context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
 
         View RecentView = inflater.inflate(R.layout.preference_item, parent, false);
         ViewHolder viewHolder = new ViewHolder(RecentView);
         return viewHolder;
     }
+
     @Override
     public void onBindViewHolder(preferenceAdapter.ViewHolder holder, @SuppressLint("RecyclerView") int position)
     {
         LocationDto recentlySaved = mRecentlySaved.get(position);
-
         if (StringUtils.isNotEmpty(recentlySaved.getGmImgUrl())) {
-            new Thread(() -> {
-                try {
-                    // resolving the string into url
-                    URL url = new URL(recentlySaved.getGmImgUrl());
-                    // Open the input stream
-                    InputStream inputStream = url.openStream();
-                    // Convert the online source to bitmap picture
-                    Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
-                    ImageView imageView = holder.imageImageView;
-                    imageView.setImageBitmap(bitmap);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }).start();
-        } else {
-
+            Picasso.with(context).load(recentlySaved.getGmImgUrl()).into(holder.imageImageView);
         }
-
         TextView textView = holder.nameTextView;
         textView.setText(recentlySaved.getName());
         TextView textView2 = holder.addressTextView;
