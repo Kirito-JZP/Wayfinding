@@ -43,8 +43,10 @@ import java.util.TimerTask;
  */
 public class PreferenceFragment extends Fragment {
     private FragmentPreferenceBinding binding;
-    private RecyclerView recyclerView;
-    private preferenceAdapter recyclerAdapter;
+    private RecyclerView recentSavedList;
+    private preferenceAdapter recentSavedAdapter;
+    private RecyclerView nearbyList;
+    private preferenceAdapter nearbyAdapter;
     private FirebaseAuth auth;
 
     @Override
@@ -59,12 +61,21 @@ public class PreferenceFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
         auth = FirebaseAuth.getInstance();
 
-        recyclerView = view.findViewById(R.id.rvLocations);
-        recyclerAdapter = new preferenceAdapter();
-        recyclerView.setAdapter(recyclerAdapter);
-        recyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
-        reload();
+        // Recent saved list setting
+        recentSavedList = view.findViewById(R.id.recent_loc);
+        recentSavedAdapter = new preferenceAdapter();
+        recentSavedList.setAdapter(recentSavedAdapter);
+        recentSavedList.setLayoutManager(new LinearLayoutManager(getContext(),
+                LinearLayoutManager.HORIZONTAL, false));
 
+        // NearBy List setting
+        nearbyList = view.findViewById(R.id.nearby_loc);
+        nearbyAdapter = new preferenceAdapter();
+        nearbyList.setAdapter(nearbyAdapter);
+        nearbyList.setLayoutManager(new LinearLayoutManager(getContext(),
+                LinearLayoutManager.HORIZONTAL, false));
+
+        reload();
     }
 
     public void reload() {
@@ -94,9 +105,10 @@ public class PreferenceFragment extends Fragment {
                             locationDtoList.add(object);
                         }
                         //example for delete location
-                        //new LocationDBLogic().delete("-MvVkRv0fWWEHa1SOqWs");
-                        recyclerAdapter.setLocationList(locationDtoList);
-                        recyclerAdapter.notifyDataSetChanged();
+                        recentSavedAdapter.setLocationList(locationDtoList);
+                        recentSavedAdapter.notifyDataSetChanged();
+                        nearbyAdapter.setLocationList(locationDtoList);
+                        nearbyAdapter.notifyDataSetChanged();
 
                     } else {
                         System.out.println(task.getException());
