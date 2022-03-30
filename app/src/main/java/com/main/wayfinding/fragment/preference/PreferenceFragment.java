@@ -1,6 +1,5 @@
 package com.main.wayfinding.fragment.preference;
 
-import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,7 +27,6 @@ import com.main.wayfinding.logic.db.LocationDBLogic;
 import com.main.wayfinding.utility.LocationSortUtils;
 
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -110,7 +108,7 @@ public class PreferenceFragment extends Fragment {
                         recentSavedAdapter.notifyDataSetChanged();
 
                         // Sort locationDto list by distance.
-                        TrackerLogic trackerLogic = TrackerLogic.getInstance(getActivity());
+                        TrackerLogic trackerLogic = TrackerLogic.createInstance(getActivity());
                         trackerLogic.requestLastLocation(location -> {
                             // Sort LocationDto list by distance
                             LocationSortUtils.sortByDistance(location,locationDtoList);

@@ -5,11 +5,9 @@ import static com.main.wayfinding.utility.PlaceManagerUtils.findLocationGeoMsg;
 import static com.main.wayfinding.utility.PlaceManagerUtils.queryDetail;
 import static com.main.wayfinding.utility.PlaceManagerUtils.queryLatLng;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.location.Location;
@@ -30,7 +28,6 @@ import android.widget.RelativeLayout;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -42,8 +39,8 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PointOfInterest;
-import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.maps.model.TravelMode;
 import com.main.wayfinding.ARNavigationActivity;
 import com.main.wayfinding.R;
 import com.main.wayfinding.adapter.LocationAdapter;
@@ -83,7 +80,7 @@ import javadz.beanutils.BeanUtils;
 public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private int autocompleteDelay = 500;
-    private String mode;
+    private TravelMode mode;
     private FragmentMapBinding binding;
     private FrameLayout bottomSheet;
     private Handler UIHandler;
@@ -188,6 +185,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         binding = FragmentMapBinding.inflate(getLayoutInflater());
@@ -197,7 +195,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        mode = getString(R.string.walking);
+        mode = TravelMode.WALKING;
         return root;
     }
 
@@ -310,7 +308,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View view) {
                 parseRouteData(PlaceManagerUtils.findRoute(startLocDto, targetLocDto,
-                        getString(R.string.transit)));
+                        TravelMode.TRANSIT));
             }
         });
 
@@ -318,7 +316,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View view) {
                 parseRouteData(PlaceManagerUtils.findRoute(startLocDto, targetLocDto,
-                        getString(R.string.walking)));
+                        TravelMode.WALKING));
             }
         });
 
@@ -326,7 +324,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View view) {
                 parseRouteData(PlaceManagerUtils.findRoute(startLocDto, targetLocDto,
-                        getString(R.string.bicycling)));
+                        TravelMode.BICYCLING));
             }
         });
 
@@ -400,67 +398,74 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 }
             }
         });
-
-
     }
 
     @SuppressLint("MissingPermission")
     @Override
     public void onMapReady(@NonNull GoogleMap googleMap) {
-        // Set map
-        map = googleMap;
-        // Create tracker object
-        trackerLogic = TrackerLogic.getInstance(getActivity());
-        // trackerLogic
-        trackerLogic.requestLastLocation(this::resetCurrentPosition);
-        map.setLocationSource(trackerLogic);    // replace the default location source with
-        map.setMyLocationEnabled(true);
-        map.getUiSettings().setCompassEnabled(false);
-        map.getUiSettings().setMyLocationButtonEnabled(false);
-        PlaceManagerUtils.SetMap(map);
-        map.setOnPoiClickListener(new GoogleMap.OnPoiClickListener() {
+        trackerLogic = TrackerLogic.createInstance(getActivity());
+        // ask for permissions
+        trackerLogic.askForLocationPermissions(new TrackerLogic.LocationPermissionRequestCompleteCallback() {
             @Override
-            public void onPoiClick(@NonNull PointOfInterest pointOfInterest) {
-                LocationDto location = queryDetail(pointOfInterest.placeId);
-                if (location != null) {
-                    showPlaceDetail(location);
+            public void onLocationPermissionRequestComplete(boolean isSuccessful) {
+                if (isSuccessful) {
+                    // Set map
+                    map = googleMap;
+                    map.setLocationSource(trackerLogic);
+                    map.setMyLocationEnabled(true);
+                    map.getUiSettings().setCompassEnabled(false);
+                    map.getUiSettings().setMyLocationButtonEnabled(false);
+                    PlaceManagerUtils.SetMap(map);
+                    map.setOnPoiClickListener(new GoogleMap.OnPoiClickListener() {
+                        @Override
+                        public void onPoiClick(@NonNull PointOfInterest pointOfInterest) {
+                            LocationDto location = queryDetail(pointOfInterest.placeId);
+                            if (location != null) {
+                                showPlaceDetail(location);
+                            }
+                        }
+                    });
+
+                    // Create navigation object
+                    NavigationLogic.createInstance(map);
+                    navigationLogic = NavigationLogic.getInstance();
+                    // Create tracker object
+                    trackerLogic = TrackerLogic.createInstance(getActivity());
+                    // trackerLogic
+                    trackerLogic.requestLastLocation(location -> resetCurrentPosition(location));
+                    map.setLocationSource(trackerLogic);    // replace the default location
+                    // source with
+
+                    // Create navigation object
+                    NavigationLogic.createInstance(map);
+                    navigationLogic = NavigationLogic.getInstance();
+
+                    // Add map click listener
+                    map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
+                        @Override
+                        public void onMapClick(@NonNull LatLng latLng) {
+                            LocationDto locationDto = findLocationGeoMsg(latLng);
+                            // Only when the location exists in the map, change the maker.
+                            showPlaceDetail(locationDto);
+                        }
+                    });
+
+                    // Add map marker click listener
+                    map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                        @Override
+                        public boolean onMarkerClick(@NonNull Marker marker) {
+                            googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(),
+                                    15));
+                            return true;
+                        }
+                    });
                 }
-            }
-        });
-
-        // Create tracker object
-        trackerLogic = TrackerLogic.getInstance(getActivity());
-        // trackerLogic
-        trackerLogic.requestLastLocation(this::resetCurrentPosition);
-        map.setLocationSource(trackerLogic);    // replace the default location source with
-
-        // Create navigation object
-        NavigationLogic.createInstance(map);
-        navigationLogic = NavigationLogic.getInstance();
-
-        // Add map click listener
-        map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(@NonNull LatLng latLng) {
-                LocationDto locationDto = findLocationGeoMsg(latLng);
-                // Only when the location exists in the map, change the maker.
-                showPlaceDetail(locationDto);
-            }
-        });
-
-        // Add map marker click listener
-        map.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(@NonNull Marker marker) {
-                googleMap.animateCamera(CameraUpdateFactory.newLatLngZoom(marker.getPosition(),
-                        15));
-                return true;
             }
         });
         //unpack data
         //if accepted data from broadcast, set destination and do corresponding process
         Bundle arguments = this.getArguments();
-        if(arguments!=null){
+        if (arguments != null) {
             String keyword = arguments.getString("name");
             destTxt.setText(keyword);
 
@@ -622,9 +627,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private void updateRouteUI(RouteDto route, LatLngBounds bounds) {
         map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
-        for (PolylineOptions options : route.getAllPolylineOptions()) {
-            map.addPolyline(options);
-        }
+        route.updateUI(map);
     }
 
     private void parseRouteData(Pair<List<RouteDto>, LatLngBounds> data) {
@@ -636,5 +639,4 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             updateRouteUI(currentRouteDto, bounds);
         }
     }
-
 }

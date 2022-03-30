@@ -3,7 +3,9 @@ package com.main.wayfinding;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -12,6 +14,7 @@ import androidx.navigation.ui.NavigationUI;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.main.wayfinding.databinding.ActivityMainBinding;
 import com.main.wayfinding.fragment.map.MapFragment;
+import com.main.wayfinding.logic.TrackerLogic;
 
 /**
  * Define the activity including three fragments with navigation
@@ -62,5 +65,13 @@ public class MainActivity extends AppCompatActivity {
                     .addToBackStack(null)
                     .commit();
         }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        TrackerLogic.createInstance(this);
+        TrackerLogic.getInstance().onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 }

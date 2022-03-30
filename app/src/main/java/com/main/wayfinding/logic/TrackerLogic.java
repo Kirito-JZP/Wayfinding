@@ -1,5 +1,6 @@
 package com.main.wayfinding.logic;
 
+import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY;
 
 import android.Manifest;
@@ -17,6 +18,8 @@ import com.google.android.gms.tasks.CancellationToken;
 import com.google.android.gms.tasks.OnTokenCanceledListener;
 import com.google.android.material.snackbar.Snackbar;
 import com.main.wayfinding.R;
+
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +39,9 @@ public class TrackerLogic implements LocationSource {
     @Override
     public void activate(@NonNull OnLocationChangedListener onLocationChangedListener) {
         mapSourceDataListener = onLocationChangedListener;
+        if (location != null) {
+            mapSourceDataListener.onLocationChanged(location);
+        }
     }
 
     @Override
@@ -50,6 +56,10 @@ public class TrackerLogic implements LocationSource {
 
     public interface LocationUpdateCompleteCallback {
         void onLocationUpdateComplete(Location location);
+    }
+
+    public interface LocationPermissionRequestCompleteCallback {
+        void onLocationPermissionRequestComplete(boolean isSuccessful);
     }
 
     // The minimum distance to change Updates in meters
@@ -72,11 +82,14 @@ public class TrackerLogic implements LocationSource {
     private OnLocationChangedListener mapSourceDataListener;
     private Timer trackerTimer;
 
+    // permission
+    LocationPermissionRequestCompleteCallback locationPermissionRequestCompleteCallback;
+
     public static TrackerLogic getInstance() {
         return instance;
     }
 
-    public static TrackerLogic getInstance(Activity act) {
+    public static TrackerLogic createInstance(Activity act) {
         if (instance == null) {
             instance = new TrackerLogic(act);
         }
@@ -93,13 +106,12 @@ public class TrackerLogic implements LocationSource {
         locationUpdateCompleteCallbackList = new HashMap<>();
         locationUpdateCompleteCallbackNum = 0;
 
-        // ask for permissions
-        askForLocationPermissions();
-
         // use the last available location
         requestLastLocation(loc -> {
             location = loc;
-            mapSourceDataListener.onLocationChanged(location);
+            if (mapSourceDataListener != null) {
+                mapSourceDataListener.onLocationChanged(location);
+            }
         });
 
         // start requesting location updates
@@ -151,28 +163,31 @@ public class TrackerLogic implements LocationSource {
         );
     }
 
-    private void askForLocationPermissions() {
-        // Should we show an explanation?
-        if (ActivityCompat.shouldShowRequestPermissionRationale(
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        if (requestCode == LOCATION_PERMISSION_REQUEST_CODE) {
+            int index = -1;
+            for (int i = 0; i < permissions.length; i++) {
+                if (StringUtils.equals(permissions[i], Manifest.permission.ACCESS_FINE_LOCATION)) {
+                    index = i;
+                    break;
+                }
+            }
+            if (index != -1) {
+                locationPermissionRequestCompleteCallback.onLocationPermissionRequestComplete(grantResults[index] == PERMISSION_GRANTED);
+            } else {
+                locationPermissionRequestCompleteCallback.onLocationPermissionRequestComplete(false);
+            }
+        }
+    }
+
+    public void askForLocationPermissions(LocationPermissionRequestCompleteCallback callback) {
+        if (!ActivityCompat.shouldShowRequestPermissionRationale(
                 activity,
                 Manifest.permission.ACCESS_FINE_LOCATION)
         ) {
-            Snackbar.make(
-                    activity.findViewById(R.id.map),
-                    "Core functionalities require location permission",
-                    Snackbar.LENGTH_SHORT)
-                    .setAction(activity.getString(android.R.string.ok),
-                            view -> startRequestPermission()
-                    ).show();
-            // Show an expanation to the user *asynchronously* -- don't block
-            // this thread waiting for the user's response! After the user
-            // sees the explanation, try again to request the permission.
-        } else {
-            // No explanation needed, we can request the permission.
+            locationPermissionRequestCompleteCallback = callback;
             startRequestPermission();
-            // MY_PERMISSIONS_REQUEST_ACCESS_FINE_LOCATION is an
-            // app-defined int constant. The callback method gets the
-            // result of the request.
         }
     }
 
@@ -192,7 +207,9 @@ public class TrackerLogic implements LocationSource {
         }).addOnSuccessListener(activity, loc -> {
             location = loc;
             // provide data to the my location layer for the Google Map instance
-            mapSourceDataListener.onLocationChanged(location);
+            if (mapSourceDataListener != null) {
+                mapSourceDataListener.onLocationChanged(location);
+            }
             // broadcast new location
             for (LocationUpdateCompleteCallback callback :
                     locationUpdateCompleteCallbackList.values()) {
@@ -207,6 +224,9 @@ public class TrackerLogic implements LocationSource {
 
     @SuppressLint("MissingPermission")
     public void startUpdateLocation() {
+        if (trackerTimer != null) {
+            stopUpdateLocation();
+        }
         trackerTimer = new Timer();
         trackerTimer.schedule(new TimerTask() {
             @Override
