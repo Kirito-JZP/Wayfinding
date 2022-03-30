@@ -83,9 +83,6 @@ public class RoundImageView extends ImageView {
                         mPaint.reset();
                         mPaint.setFilterBitmap(false);
                         mPaint.setXfermode(sXfermode);
-//                        mBitmapShader = new BitmapShader(mMaskBitmap,
-//                                Shader.TileMode.CLAMP, Shader.TileMode.CLAMP);
-//                        mPaint.setShader(mBitmapShader);
                         bitmapCanvas.drawBitmap(mMaskBitmap, 0.0f, 0.0f, mPaint);
 
                         mWeakBitmap = new WeakReference<>(bitmap);
@@ -95,7 +92,6 @@ public class RoundImageView extends ImageView {
                 // Bitmap already loaded.
                 if (bitmap != null) {
                     mPaint.setXfermode(null);
-//                    mPaint.setShader(null);
                     canvas.drawBitmap(bitmap, 0.0f, 0.0f, mPaint);
                     return;
                 }

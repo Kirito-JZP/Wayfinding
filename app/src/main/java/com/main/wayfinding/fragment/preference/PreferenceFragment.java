@@ -38,8 +38,8 @@ import java.util.List;
  * l
  *
  * @author JIA
- * @author Last Modified By Sahil
- * @version Revision: 0
+ * @author Last Modified By An
+ * @version Revision: 1
  * Date: 2022/2/10 17:31
  */
 public class PreferenceFragment extends Fragment {
@@ -55,7 +55,6 @@ public class PreferenceFragment extends Fragment {
         binding = FragmentPreferenceBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
-
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -92,27 +91,25 @@ public class PreferenceFragment extends Fragment {
                 public void onComplete(@NonNull Task<DataSnapshot> task) {
 
                     if (task.isSuccessful()) {
-                        HashMap<String, LocationDto> map = task.getResult().getValue(new GenericTypeIndicator<HashMap<String, LocationDto>>() {
-                        });
+                        HashMap<String, LocationDto> map = task.getResult()
+                                .getValue(new GenericTypeIndicator<HashMap<String, LocationDto>>() {});
                         //key: locationID
                         //value: LocationDto Object
                         Iterator<Map.Entry<String, LocationDto>> iterator = map.entrySet().iterator();
                         while (iterator.hasNext()) {
                             Map.Entry<String, LocationDto> next = iterator.next();
-
                             String key = next.getKey();
                             LocationDto object = next.getValue();
-
                             locationDtoList.add(object);
                         }
 
-
-                        //example for delete location
+                        // Sort locationDto list by adding date.
                         locationDtoList.sort((o1, o2) -> o2.getDate().compareTo(o1.getDate()));
                         recentSavedAdapter.setLocationList(locationDtoList);
                         recentSavedAdapter.notifyDataSetChanged();
-                        TrackerLogic trackerLogic = TrackerLogic.getInstance(getActivity());
 
+                        // Sort locationDto list by distance.
+                        TrackerLogic trackerLogic = TrackerLogic.getInstance(getActivity());
                         trackerLogic.requestLastLocation(location -> {
                             setNearByList(location, new ArrayList<LocationDto>(locationDtoList));
                         });
@@ -126,9 +123,14 @@ public class PreferenceFragment extends Fragment {
             System.out.println("Not logged in");
         }
 
-
     }
 
+    /**
+     * Method for sort LocationDto list by distance
+     *
+     * @param location-current Location
+     * @param locationDtoList-list got from database
+     */
     private void setNearByList(Location location, ArrayList<LocationDto> locationDtoList) {
         locationDtoList.sort(new Comparator<LocationDto>() {
             @Override
@@ -142,17 +144,7 @@ public class PreferenceFragment extends Fragment {
                 return Float.compare(distance1[0], distance2[0]);
             }
         });
-        for (LocationDto locationDto : locationDtoList) {
-            float[] result = new float[1];
-            Location.distanceBetween(location.getLatitude(), location.getLongitude(),
-                    locationDto.getLatitude(), locationDto.getLongitude(), result);
-            System.out.println(result[0]);
-        }
         nearbyAdapter.setLocationList(locationDtoList);
         nearbyAdapter.notifyDataSetChanged();
-    }
-
-    private void setNearByList(Location location) {
-
     }
 }

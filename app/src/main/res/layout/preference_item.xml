@@ -51,15 +51,6 @@
                     android:text="Address"
                     android:textSize="16sp" />
 
-                <TextView
-                    android:id="@+id/textCountry"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center_horizontal"
-                    android:layout_margin="10dp"
-                    android:text="Country"
-                    android:textSize="17sp" />
-
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"

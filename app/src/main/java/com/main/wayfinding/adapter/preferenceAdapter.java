@@ -33,7 +33,7 @@ import org.apache.commons.lang3.StringUtils;
  * Define the fragment used for displaying map and dynamic Sustainable way-finding
  *
  * @author Sahil
- * @author Last Modified By JIA
+ * @author Last Modified By AN
  * @version Revision: 1
  * Date: 2022/3/29 01:50
  */
@@ -45,7 +45,6 @@ public class preferenceAdapter extends RecyclerView.Adapter<preferenceAdapter.Vi
         public ImageView imageImageView;
         public TextView nameTextView;
         public TextView addressTextView;
-        public TextView countryTextView;
         public FloatingActionButton navigateBtn;
         public FloatingActionButton deleteBtn;
 
@@ -55,7 +54,6 @@ public class preferenceAdapter extends RecyclerView.Adapter<preferenceAdapter.Vi
             imageImageView = (ImageView) itemView.findViewById(R.id.image);
             nameTextView = (TextView) itemView.findViewById(R.id.textName);
             addressTextView = (TextView) itemView.findViewById(R.id.textAddress);
-            countryTextView = (TextView) itemView.findViewById(R.id.textCountry);
             navigateBtn = (FloatingActionButton) itemView.findViewById(R.id.preference_nav);
             deleteBtn = (FloatingActionButton) itemView.findViewById(R.id.preference_delete);
         }
@@ -96,15 +94,14 @@ public class preferenceAdapter extends RecyclerView.Adapter<preferenceAdapter.Vi
         }
         holder.nameTextView.setText(locationDto.getName());
         holder.addressTextView.setText(locationDto.getAddress());
-        holder.countryTextView.setText(locationDto.getCountry());
 
         // Set click event for buttons.
         holder.navigateBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 //get navigation controller in mainActivity
-                NavController navController = Navigation.findNavController((Activity) context, R.id.nav_host_fragment_activity_main);
-//                navController.navigate(R.id.navigation_map);
+                NavController navController = Navigation
+                        .findNavController((Activity) context, R.id.nav_host_fragment_activity_main);
                 //package data
                 Bundle bundle = new Bundle();
                 bundle.putString("name",locationDto.getName());
