@@ -112,7 +112,10 @@ public class PreferenceFragment extends Fragment {
                         // Sort locationDto list by distance.
                         TrackerLogic trackerLogic = TrackerLogic.getInstance(getActivity());
                         trackerLogic.requestLastLocation(location -> {
-                            setNearByList(location, new ArrayList<LocationDto>(locationDtoList));
+                            // Sort LocationDto list by distance
+                            LocationSortUtils.sortByDistance(location,locationDtoList);
+                            nearbyAdapter.setLocationList(locationDtoList);
+                            nearbyAdapter.notifyDataSetChanged();
                         });
 
                     } else {
@@ -124,17 +127,5 @@ public class PreferenceFragment extends Fragment {
             System.out.println("Not logged in");
         }
 
-    }
-
-    /**
-     * Method for sort LocationDto list by distance
-     *
-     * @param location-current Location
-     * @param locationDtoList-list got from database
-     */
-    private void setNearByList(Location location, ArrayList<LocationDto> locationDtoList) {
-        LocationSortUtils.sortByDistance(location,locationDtoList);
-        nearbyAdapter.setLocationList(locationDtoList);
-        nearbyAdapter.notifyDataSetChanged();
     }
 }
