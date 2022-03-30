@@ -2,25 +2,18 @@ package com.main.wayfinding.utility;
 
 
 import android.graphics.Color;
-import android.graphics.Paint;
 import android.util.Log;
 import android.util.Pair;
 
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.Cap;
 import com.google.android.gms.maps.model.Dot;
 import com.google.android.gms.maps.model.Gap;
-import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.PatternItem;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.RoundCap;
-import com.google.maps.DirectionsApi;
 import com.google.maps.DirectionsApiRequest;
-import com.google.maps.FindPlaceFromTextRequest;
-import com.google.maps.GeocodingApi;
 import com.google.maps.GeocodingApiRequest;
 import com.google.maps.NearbySearchRequest;
 import com.google.maps.PlaceAutocompleteRequest;
@@ -47,10 +40,8 @@ import com.main.wayfinding.dto.RouteDto;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 /**
@@ -159,7 +150,7 @@ public class PlaceManagerUtils {
     }
 
     public static Pair<List<RouteDto>, LatLngBounds> findRoute(
-            LocationDto startLocDto, LocationDto targetLocDto, String mode) {
+            LocationDto startLocDto, LocationDto targetLocDto, TravelMode mode) {
         if (startLocDto != null && targetLocDto != null) {
             LatLng orig = startLocDto.getLatLng();
             LatLng dest = targetLocDto.getLatLng();
@@ -215,7 +206,19 @@ public class PlaceManagerUtils {
                                 if (step.travelMode == TravelMode.WALKING) {
                                     options.pattern(walkingPattern);
                                 }
-                                route.addPolylineOptions(options);
+                                // create a RouteStep object
+                                RouteDto.RouteStep routeStep = new RouteDto.RouteStep();
+                                LocationDto stepStartLocation = new LocationDto();
+                                stepStartLocation.setLatitude(step.startLocation.lat);
+                                stepStartLocation.setLongitude(step.startLocation.lng);
+                                LocationDto stepEndLocation = new LocationDto();
+                                stepEndLocation.setLatitude(step.endLocation.lat);
+                                stepEndLocation.setLongitude(step.endLocation.lng);
+                                routeStep.setStartLocation(stepStartLocation);
+                                routeStep.setEndLocation(stepEndLocation);
+                                routeStep.setOption(options);
+                                // save the step
+                                route.addStep(routeStep);
                             }
                         }
                         routes.add(route);
@@ -233,6 +236,95 @@ public class PlaceManagerUtils {
             }
         }
         return null;
+    }
+
+    public static void updateRouteFromCurrentLocation(RouteDto route, LocationDto currentLocation) {
+        // re-arrange the route from the current step while keep the previously passed steps
+        try {
+            RouteDto.RouteStep currentStep = route.getSteps().get(route.getCurrentStepIndex());
+            // split currentStep into two steps according to the current location
+            currentStep.setEndLocation(currentLocation);
+            currentStep.setPassed(true);
+            int indexToReplace = route.getCurrentStepIndex() + 1;
+            // filter waypoints, removing those already passed
+            List<com.google.maps.model.LatLng> validWaypoints = filterValidWaypoints(route, currentLocation);
+            DirectionsApiRequest request =
+                    new DirectionsApiRequest(WayfindingApp.getGeoApiContext());
+            request.origin(LatLngConverterUtils.convert(currentLocation.getLatLng()));
+            request.destination(LatLngConverterUtils.convert(route.getEndLocation().getLatLng()));
+            request.mode(route.getMode());
+            request.waypoints(validWaypoints.toArray(new com.google.maps.model.LatLng[0]));
+            DirectionsResult result = request.await();
+            // TODO: currently automatically select the one with the minimal estimated arriving time
+            //  but should give users options if there are more than one routes available
+            long minTime = Long.MAX_VALUE;
+            DirectionsRoute bestRoute = result.routes[0];
+            for (DirectionsRoute r : result.routes) {
+                long totalTime = 0;
+                for (DirectionsLeg leg : r.legs) {
+                    totalTime += leg.duration.inSeconds;
+                }
+                if (totalTime < minTime) {
+                    minTime = totalTime;
+                    bestRoute = r;
+                }
+            }
+            // add start location and end location
+            LocationDto startLocation = new LocationDto();
+            LocationDto endLocation = new LocationDto();
+            startLocation.setLatitude(bestRoute.legs[0].startLocation.lat);
+            startLocation.setLongitude(bestRoute.legs[0].startLocation.lng);
+            endLocation.setLatitude(bestRoute.legs[bestRoute.legs.length - 1].endLocation.lat);
+            endLocation.setLongitude(bestRoute.legs[bestRoute.legs.length - 1].endLocation.lng);
+            route.setStartLocation(startLocation);
+            route.setEndLocation(endLocation);
+            // save polyline options
+            List<PatternItem> walkingPattern = Arrays.asList(new Dot(), new Gap(20));
+            for (DirectionsLeg leg : bestRoute.legs) {
+                for (DirectionsStep step : leg.steps) {
+                    int colour;
+                    PolylineOptions options = new PolylineOptions();
+                    switch (step.travelMode) {
+                        case WALKING:
+                            colour = Color.BLUE;
+                            break;
+                        case TRANSIT:
+                            colour = Color.YELLOW;
+                            break;
+                        case BICYCLING:
+                            colour = Color.GREEN;
+                            break;
+                        default:
+                            colour = Color.DKGRAY;
+                    }
+                    options.addAll(LatLngConverterUtils.convert(step.polyline.decodePath()))
+                            .color(colour)
+                            .width(25)
+                            .startCap(new RoundCap())
+                            .endCap(new RoundCap())
+                            .geodesic(true);
+                    if (step.travelMode == TravelMode.WALKING) {
+                        options.pattern(walkingPattern);
+                    }
+                    // create a RouteStep object
+                    RouteDto.RouteStep routeStep = new RouteDto.RouteStep();
+                    LocationDto stepStartLocation = new LocationDto();
+                    stepStartLocation.setLatitude(step.startLocation.lat);
+                    stepStartLocation.setLongitude(step.startLocation.lng);
+                    LocationDto stepEndLocation = new LocationDto();
+                    stepEndLocation.setLatitude(step.endLocation.lat);
+                    stepEndLocation.setLongitude(step.endLocation.lng);
+                    routeStep.setStartLocation(stepStartLocation);
+                    routeStep.setEndLocation(stepEndLocation);
+                    routeStep.setOption(options);
+                    // replace the step already saved in the route
+                    route.replaceOrAddStep(indexToReplace, routeStep);
+                    indexToReplace += 1;
+                }
+            }
+        } catch (ApiException | InterruptedException | IOException e) {
+            e.printStackTrace();
+        }
     }
 
     public static LatLng queryLatLng(String placeID) {
@@ -325,24 +417,18 @@ public class PlaceManagerUtils {
         return new DirectionsApiRequest(WayfindingApp.getGeoApiContext()).origin(LatLngConverterUtils.convert(orig)).destination(LatLngConverterUtils.convert(dest));
     }
 
-    private static DirectionsApiRequest getDirections(LatLng orig, LatLng dest, String mode) {
-        TravelMode travelMode = TravelMode.UNKNOWN;
-        switch (mode) {
-            case "walking":
-                travelMode = TravelMode.WALKING;
-                break;
-            case "driving":
-                travelMode = TravelMode.DRIVING;
-                break;
-            case "bicycling":
-                travelMode = TravelMode.BICYCLING;
-                break;
-            case "transit":
-                travelMode = TravelMode.TRANSIT;
-                break;
-            default:
-                travelMode = TravelMode.WALKING;
+    private static DirectionsApiRequest getDirections(LatLng orig, LatLng dest, TravelMode mode) {
+        return new DirectionsApiRequest(WayfindingApp.getGeoApiContext()).origin(LatLngConverterUtils.convert(orig)).destination(LatLngConverterUtils.convert(dest)).mode(mode);
+    }
+
+    private static List<com.google.maps.model.LatLng> filterValidWaypoints(RouteDto route,
+                                                                           LocationDto currentLocation) {
+        List<com.google.maps.model.LatLng> results = new ArrayList<>();
+        for (LocationDto waypoint : route.getWaypoints()) {
+//            if (route.judgePassed(waypoint, currentLocation)) {
+//                results.add(LatLngConverterUtils.convert(waypoint.getLatLng()));
+//            }
         }
-        return new DirectionsApiRequest(WayfindingApp.getGeoApiContext()).origin(LatLngConverterUtils.convert(orig)).destination(LatLngConverterUtils.convert(dest)).mode(travelMode);
+        return results;
     }
 }
