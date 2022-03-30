@@ -35,6 +35,7 @@
                 android:layout_marginLeft="340dp"
                 android:layout_marginBottom="20dp"
                 android:scaleType="centerCrop"
+                android:elevation="5dp"
                 android:src="@drawable/ic_location_exit_ar" />
         </LinearLayout>
     </FrameLayout>
