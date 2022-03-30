@@ -160,7 +160,7 @@ public class AccountFragment extends Fragment {
                     }
                 });
 
-                // 注册验证
+                // Signup
                 signUpView.findViewById(R.id.create_account).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -177,19 +177,24 @@ public class AccountFragment extends Fragment {
                                 surnameSignup.getText().toString(),
                                 countrySignup.getText().toString(),
                                 phoneNoSignup.getText().toString());
-                        //获取单选框
+                        //get checkbox
                         CheckBox checkbox = signUpView.findViewById(R.id.checkBox);
 
-                        //1.验证字符串规格（邮箱格式是否正确，密码最少6位等）
-                        // 非空验证
+                        // check dataFormat
                         String errorMsg = "";
                         if (accountCheckLogic.isEmpty(getString(R.string.email), email)) {
                             errorMsg += accountCheckLogic.getErrorMessage();
                             System.out.println(errorMsg);
+                        }else if(accountCheckLogic.checkEmail(email)) {
+                                errorMsg += accountCheckLogic.getErrorMessage();
                         }
+
                         if (accountCheckLogic.isEmpty(getString(R.string.password), password)) {
                             errorMsg += accountCheckLogic.getErrorMessage();
+                        }else if (accountCheckLogic.checkLength(password.length())) {
+                                errorMsg += accountCheckLogic.getErrorMessage();
                         }
+
                         if (accountCheckLogic.isEmpty(getString(R.string.first_name), userDto.getFirstName())) {
                             errorMsg += accountCheckLogic.getErrorMessage();
                         }
@@ -205,17 +210,12 @@ public class AccountFragment extends Fragment {
                         if (!checkbox.isChecked()) {
                             errorMsg += "Please agree with terms. \n";
                         }
-                        if (accountCheckLogic.checkEmail(email)) {
-                            errorMsg += accountCheckLogic.getErrorMessage();
-                        }
-                        if (accountCheckLogic.checkLength(password.length())) {
-                            errorMsg += accountCheckLogic.getErrorMessage();
-                        }
+
 
                         if (StringUtils.isNotEmpty(errorMsg)) {
                             AlertDialogUtils.createAlertDialog(getContext(), errorMsg);
                         } else {
-                            //登录
+                            //signup
                             accountLogic.signUp(email, password, new OnCompleteListener<AuthResult>() {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
@@ -246,18 +246,18 @@ public class AccountFragment extends Fragment {
                         String email = usernameLogin.getText().toString();
                         String password = passwordLogin.getText().toString();
 
-                        //登录验证 字符串规格（邮箱格式是否正确，密码最少多少位，<复杂程度>等）
                         String errorMsg = "";
                         if (accountCheckLogic.isEmpty(getString(R.string.email), email)) {
                             errorMsg += accountCheckLogic.getErrorMessage();
                             System.out.println(errorMsg);
+                        }else if (accountCheckLogic.checkEmail(email)) {
+                                errorMsg += accountCheckLogic.getErrorMessage();
                         }
+
                         if (accountCheckLogic.isEmpty(getString(R.string.password), password)) {
                             errorMsg += accountCheckLogic.getErrorMessage();
                         }
-                        if (accountCheckLogic.checkEmail(email)) {
-                            errorMsg += accountCheckLogic.getErrorMessage();
-                        }
+
                         if (StringUtils.isNotEmpty(errorMsg)){
                             AlertDialogUtils.createAlertDialog(getContext(),errorMsg);
                         } else {
@@ -265,17 +265,14 @@ public class AccountFragment extends Fragment {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
-                                        //关闭dialoglogin
-                                        dialogLogin.dismiss();
                                         reload();
                                     } else {
-                                        //如果密码输入错误
+                                        //Event1Case05
                                         String msg = task.getException().getMessage();
                                         System.out.println(msg);
                                         if (msg.equals("The password is invalid or the user does " +
                                                 "not have a password.")) {
-                                            AlertDialog dialogErrorPassword = new AlertDialog.Builder(getActivity()).
-                                                    setTitle("Error Password!").show();
+                                            AlertDialogUtils.createAlertDialog(getContext(),"Error Password!");
                                         }
                                     }
                                 }
@@ -304,7 +301,8 @@ public class AccountFragment extends Fragment {
                 EditText country = editView.findViewById(R.id.country);
                 EditText phone = editView.findViewById(R.id.phone_no);
                 ImageView avatar = editView.findViewById(R.id.avatar_login);
-                // 设置为可编辑状态
+
+                //enable edit state
                 firstname.setEnabled(true);
                 surname.setEnabled(true);
                 country.setEnabled(true);
@@ -320,7 +318,7 @@ public class AccountFragment extends Fragment {
                 //Btn
                 buttonActions(BtnActions.EDIT);
 
-                // 设置back按钮的点击事件....
+                // set backBtn ClickActions.
                 editView.findViewById(R.id.edit_back).setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -339,32 +337,51 @@ public class AccountFragment extends Fragment {
                         userDto.setSurname(surname.getText().toString());
                         userDto.setCountry(country.getText().toString());
                         userDto.setPhoneNumber(phone.getText().toString());
-                        // 更新数据
-                        userDBLogic.update(userDto);
-                        //Btn
-                        buttonActions(BtnActions.CONFIRM);
 
-                        //这里confirm上传图片--------
-                        if (imageSelected != null) {
-                            try {
-                                InputStream is = requireActivity().getContentResolver().openInputStream(imageSelected);
-                                userDBLogic.uploadAvatar(is, new OnCompleteListener<UploadTask.TaskSnapshot>() {
-                                    @Override
-                                    public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
-                                        imageSelected = null;
-                                    }
-                                });
-                                //未关闭，记得在回调里关闭流
-                            } catch (FileNotFoundException e) {
-                                e.printStackTrace();
-                            }
+                        //editView check data
+                        String errorMsg = "";
+                        if (accountCheckLogic.isEmpty(getString(R.string.first_name), firstname.getText().toString())) {
+                            errorMsg += accountCheckLogic.getErrorMessage();
+                            System.out.println(errorMsg);
                         }
-                        editing = false;
-                        reload();
+                        if (accountCheckLogic.isEmpty(getString(R.string.surname), surname.getText().toString())) {
+                            errorMsg += accountCheckLogic.getErrorMessage();
+                        }
+                        if (accountCheckLogic.isEmpty(getString(R.string.country), country.getText().toString())) {
+                            errorMsg += accountCheckLogic.getErrorMessage();
+                        }
+                        if (accountCheckLogic.isEmpty(getString(R.string.phone_number), phone.getText().toString())) {
+                            errorMsg += accountCheckLogic.getErrorMessage();
+                        }
+                        if (StringUtils.isNotEmpty(errorMsg)){
+                            AlertDialogUtils.createAlertDialog(getContext(),errorMsg);
+                        } else {
+                            // upgrade data
+                            userDBLogic.update(userDto);
+                            //Btn
+                            buttonActions(BtnActions.CONFIRM);
+                            //upload avatar image
+                            if (imageSelected != null) {
+                                try {
+                                    InputStream is = requireActivity().getContentResolver().openInputStream(imageSelected);
+                                    userDBLogic.uploadAvatar(is, new OnCompleteListener<UploadTask.TaskSnapshot>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<UploadTask.TaskSnapshot> task) {
+                                            imageSelected = null;
+                                        }
+                                    });
+                                } catch (FileNotFoundException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            editing = false;
+                            reload();
+                        }
+
                     }
                 });
 
-                // 修改头像
+                // edit avatar
                 avatar.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -428,7 +445,7 @@ public class AccountFragment extends Fragment {
                 public void onComplete(@NonNull Task<DataSnapshot> task) {
                     if (task.isSuccessful()) {
                         UserDto userDto = task.getResult().getValue(UserDto.class);
-                        // 3 输出到layout
+                        // output to layout
                         firstName.setText(userDto.getFirstName());
                         surname.setText(userDto.getSurname());
                         country.setText(userDto.getCountry());
@@ -442,7 +459,7 @@ public class AccountFragment extends Fragment {
             userDBLogic.downloadAvatarInto(getContext(), avatar);
 
         } else {
-            //如果没登录 currentUser == null
+            // currentUser == null
             firstName.setText(getString(R.string.first_name));
             surname.setText(getString(R.string.surname));
             country.setText(getString(R.string.country));
@@ -467,16 +484,16 @@ public class AccountFragment extends Fragment {
                 signUpBtn.setVisibility(View.GONE);
                 break;
             case SIGNOUT:
-                // 显示loginBtn和sinupBtn
+                // show loginBtn & sinupBtn
                 loginBtn.setVisibility(View.VISIBLE);
                 signUpBtn.setVisibility(View.VISIBLE);
-                // editBtn signoutBtn hidden
+                // hide editBtn & signoutBtn
                 signOutBtn.setVisibility(View.GONE);
                 editBtn.setVisibility(View.GONE);
                 break;
             case BACK:
             case CONFIRM:
-                // editview 中 点击backBtn后 show editBtn 和 signoutBtn
+                // show editBtn & signoutBtn
                 signOutBtn.setVisibility(View.VISIBLE);
                 editBtn.setVisibility(View.VISIBLE);
                 //hide backBtn confirmBtn
@@ -484,7 +501,7 @@ public class AccountFragment extends Fragment {
                 confirmBtn.setVisibility(View.GONE);
                 break;
             case EDIT:
-                //editView中点击editBtn后 show backBtn confirmBtn
+                //show backBtn confirmBtn
                 backBtn.setVisibility(View.VISIBLE);
                 confirmBtn.setVisibility(View.VISIBLE);
                 // hide editBtn signoutBtn

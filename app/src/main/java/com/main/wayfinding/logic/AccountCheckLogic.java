@@ -34,12 +34,13 @@ public class AccountCheckLogic {
     }
 
     public boolean checkLength(int n){
-        if(n < 6){
+        if(n > 0 && n < 6){
             this.errorMessage = "Password is too short!\n";
             return true;
         }else {
             return false;
         }
     }
+
 
 }

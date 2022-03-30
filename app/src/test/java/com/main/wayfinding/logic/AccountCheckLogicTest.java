@@ -6,10 +6,10 @@ import org.junit.Test;
 /**
  * Test class for @{AccountCheckLogic}
  *
- * @author Jia
- * @author Last Modified By Jia
+ * @author hu
+ * @author Last Modified By hu
  * @version Revision: 0
- * Date: 2022/3/26 13:49
+ * Date: 2022/3/30 21:40
  */
 public class AccountCheckLogicTest {
 
@@ -42,19 +42,13 @@ public class AccountCheckLogicTest {
         Assert.assertTrue(target.checkEmail(email));
         Assert.assertEquals("Error Email Format!\n",target.getErrorMessage());
     }
-    @Test
-    public void TestEvent1Case05checkPassword(){
-        String password = "123";
-        Assert.assertTrue(target.checkLength(password.length()));
-        Assert.assertEquals("Password is too short!\n",target.getErrorMessage());
-    }
+
     @Test
     public void TestEvent1Case06checkLogin(){
         String email = "tester@gmail.com";
         String password = "123456";
         Assert.assertFalse(target.isEmpty("Email",email));
         Assert.assertFalse(target.isEmpty("Password",password));
-        Assert.assertFalse(target.checkLength(password.length()));
         Assert.assertEquals(null,target.getErrorMessage()); // Login successful
     }
     //Event2 Signup
@@ -163,10 +157,5 @@ public class AccountCheckLogicTest {
         Assert.assertFalse(target.isEmpty("Phone NO.", phone));
         Assert.assertEquals(null,target.getErrorMessage()); // Edit successful
     }
-
-
-
-
-
 
 }
