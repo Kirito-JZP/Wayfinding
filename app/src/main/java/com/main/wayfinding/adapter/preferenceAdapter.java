@@ -79,7 +79,6 @@ public class preferenceAdapter extends RecyclerView.Adapter<preferenceAdapter.Vi
     @Override
     public preferenceAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
-        locationDtoList.sort((o1, o2)->o1.getDate().compareTo(o2.getDate()));
         context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
 

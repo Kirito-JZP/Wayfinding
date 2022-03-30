@@ -1,7 +1,7 @@
 package com.main.wayfinding.fragment.preference;
 
+import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,19 +23,20 @@ import com.main.wayfinding.R;
 import com.main.wayfinding.adapter.preferenceAdapter;
 import com.main.wayfinding.databinding.FragmentPreferenceBinding;
 import com.main.wayfinding.dto.LocationDto;
+import com.main.wayfinding.logic.TrackerLogic;
 import com.main.wayfinding.logic.db.LocationDBLogic;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
 
 /**
  * Define the fragment used for saving user preference(home, work or favourite places)
- *l
+ * l
+ *
  * @author JIA
  * @author Last Modified By Sahil
  * @version Revision: 0
@@ -104,11 +105,17 @@ public class PreferenceFragment extends Fragment {
 
                             locationDtoList.add(object);
                         }
+
+
                         //example for delete location
+                        locationDtoList.sort((o1, o2) -> o2.getDate().compareTo(o1.getDate()));
                         recentSavedAdapter.setLocationList(locationDtoList);
                         recentSavedAdapter.notifyDataSetChanged();
-                        nearbyAdapter.setLocationList(locationDtoList);
-                        nearbyAdapter.notifyDataSetChanged();
+                        TrackerLogic trackerLogic = TrackerLogic.getInstance(getActivity());
+
+                        trackerLogic.requestLastLocation(location -> {
+                            setNearByList(location, new ArrayList<LocationDto>(locationDtoList));
+                        });
 
                     } else {
                         System.out.println(task.getException());
@@ -119,6 +126,33 @@ public class PreferenceFragment extends Fragment {
             System.out.println("Not logged in");
         }
 
+
+    }
+
+    private void setNearByList(Location location, ArrayList<LocationDto> locationDtoList) {
+        locationDtoList.sort(new Comparator<LocationDto>() {
+            @Override
+            public int compare(LocationDto loc1, LocationDto loc2) {
+                float[] distance1 = new float[1];
+                float[] distance2 = new float[1];
+                Location.distanceBetween(location.getLatitude(), location.getLongitude(),
+                        loc1.getLatitude(), loc1.getLongitude(), distance1);
+                Location.distanceBetween(location.getLatitude(), location.getLongitude(),
+                        loc2.getLatitude(), loc2.getLongitude(), distance2);
+                return Float.compare(distance1[0], distance2[0]);
+            }
+        });
+        for (LocationDto locationDto : locationDtoList) {
+            float[] result = new float[1];
+            Location.distanceBetween(location.getLatitude(), location.getLongitude(),
+                    locationDto.getLatitude(), locationDto.getLongitude(), result);
+            System.out.println(result[0]);
+        }
+        nearbyAdapter.setLocationList(locationDtoList);
+        nearbyAdapter.notifyDataSetChanged();
+    }
+
+    private void setNearByList(Location location) {
 
     }
 }
