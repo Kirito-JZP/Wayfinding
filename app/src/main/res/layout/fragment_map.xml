@@ -159,7 +159,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="32dp"
+        android:layout_marginEnd="29dp"
         android:layout_marginBottom="280dp"
         android:scaleType="centerCrop"
         android:src="@drawable/ic_ar_camera"/>
@@ -170,7 +170,7 @@
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="30dp"
+        android:layout_marginEnd="27dp"
         android:layout_marginRight="30dp"
         android:layout_marginBottom="220dp"
         android:scaleType="centerCrop"
@@ -178,12 +178,12 @@
 
     <ImageView
         android:id="@+id/accident"
-        android:layout_width="35dp"
-        android:layout_height="35dp"
+        android:layout_width="34dp"
+        android:layout_height="34dp"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
-        android:layout_marginEnd="32dp"
+        android:layout_marginEnd="30dp"
         android:layout_marginRight="30dp"
         android:layout_marginBottom="160dp"
         android:scaleType="centerCrop"
@@ -197,7 +197,7 @@
         android:layout_alignParentRight="true"
         android:layout_alignParentBottom="true"
         android:layout_marginTop="10dp"
-        android:layout_marginEnd="30dp"
+        android:layout_marginEnd="27dp"
         android:layout_marginRight="30dp"
         android:layout_marginBottom="100dp"
         android:scaleType="centerCrop"
@@ -377,7 +377,7 @@
                     android:id="@+id/set_dest_btn"
                     android:layout_width="120dp"
                     android:layout_height="45dp"
-                    android:layout_marginLeft="180dp"
+                    android:layout_marginLeft="178dp"
                     android:layout_marginTop="180dp"
                     android:background="@drawable/border"
                     android:backgroundTint="#1a73e8"
@@ -401,22 +401,23 @@
                         android:textSize="15dp"
                         android:textStyle="bold" />
                 </RelativeLayout>
+
                 <RelativeLayout
                     android:id="@+id/transit_btn"
                     android:layout_width="45dp"
                     android:layout_height="45dp"
-                    android:layout_marginLeft="330dp"
+                    android:layout_marginLeft="328dp"
                     android:layout_marginTop="180dp"
                     android:background="@drawable/border"
                     android:backgroundTint="#1a73e8"
                     android:elevation="5dp">
 
-                <ImageView
-                    android:id="@+id/transform"
-                    android:layout_width="20dp"
-                    android:layout_height="match_parent"
-                    android:layout_marginLeft="12dp"
-                    android:src="@drawable/ic_transform" />
+                    <ImageView
+                        android:id="@+id/transform"
+                        android:layout_width="20dp"
+                        android:layout_height="match_parent"
+                        android:layout_marginLeft="12dp"
+                        android:src="@drawable/ic_transform" />
                 </RelativeLayout>
             </FrameLayout>
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
