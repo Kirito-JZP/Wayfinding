@@ -5,9 +5,9 @@ import static com.main.wayfinding.utility.LatLngConverterUtils.convert;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.PolylineOptions;
+import com.main.wayfinding.dto.LocationDto;
 import com.main.wayfinding.dto.RouteDto;
-import com.main.wayfinding.utility.LatLngConverterUtils;
+import com.main.wayfinding.utility.PlaceManagerUtils;
 
 /**
  * Logic of Navigation
@@ -20,6 +20,7 @@ import com.main.wayfinding.utility.LatLngConverterUtils;
 public class NavigationLogic {
 
     private RouteDto currentRoute;
+    private int registrationNumber;
     private final GoogleMap map;
     private final TrackerLogic trackerLogic;
     private static NavigationLogic instance;
@@ -40,11 +41,16 @@ public class NavigationLogic {
     public void startNavigation(RouteDto route) {
         // register a callback in TrackerLogic
         currentRoute = route;
-        trackerLogic.registerLocationUpdateCompleteEvent(location -> {
+        registrationNumber = trackerLogic.registerLocationUpdateCompleteEvent(location -> {
             map.clear();
-            for (PolylineOptions options : route.getAllPolylineOptions()) {
-                map.addPolyline(options);
-            }
+            // generate a location dto
+            LocationDto currentLocation = new LocationDto();
+            currentLocation.setLatitude(location.getLatitude());
+            currentLocation.setLongitude(location.getLongitude());
+            // update route state
+            route.updateRouteState(currentLocation);
+            // update UI
+            route.updateUI(map);
             map.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(),
                     location.getLongitude()))
                     .title("current location"));
@@ -52,18 +58,27 @@ public class NavigationLogic {
     }
 
     public void pauseNavigation() {
-
+        trackerLogic.unregisterLocationUpdateCompleteEvent(registrationNumber);
     }
 
     public void resumeNavigation() {
-
+        registrationNumber = trackerLogic.registerLocationUpdateCompleteEvent(location -> {
+            map.clear();
+            currentRoute.updateUI(map);
+            map.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(),
+                    location.getLongitude()))
+                    .title("current location"));
+        });
     }
 
     public void stopNavigation() {
-
+        trackerLogic.unregisterLocationUpdateCompleteEvent(registrationNumber);
+        currentRoute = null;
     }
 
-    public void modifyRoute() {
-
+    public void addWayPoint(LocationDto location) {
+        // re-search routes based on the current route without changing steps passed previously
+        currentRoute.addWaypoint(location);
+        PlaceManagerUtils.updateRouteFromCurrentLocation(currentRoute, location);
     }
 }
