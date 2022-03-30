@@ -25,6 +25,7 @@ import com.main.wayfinding.databinding.FragmentPreferenceBinding;
 import com.main.wayfinding.dto.LocationDto;
 import com.main.wayfinding.logic.TrackerLogic;
 import com.main.wayfinding.logic.db.LocationDBLogic;
+import com.main.wayfinding.utility.LocationSortUtils;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -104,7 +105,7 @@ public class PreferenceFragment extends Fragment {
                         }
 
                         // Sort locationDto list by adding date.
-                        locationDtoList.sort((o1, o2) -> o2.getDate().compareTo(o1.getDate()));
+                        LocationSortUtils.sortByDate(locationDtoList);
                         recentSavedAdapter.setLocationList(locationDtoList);
                         recentSavedAdapter.notifyDataSetChanged();
 
@@ -132,18 +133,7 @@ public class PreferenceFragment extends Fragment {
      * @param locationDtoList-list got from database
      */
     private void setNearByList(Location location, ArrayList<LocationDto> locationDtoList) {
-        locationDtoList.sort(new Comparator<LocationDto>() {
-            @Override
-            public int compare(LocationDto loc1, LocationDto loc2) {
-                float[] distance1 = new float[1];
-                float[] distance2 = new float[1];
-                Location.distanceBetween(location.getLatitude(), location.getLongitude(),
-                        loc1.getLatitude(), loc1.getLongitude(), distance1);
-                Location.distanceBetween(location.getLatitude(), location.getLongitude(),
-                        loc2.getLatitude(), loc2.getLongitude(), distance2);
-                return Float.compare(distance1[0], distance2[0]);
-            }
-        });
+        LocationSortUtils.sortByDistance(location,locationDtoList);
         nearbyAdapter.setLocationList(locationDtoList);
         nearbyAdapter.notifyDataSetChanged();
     }
