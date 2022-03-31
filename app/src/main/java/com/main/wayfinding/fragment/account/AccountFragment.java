@@ -50,6 +50,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 /**
  * Define the fragment used for displaying and changing user info
@@ -142,10 +143,10 @@ public class AccountFragment extends Fragment {
                 protocol.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        String str = FileReaderUtils.initAssets(getContext(), "privacy.txt");
+                        String str = FileReaderUtils.initAssets(getContext(), getString(R.string.privacyTxt));
                         final View inflate = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_protocol, null);
                         TextView tv_title = (TextView) inflate.findViewById(R.id.tv_title);
-                        tv_title.setText("Privacy Protocol");
+                        tv_title.setText(getString(R.string.privacyProtocol));
                         TextView tv_content = (TextView) inflate.findViewById(R.id.tv_content);
                         tv_content.setText(str);
                         final AlertDialog dialog = new AlertDialog
@@ -208,7 +209,7 @@ public class AccountFragment extends Fragment {
                             errorMsg += accountCheckLogic.getErrorMessage();
                         }
                         if (!checkbox.isChecked()) {
-                            errorMsg += "Please agree with terms. \n";
+                            errorMsg += getString(R.string.requireAgreementWithTerm);
                         }
 
 
@@ -221,6 +222,7 @@ public class AccountFragment extends Fragment {
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
                                         userDBLogic.insert(userDto);
+                                        dialogCreate.dismiss();
                                         reload();
                                     } else {
                                         System.out.println(task.getException());
@@ -265,14 +267,14 @@ public class AccountFragment extends Fragment {
                                 @Override
                                 public void onComplete(@NonNull Task<AuthResult> task) {
                                     if (task.isSuccessful()) {
+                                        dialogLogin.dismiss();
                                         reload();
                                     } else {
                                         //Event1Case05
                                         String msg = task.getException().getMessage();
                                         System.out.println(msg);
-                                        if (msg.equals("The password is invalid or the user does " +
-                                                "not have a password.")) {
-                                            AlertDialogUtils.createAlertDialog(getContext(),"Error Password!");
+                                        if (StringUtils.equals(msg, getString(R.string.wrongPasswordReturn))) {
+                                            AlertDialogUtils.createAlertDialog(getContext(),getString(R.string.wrongPasswordMsg));
                                         }
                                     }
                                 }

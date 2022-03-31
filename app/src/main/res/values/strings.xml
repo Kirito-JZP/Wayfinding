@@ -18,7 +18,10 @@
     <string name="confirm">Confirm</string>
     <string name="edit">Edit</string>
     <string name="back">Back</string>
-
+    <string name="wrongPasswordReturn">The password is invalid or the user does not have a password.</string>
+    <string name="wrongPasswordMsg">Incorrect username or \n password!!!</string>
+    <string name="privacyProtocol">Privacy Protocol</string>
+    <string name="privacyTxt">privacy.txt</string>
     <!-- Map -->
     <string name="transit">transit</string>
     <string name="walking">walking</string>
@@ -35,6 +38,9 @@
     <string name="cancel">Cancel</string>
     <!-- Account -->
     <string name="copy_right">Copyright© 2022 Group3 ASE AVR TCD</string>
+    <string name="requireAgreementWithTerm">Please agree with terms.</string>
+
+
     <!-- Scroll text   -->
     <string-array name="notices">
         <item>🔊Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello</item>
