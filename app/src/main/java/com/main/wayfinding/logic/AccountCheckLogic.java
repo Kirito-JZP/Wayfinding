@@ -1,5 +1,7 @@
 package com.main.wayfinding.logic;
 
+import static com.main.wayfinding.utility.StaticStringUtils.*;
+
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.regex.Matcher;
@@ -17,7 +19,7 @@ public class AccountCheckLogic {
         Pattern pattern = Pattern.compile("\\w+([-+.]\\w+)*@\\w+([-.]\\w+)*\\.\\w+([-.]\\w+)*");
         Matcher mc = pattern.matcher(email);
         if (!mc.matches()) {
-            this.errorMessage = "Error Email Format!\n";
+            this.errorMessage = INCORRECT_EMAIL_FORMAT;
             return true;
         } else {
             return false;
@@ -26,7 +28,7 @@ public class AccountCheckLogic {
 
     public boolean isEmpty(String key, String str) {
         if (StringUtils.isEmpty(str)) {
-            this.errorMessage = key + " is empty\n";
+            this.errorMessage = key + EMPTY_STRING;
             return true;
         } else {
             return false;
@@ -35,7 +37,7 @@ public class AccountCheckLogic {
 
     public boolean checkLength(int n){
         if(n > 0 && n < 6){
-            this.errorMessage = "Password is too short!\n";
+            this.errorMessage = INCORRECT_PASSWORD_FORMAT;
             return true;
         }else {
             return false;

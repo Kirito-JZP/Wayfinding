@@ -1,5 +1,7 @@
 package com.main.wayfinding.fragment.account;
 
+import static com.main.wayfinding.utility.StaticStringUtils.NULL_STRING;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
@@ -34,11 +36,9 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.storage.UploadTask;
-import com.main.wayfinding.MainActivity;
 import com.main.wayfinding.R;
 import com.main.wayfinding.databinding.FragmentAccountBinding;
 import com.main.wayfinding.dto.UserDto;
-import com.main.wayfinding.fragment.map.MapFragment;
 import com.main.wayfinding.logic.AccountCheckLogic;
 import com.main.wayfinding.logic.AuthLogic;
 import com.main.wayfinding.logic.db.UserDBLogic;
@@ -50,7 +50,6 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Objects;
 
 /**
  * Define the fragment used for displaying and changing user info
@@ -182,7 +181,7 @@ public class AccountFragment extends Fragment {
                         CheckBox checkbox = signUpView.findViewById(R.id.checkBox);
 
                         // check dataFormat
-                        String errorMsg = "";
+                        String errorMsg = NULL_STRING;
                         if (accountCheckLogic.isEmpty(getString(R.string.email), email)) {
                             errorMsg += accountCheckLogic.getErrorMessage();
                             System.out.println(errorMsg);
@@ -248,7 +247,7 @@ public class AccountFragment extends Fragment {
                         String email = usernameLogin.getText().toString();
                         String password = passwordLogin.getText().toString();
 
-                        String errorMsg = "";
+                        String errorMsg = NULL_STRING;
                         if (accountCheckLogic.isEmpty(getString(R.string.email), email)) {
                             errorMsg += accountCheckLogic.getErrorMessage();
                             System.out.println(errorMsg);
@@ -341,7 +340,7 @@ public class AccountFragment extends Fragment {
                         userDto.setPhoneNumber(phone.getText().toString());
 
                         //editView check data
-                        String errorMsg = "";
+                        String errorMsg = NULL_STRING;
                         if (accountCheckLogic.isEmpty(getString(R.string.first_name), firstname.getText().toString())) {
                             errorMsg += accountCheckLogic.getErrorMessage();
                             System.out.println(errorMsg);

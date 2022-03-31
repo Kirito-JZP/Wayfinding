@@ -1,5 +1,6 @@
 package com.main.wayfinding.utility;
 
+import static com.main.wayfinding.utility.StaticStringUtils.NULL_STRING;
 
 import android.graphics.Color;
 import android.util.Log;
@@ -75,23 +76,23 @@ public class PlaceManagerUtils {
                         .filter(comp -> Arrays.stream(comp.types)
                                 .anyMatch(t -> t.toString().equals("administrative_area_level_1"))
                         ).collect(Collectors.toList());
-                String city = comps.isEmpty() ? "" : comps.get(0).longName;
+                String city = comps.isEmpty() ? NULL_STRING : comps.get(0).longName;
                 comps = Arrays.stream(details.addressComponents)
                         .filter(comp -> Arrays.stream(comp.types)
                                 .anyMatch(t -> t.toString().equals("country")))
                         .collect(Collectors.toList());
-                String country = comps.isEmpty() ? "" : comps.get(0).longName;
+                String country = comps.isEmpty() ? NULL_STRING : comps.get(0).longName;
                 comps = Arrays.stream(details.addressComponents)
                         .filter(comp -> Arrays.stream(comp.types)
                                 .anyMatch(t -> t.toString().equals("postal_code")))
                         .collect(Collectors.toList());
-                String postalCode = comps.isEmpty() ? "" : comps.get(0).longName;
+                String postalCode = comps.isEmpty() ? NULL_STRING : comps.get(0).longName;
                 String imageUrl = (details.photos != null && details.photos.length != 0) ?
                         "https://maps.googleapis.com/maps/api/place/photo?photo_reference="
                                 + details.photos[0].photoReference
                                 + "&maxheight=500&maxwidth=500&key="
                                 + WayfindingApp.getKey()
-                        : "";
+                        : NULL_STRING;
                 result.setName(details.name);
                 result.setAddress(details.formattedAddress);
                 result.setLatitude(details.geometry.location.lat);
@@ -353,23 +354,23 @@ public class PlaceManagerUtils {
                     .filter(comp -> Arrays.stream(comp.types)
                             .anyMatch(t -> t.toString().equals("administrative_area_level_1"))
                     ).collect(Collectors.toList());
-            String city = comps.isEmpty() ? "" : comps.get(0).longName;
+            String city = comps.isEmpty() ? NULL_STRING : comps.get(0).longName;
             comps = Arrays.stream(details.addressComponents)
                     .filter(comp -> Arrays.stream(comp.types)
                             .anyMatch(t -> t.toString().equals("country")))
                     .collect(Collectors.toList());
-            String country = comps.isEmpty() ? "" : comps.get(0).longName;
+            String country = comps.isEmpty() ? NULL_STRING : comps.get(0).longName;
             comps = Arrays.stream(details.addressComponents)
                     .filter(comp -> Arrays.stream(comp.types)
                             .anyMatch(t -> t.toString().equals("postal_code")))
                     .collect(Collectors.toList());
-            String postalCode = comps.isEmpty() ? "" : comps.get(0).longName;
+            String postalCode = comps.isEmpty() ? NULL_STRING : comps.get(0).longName;
             String imageUrl = (details.photos != null && details.photos.length != 0) ?
                     "https://maps.googleapis.com/maps/api/place/photo?photo_reference="
                             + details.photos[0].photoReference
                             + "&maxheight=500&maxwidth=500&key="
                             + WayfindingApp.getKey()
-                    : "";
+                    : NULL_STRING;
             location.setName(details.name);
             location.setAddress(details.formattedAddress);
             location.setLatitude(details.geometry.location.lat);
