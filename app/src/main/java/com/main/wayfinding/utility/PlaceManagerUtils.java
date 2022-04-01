@@ -2,7 +2,7 @@ package com.main.wayfinding.utility;
 
 import static com.main.wayfinding.utility.StaticStringUtils.NULL_STRING;
 
-import android.graphics.Color;
+import android.content.Context;
 import android.location.Location;
 import android.util.Log;
 import android.util.Pair;
@@ -19,7 +19,9 @@ import com.google.maps.DirectionsApiRequest;
 import com.google.maps.GeocodingApiRequest;
 import com.google.maps.NearbySearchRequest;
 import com.google.maps.PlaceAutocompleteRequest;
+import com.google.maps.PlaceDetailsRequest;
 import com.google.maps.PlacesApi;
+import com.google.maps.RoadsApi;
 import com.google.maps.errors.ApiException;
 import com.google.maps.errors.ZeroResultsException;
 import com.google.maps.model.AddressComponent;
@@ -34,7 +36,9 @@ import com.google.maps.model.LocationType;
 import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlacesSearchResponse;
 import com.google.maps.model.PlacesSearchResult;
+import com.google.maps.model.SnappedPoint;
 import com.google.maps.model.TravelMode;
+import com.main.wayfinding.R;
 import com.main.wayfinding.WayfindingApp;
 import com.main.wayfinding.dto.LocationDto;
 import com.main.wayfinding.dto.RouteDto;
@@ -160,7 +164,13 @@ public class PlaceManagerUtils {
                 List<RouteDto> routes = new ArrayList<>();
                 try {
                     PlaceManagerUtils.map.clear();
-                    DirectionsResult result = getDirections(orig, dest, mode).await();
+                    DirectionsApiRequest request =
+                            new DirectionsApiRequest(WayfindingApp.getGeoApiContext());
+                    request.origin(LatLngConverterUtils.convert(orig))
+                            .destination(LatLngConverterUtils.convert(dest))
+                            .mode(mode)
+                            .alternatives(true);
+                    DirectionsResult result = request.await();
                     double max_lat = result.routes[0].bounds.northeast.lat;
                     double min_lat = result.routes[0].bounds.southwest.lat;
                     double max_lng = result.routes[0].bounds.northeast.lng;
@@ -184,41 +194,7 @@ public class PlaceManagerUtils {
                         List<PatternItem> walkingPattern = Arrays.asList(new Dot(), new Gap(20));
                         for (DirectionsLeg leg : r.legs) {
                             for (DirectionsStep step : leg.steps) {
-                                int colour;
-                                PolylineOptions options = new PolylineOptions();
-                                switch (step.travelMode) {
-                                    case WALKING:
-                                        colour = Color.BLUE;
-                                        break;
-                                    case TRANSIT:
-                                        colour = Color.YELLOW;
-                                        break;
-                                    case BICYCLING:
-                                        colour = Color.GREEN;
-                                        break;
-                                    default:
-                                        colour = Color.DKGRAY;
-                                }
-                                options.addAll(LatLngConverterUtils.convert(step.polyline.decodePath()))
-                                        .color(colour)
-                                        .width(25)
-                                        .startCap(new RoundCap())
-                                        .endCap(new RoundCap())
-                                        .geodesic(true);
-                                if (step.travelMode == TravelMode.WALKING) {
-                                    options.pattern(walkingPattern);
-                                }
-                                // create a RouteStep object
-                                RouteDto.RouteStep routeStep = new RouteDto.RouteStep();
-                                LocationDto stepStartLocation = new LocationDto();
-                                stepStartLocation.setLatitude(step.startLocation.lat);
-                                stepStartLocation.setLongitude(step.startLocation.lng);
-                                LocationDto stepEndLocation = new LocationDto();
-                                stepEndLocation.setLatitude(step.endLocation.lat);
-                                stepEndLocation.setLongitude(step.endLocation.lng);
-                                routeStep.setStartLocation(stepStartLocation);
-                                routeStep.setEndLocation(stepEndLocation);
-                                routeStep.setOption(options);
+                                RouteDto.RouteStep routeStep = RouteDto.generateRouteStep(step);
                                 // save the step
                                 route.addStep(routeStep);
                             }
@@ -240,95 +216,6 @@ public class PlaceManagerUtils {
         return null;
     }
 
-    public static void updateRouteFromCurrentLocation(RouteDto route, LocationDto currentLocation) {
-        // re-arrange the route from the current step while keep the previously passed steps
-        try {
-            RouteDto.RouteStep currentStep = route.getSteps().get(route.getCurrentStepIndex());
-            // split currentStep into two steps according to the current location
-            currentStep.setEndLocation(currentLocation);
-            currentStep.setPassed(true);
-            int indexToReplace = route.getCurrentStepIndex() + 1;
-            // filter waypoints, removing those already passed
-            List<com.google.maps.model.LatLng> validWaypoints = filterValidWaypoints(route, currentLocation);
-            DirectionsApiRequest request =
-                    new DirectionsApiRequest(WayfindingApp.getGeoApiContext());
-            request.origin(LatLngConverterUtils.convert(currentLocation.getLatLng()));
-            request.destination(LatLngConverterUtils.convert(route.getEndLocation().getLatLng()));
-            request.mode(route.getMode());
-            request.waypoints(validWaypoints.toArray(new com.google.maps.model.LatLng[0]));
-            DirectionsResult result = request.await();
-            // TODO: currently automatically select the one with the minimal estimated arriving time
-            //  but should give users options if there are more than one routes available
-            long minTime = Long.MAX_VALUE;
-            DirectionsRoute bestRoute = result.routes[0];
-            for (DirectionsRoute r : result.routes) {
-                long totalTime = 0;
-                for (DirectionsLeg leg : r.legs) {
-                    totalTime += leg.duration.inSeconds;
-                }
-                if (totalTime < minTime) {
-                    minTime = totalTime;
-                    bestRoute = r;
-                }
-            }
-            // add start location and end location
-            LocationDto startLocation = new LocationDto();
-            LocationDto endLocation = new LocationDto();
-            startLocation.setLatitude(bestRoute.legs[0].startLocation.lat);
-            startLocation.setLongitude(bestRoute.legs[0].startLocation.lng);
-            endLocation.setLatitude(bestRoute.legs[bestRoute.legs.length - 1].endLocation.lat);
-            endLocation.setLongitude(bestRoute.legs[bestRoute.legs.length - 1].endLocation.lng);
-            route.setStartLocation(startLocation);
-            route.setEndLocation(endLocation);
-            // save polyline options
-            List<PatternItem> walkingPattern = Arrays.asList(new Dot(), new Gap(20));
-            for (DirectionsLeg leg : bestRoute.legs) {
-                for (DirectionsStep step : leg.steps) {
-                    int colour;
-                    PolylineOptions options = new PolylineOptions();
-                    switch (step.travelMode) {
-                        case WALKING:
-                            colour = Color.BLUE;
-                            break;
-                        case TRANSIT:
-                            colour = Color.YELLOW;
-                            break;
-                        case BICYCLING:
-                            colour = Color.GREEN;
-                            break;
-                        default:
-                            colour = Color.DKGRAY;
-                    }
-                    options.addAll(LatLngConverterUtils.convert(step.polyline.decodePath()))
-                            .color(colour)
-                            .width(25)
-                            .startCap(new RoundCap())
-                            .endCap(new RoundCap())
-                            .geodesic(true);
-                    if (step.travelMode == TravelMode.WALKING) {
-                        options.pattern(walkingPattern);
-                    }
-                    // create a RouteStep object
-                    RouteDto.RouteStep routeStep = new RouteDto.RouteStep();
-                    LocationDto stepStartLocation = new LocationDto();
-                    stepStartLocation.setLatitude(step.startLocation.lat);
-                    stepStartLocation.setLongitude(step.startLocation.lng);
-                    LocationDto stepEndLocation = new LocationDto();
-                    stepEndLocation.setLatitude(step.endLocation.lat);
-                    stepEndLocation.setLongitude(step.endLocation.lng);
-                    routeStep.setStartLocation(stepStartLocation);
-                    routeStep.setEndLocation(stepEndLocation);
-                    routeStep.setOption(options);
-                    // replace the step already saved in the route
-                    route.replaceOrAddStep(indexToReplace, routeStep);
-                    indexToReplace += 1;
-                }
-            }
-        } catch (ApiException | InterruptedException | IOException e) {
-            e.printStackTrace();
-        }
-    }
-
     public static LatLng queryLatLng(String placeID) {
         try {
             GeocodingApiRequest request = new GeocodingApiRequest(WayfindingApp.getGeoApiContext());
@@ -342,14 +229,16 @@ public class PlaceManagerUtils {
     }
 
     public static LocationDto queryDetail(String placeID) {
-        // end the autocomplete session otherwise it produces extra cost
-        if (!needNewSession) {
-            needNewSession = true;
-            autocompleteSessionToken = null;
-        }
         try {
-            PlaceDetails details = PlacesApi.placeDetails(WayfindingApp.getGeoApiContext(),
-                    placeID).await();
+            PlaceDetailsRequest request = PlacesApi.placeDetails(WayfindingApp.getGeoApiContext(),
+                    placeID);
+            // end the autocomplete session otherwise it produces extra cost
+            if (!needNewSession) {
+                request.sessionToken(autocompleteSessionToken);
+                needNewSession = true;
+                autocompleteSessionToken = null;
+            }
+            PlaceDetails details = request.await();
             LocationDto location = new LocationDto();
             List<AddressComponent> comps = Arrays.stream(details.addressComponents)
                     .filter(comp -> Arrays.stream(comp.types)
@@ -415,23 +304,15 @@ public class PlaceManagerUtils {
         }
     }
 
-    private static DirectionsApiRequest getDirections(LatLng orig, LatLng dest) {
-        return new DirectionsApiRequest(WayfindingApp.getGeoApiContext()).origin(LatLngConverterUtils.convert(orig)).destination(LatLngConverterUtils.convert(dest));
-    }
-
-    private static DirectionsApiRequest getDirections(LatLng orig, LatLng dest, TravelMode mode) {
-        return new DirectionsApiRequest(WayfindingApp.getGeoApiContext()).origin(LatLngConverterUtils.convert(orig)).destination(LatLngConverterUtils.convert(dest)).mode(mode);
-    }
-
-    private static List<com.google.maps.model.LatLng> filterValidWaypoints(RouteDto route,
-                                                                           LocationDto currentLocation) {
-        List<com.google.maps.model.LatLng> results = new ArrayList<>();
-        for (LocationDto waypoint : route.getWaypoints()) {
-//            if (route.judgePassed(waypoint, currentLocation)) {
-//                results.add(LatLngConverterUtils.convert(waypoint.getLatLng()));
-//            }
+    public static List<SnappedPoint> nearestRoads(List<LatLng> coordinates) {
+        try {
+            SnappedPoint[] points = RoadsApi.nearestRoads(WayfindingApp.getGeoApiContext(),
+                    LatLngConverterUtils.convertGMS2Map(coordinates).toArray(new com.google.maps.model.LatLng[coordinates.size()])).await();
+            return Arrays.asList(points);
+        } catch (ApiException | InterruptedException | IOException e) {
+            e.printStackTrace();
+            return null;
         }
-        return results;
     }
 
     public static ArrayList<LocationDto> getNearby(Location location) {

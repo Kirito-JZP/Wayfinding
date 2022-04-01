@@ -19,10 +19,18 @@ public class LatLngConverterUtils {
         return new LatLng(ll.lat, ll.lng);
     }
 
-    public static List<LatLng> convert(List<com.google.maps.model.LatLng> lls) {
+    public static List<LatLng> convertMap2GMS(List<com.google.maps.model.LatLng> lls) {
         List<LatLng> results = new ArrayList<>();
         for (com.google.maps.model.LatLng ll : lls) {
             results.add(new LatLng(ll.lat, ll.lng));
+        }
+        return results;
+    }
+
+    public static List<com.google.maps.model.LatLng> convertGMS2Map(List<LatLng> lls) {
+        List<com.google.maps.model.LatLng> results = new ArrayList<>();
+        for (LatLng ll : lls) {
+            results.add(new com.google.maps.model.LatLng(ll.latitude, ll.longitude));
         }
         return results;
     }

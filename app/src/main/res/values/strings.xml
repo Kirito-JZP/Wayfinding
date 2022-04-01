@@ -29,6 +29,7 @@
     <string name="your_location">Your location</string>
     <string name="dialog_msg_no_inputs">No inputs in destination!</string>
     <string name="dialog_msg_add">Added a destination!</string>
+    <string name="snackbar_fail_to_get_latest_location">Unable to get the latest location</string>
     <string name="input_search">Search here</string>
     <string name="trans_public">Public</string>
     <string name="trans_walk">Walk</string>

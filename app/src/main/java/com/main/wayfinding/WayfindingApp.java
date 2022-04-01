@@ -1,6 +1,7 @@
 package com.main.wayfinding;
 
 import android.app.Application;
+import android.content.Context;
 
 import com.google.maps.GeoApiContext;
 
@@ -10,14 +11,17 @@ public class WayfindingApp extends Application {
         super.onCreate();
 
         // create GeoApiContext for later use
-        context = new GeoApiContext.Builder()
+        geoApiContext = new GeoApiContext.Builder()
                 .apiKey(getString(R.string.google_maps_key))
                 .build();
         key = getString(R.string.google_maps_key);
+
+        // save a global reference to the context object
+        context = getApplicationContext();
     }
 
     public static GeoApiContext getGeoApiContext() {
-        return context;
+        return geoApiContext;
     }
 
     public static float getDpWidth() {
@@ -45,7 +49,13 @@ public class WayfindingApp extends Application {
         WayfindingApp.key = key;
     }
 
-    private static GeoApiContext context;
+    private static GeoApiContext geoApiContext;
+
+    public static Context getContext() {
+        return context;
+    }
+
+    private static Context context;
     private static float dpHeight;
     private static float dpWidth;
     private static String key;

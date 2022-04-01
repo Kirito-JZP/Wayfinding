@@ -430,7 +430,7 @@
                 </RelativeLayout>
 
                 <RelativeLayout
-                    android:id="@+id/transit_btn"
+                    android:id="@+id/add_waypoint_btn"
                     android:layout_width="45dp"
                     android:layout_height="45dp"
                     android:layout_marginLeft="328dp"

@@ -3,11 +3,8 @@ package com.main.wayfinding.logic;
 import static com.main.wayfinding.utility.LatLngConverterUtils.convert;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.main.wayfinding.dto.LocationDto;
 import com.main.wayfinding.dto.RouteDto;
-import com.main.wayfinding.utility.PlaceManagerUtils;
 
 /**
  * Logic of Navigation
@@ -22,11 +19,9 @@ public class NavigationLogic {
     private RouteDto currentRoute;
     private int registrationNumber;
     private final GoogleMap map;
-    private final TrackerLogic trackerLogic;
     private static NavigationLogic instance;
 
     private NavigationLogic(GoogleMap map) {
-        trackerLogic = TrackerLogic.getInstance();
         this.map = map;
     }
 
@@ -34,15 +29,17 @@ public class NavigationLogic {
         return instance;
     }
 
-    public static void createInstance(GoogleMap map) {
-        instance = new NavigationLogic(map);
+    public static NavigationLogic createInstance(GoogleMap map) {
+        if (instance == null) {
+            instance = new NavigationLogic(map);
+        }
+        return instance;
     }
 
     public void startNavigation(RouteDto route) {
         // register a callback in TrackerLogic
         currentRoute = route;
-        registrationNumber = trackerLogic.registerLocationUpdateCompleteEvent(location -> {
-            map.clear();
+        registrationNumber = TrackerLogic.registerLocationUpdateCompleteEvent(location -> {
             // generate a location dto
             LocationDto currentLocation = new LocationDto();
             currentLocation.setLatitude(location.getLatitude());
@@ -50,35 +47,29 @@ public class NavigationLogic {
             // update route state
             route.updateRouteState(currentLocation);
             // update UI
-            route.updateUI(map);
-            map.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(),
-                    location.getLongitude()))
-                    .title("current location"));
+            route.updatePolylinesUI(map);
         });
     }
 
     public void pauseNavigation() {
-        trackerLogic.unregisterLocationUpdateCompleteEvent(registrationNumber);
+        TrackerLogic.unregisterLocationUpdateCompleteEvent(registrationNumber);
     }
 
     public void resumeNavigation() {
-        registrationNumber = trackerLogic.registerLocationUpdateCompleteEvent(location -> {
+        registrationNumber = TrackerLogic.registerLocationUpdateCompleteEvent(location -> {
             map.clear();
-            currentRoute.updateUI(map);
-            map.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(),
-                    location.getLongitude()))
-                    .title("current location"));
+            currentRoute.updatePolylinesUI(map);
         });
     }
 
     public void stopNavigation() {
-        trackerLogic.unregisterLocationUpdateCompleteEvent(registrationNumber);
+        TrackerLogic.unregisterLocationUpdateCompleteEvent(registrationNumber);
         currentRoute = null;
     }
 
     public void addWayPoint(LocationDto location) {
         // re-search routes based on the current route without changing steps passed previously
         currentRoute.addWaypoint(location);
-        PlaceManagerUtils.updateRouteFromCurrentLocation(currentRoute, location);
+        currentRoute.updateRouteFromCurrentLocation(location);
     }
 }
