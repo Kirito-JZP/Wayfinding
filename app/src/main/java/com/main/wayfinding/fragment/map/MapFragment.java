@@ -4,6 +4,7 @@ import static com.main.wayfinding.utility.AlertDialogUtils.createAlertDialog;
 import static com.main.wayfinding.utility.PlaceManagerUtils.findLocationGeoMsg;
 import static com.main.wayfinding.utility.PlaceManagerUtils.queryDetail;
 import static com.main.wayfinding.utility.PlaceManagerUtils.queryLatLng;
+import static com.main.wayfinding.utility.StaticStringUtils.*;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -45,8 +46,10 @@ import com.main.wayfinding.ARNavigationActivity;
 import com.main.wayfinding.R;
 import com.main.wayfinding.adapter.LocationAdapter;
 import com.main.wayfinding.databinding.FragmentMapBinding;
+import com.main.wayfinding.dto.EmergencyEventDto;
 import com.main.wayfinding.dto.LocationDto;
 import com.main.wayfinding.dto.RouteDto;
+import com.main.wayfinding.logic.EmergencyEventLogic;
 import com.main.wayfinding.logic.db.LocationDBLogic;
 import com.main.wayfinding.logic.TrackerLogic;
 import com.main.wayfinding.logic.NavigationLogic;
@@ -78,7 +81,8 @@ import javadz.beanutils.BeanUtils;
  * @version Revision: 1
  * Date: 2022/2/2 19:50
  */
-public class MapFragment extends Fragment implements OnMapReadyCallback {
+public class MapFragment extends Fragment implements OnMapReadyCallback,
+        EmergencyEventLogic.EmergencyEventCallback {
 
     private int autocompleteDelay = 500;
     private TravelMode mode;
@@ -121,6 +125,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
     private ImageView locationImg;
     private RelativeLayout setDeptBtn;
     private RelativeLayout setDestBtn;
+    private RelativeLayout addWaypointBtn;
     private RelativeLayout publicBtn;
     private RelativeLayout walkBtn;
     private RelativeLayout cycBtn;
@@ -222,6 +227,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         btnLocDtlTxt = view.findViewById(R.id.loc_detail_txt);
         setDeptBtn = view.findViewById(R.id.set_dept_btn);
         setDestBtn = view.findViewById(R.id.set_dest_btn);
+        addWaypointBtn = view.findViewById(R.id.add_waypoint_btn);
         locationImg = view.findViewById(R.id.location_img);
         arBtn = view.findViewById(R.id.arBtn);
         //bottom sheet
@@ -243,9 +249,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     if (targetLocDto != null && StringUtils.isNotEmpty(targetLocDto.getName())) {
                         targetLocDto.setDate(new Date());
                         new LocationDBLogic().insert(targetLocDto);
-                        createAlertDialog(getContext(), getString(R.string.dialog_msg_add));
+                        createAlertDialog(getContext(), ADD_SUCCESS_MSG);
                     } else {
-                        createAlertDialog(getContext(), getString(R.string.dialog_msg_no_inputs));
+                        createAlertDialog(getContext(), NO_INPUT_MSG);
                     }
                 } else {
                     createAlertDialog(getContext(), "Cannot add it without logging in!");
@@ -460,6 +466,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             return true;
                         }
                     });
+
+                    // Add emergency event callback
+                    EmergencyEventLogic.registerEmergencyEvent(MapFragment.this);
+                } else {
+                    // TODO: logic when the user refuses to give permissions
+                    trackerLogic.askForLocationPermissions(this);
                 }
             }
         });
@@ -477,6 +489,61 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             targetLocDto.setLatitude(latlng.latitude);
             targetLocDto.setLongitude(latlng.longitude);
             parseRouteData(PlaceManagerUtils.findRoute(startLocDto, targetLocDto, mode));
+        }
+    }
+
+    @Override
+    public void onEmergencyEventHappen(EmergencyEventDto event) {
+        // TODO: 判断发生位置是否在前方，并且影响范围是否包含了当前路线的一部分
+        if (currentRouteDto.isLocationAheadOfReference(event.getLocation(), currentLocDto)) {
+            List<RouteDto.RouteStep> affectedSteps = currentRouteDto.findStepsAffectedBy(event);
+            if (!affectedSteps.isEmpty()) {
+                RouteDto.RouteStep backwardBoundary = affectedSteps.get(0);
+                RouteDto.RouteStep forwardBoundary = affectedSteps.get(affectedSteps.size() - 1);
+                double x1 = backwardBoundary.getStartLocation().getLongitude();
+                double y1 = backwardBoundary.getStartLocation().getLatitude();
+                double x2 = forwardBoundary.getEndLocation().getLongitude();
+                double y2 = forwardBoundary.getEndLocation().getLatitude();
+                double x0 = event.getLocation().getLongitude();
+                double y0 = event.getLocation().getLatitude();
+                double r0 = event.getRadius();
+                // the intersection points of the straight line
+                // perpendicular to the line formed by connecting (x1, y1) and (x2, y2)
+                // with the affected range
+                // these two points should be the farthest ones away from the center of the event
+                // range
+                // as well as (x1, y1) and (x2, y2)
+                LatLng intersect1, intersect2;
+                if (Math.abs(y1 - y2) < 1e-3) {
+                    // treat as y1 == y2
+                    intersect1 = new LatLng(y0 + r0, x0);
+                    intersect2 = new LatLng(y0 - r0, x0);
+                } else {
+                    double k = (x1 - x2) / (y1 - y2);
+                    double term = r0 / Math.sqrt(1 + k * k);
+                    double x = x0 + term;
+                    double y = -k * x + y0 + k * x0;
+                    intersect1 = new LatLng(y, x);
+                    x = x0 - term;
+                    y = -k * x + y0 + k * x0;
+                    intersect2 = new LatLng(y, x);
+                }
+                // use the point that is the closest to the current position as a waypoint to add
+                double p = intersect1.latitude - currentLocDto.getLatitude();
+                double q = intersect1.longitude - currentLocDto.getLongitude();
+                double distance1 = Math.sqrt(p * p + q * q);
+                p = intersect2.latitude - currentLocDto.getLatitude();
+                q = intersect2.longitude - currentLocDto.getLongitude();
+                double distance2 = Math.sqrt(p * p + q * q);
+                LocationDto waypoint = new LocationDto();
+                waypoint.setLatitude(distance1 < distance2 ? intersect1.latitude :
+                        intersect2.latitude);
+                waypoint.setLongitude(distance1 < distance2 ? intersect1.longitude :
+                        intersect2.longitude);
+                currentRouteDto.addWaypoint(waypoint);
+                // re-search routes from the current position with the added waypoints
+                currentRouteDto.updateRouteFromCurrentLocation(currentLocDto);
+            }
         }
     }
 
@@ -588,6 +655,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     parseRouteData(PlaceManagerUtils.findRoute(startLocDto, targetLocDto, mode));
                 }
             });
+            addWaypointBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    navigationLogic.addWayPoint(location);
+                }
+            });
             new Thread(() -> {
                 try {
                     Thread.sleep(100);
@@ -632,7 +705,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private void updateRouteUI(RouteDto route, LatLngBounds bounds) {
         map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
-        route.updateUI(map);
+        route.updatePolylinesUI(map);
     }
 
     private void parseRouteData(Pair<List<RouteDto>, LatLngBounds> data) {

@@ -2,38 +2,49 @@ package com.main.wayfinding;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
-import android.view.Gravity;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.ar.core.Anchor;
 import com.google.ar.core.Frame;
-import com.google.ar.core.HitResult;
 import com.google.ar.core.Plane;
 import com.google.ar.core.Session;
 import com.google.ar.core.TrackingState;
 import com.google.ar.core.exceptions.CameraNotAvailableException;
 import com.google.ar.core.exceptions.UnavailableException;
-import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.ArSceneView;
 import com.google.ar.sceneform.Node;
-import com.google.ar.sceneform.rendering.Color;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.rendering.ViewRenderable;
-import com.google.ar.sceneform.ux.ArFragment;
-import com.google.ar.sceneform.ux.TransformableNode;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.GenericTypeIndicator;
+import com.main.wayfinding.adapter.preferenceAdapter;
 import com.main.wayfinding.databinding.ActivityArnavigationBinding;
+import com.main.wayfinding.dto.LocationDto;
+import com.main.wayfinding.logic.TrackerLogic;
+import com.main.wayfinding.logic.db.LocationDBLogic;
 import com.main.wayfinding.utility.DemoUtils;
+import com.main.wayfinding.utility.LocationSortUtils;
+import com.main.wayfinding.utility.PlaceManagerUtils;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -53,7 +64,7 @@ import uk.co.appoly.arcorelocation.utils.ARLocationPermissionHelper;
  */
 public class ARNavigationActivity extends AppCompatActivity {
 
-//    private ArFragment arFragment;
+    //    private ArFragment arFragment;
     private ImageView arReturnBtn;
     private ActivityArnavigationBinding binding;
     private boolean installRequested;
@@ -65,6 +76,10 @@ public class ARNavigationActivity extends AppCompatActivity {
     private ViewRenderable exampleLayoutRenderable;
     // Our ARCore-Location scene
     private LocationScene locationScene;
+    private FirebaseAuth auth;
+    private RecyclerView nearbyList;
+    private preferenceAdapter nearbyAdapter;
+    private preferenceAdapter recentSavedAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -74,10 +89,11 @@ public class ARNavigationActivity extends AppCompatActivity {
 
 
         arSceneView = findViewById(R.id.ar_scene_view);
+        arReturnBtn = findViewById(R.id.arReturnBtn);
         // Build a renderable from a 2D View.
         CompletableFuture<ViewRenderable> exampleLayout =
                 ViewRenderable.builder()
-                        .setView(this, R.layout.example_layout)
+                        .setView(this, R.layout.layout_artext)
                         .build();
 
         // When you build a Renderable, Sceneform loads its resources in the background while returning
@@ -114,6 +130,7 @@ public class ARNavigationActivity extends AppCompatActivity {
 
         // Set an update listener on the Scene that will hide the loading message once a Plane is
         // detected.
+        ARNavigationActivity arNavigationActivity = this;
         arSceneView
                 .getScene()
                 .addOnUpdateListener(
@@ -127,33 +144,34 @@ public class ARNavigationActivity extends AppCompatActivity {
                                 // We know that here, the AR components have been initiated.
                                 locationScene = new LocationScene(this, this, arSceneView);
 
-                                // Now lets create our location markers.
-                                // First, a layout
-                                LocationMarker layoutLocationMarker = new LocationMarker(
-                                        121.44389121570103,
-                                        31.27287039094972,
-                                        getExampleView()
-                                );
 
-                                // An example "onRender" event, called every frame
-                                // Updates the layout with the markers distance
-                                layoutLocationMarker.setRenderEvent(new LocationNodeRender() {
+                                TrackerLogic trackerLogic = TrackerLogic.createInstance(arNavigationActivity);
+                                trackerLogic.requestLastLocation(new TrackerLogic.RequestLocationCompleteCallback() {
                                     @Override
-                                    public void render(LocationNode node) {
-                                        View eView = exampleLayoutRenderable.getView();
-                                        TextView distanceTextView = eView.findViewById(R.id.textView2);
-                                        distanceTextView.setText(node.getDistance() + "M");
+                                    public void onRequestLocationComplete(Location location) {
+                                        ArrayList<LocationDto> list = PlaceManagerUtils.getNearby(location);
+                                        for (LocationDto locationDto : list) {
+                                            LocationMarker layoutLocationMarker=new LocationMarker(
+                                                    locationDto.getLongitude(),
+                                                    locationDto.getLatitude(),
+                                                    getExampleView(locationDto.getName())
+                                            );
+                                            layoutLocationMarker.setRenderEvent(new LocationNodeRender() {
+                                                @Override
+                                                public void render(LocationNode node) {
+                                                    View eView = exampleLayoutRenderable.getView();
+                                                    TextView distanceTextView = eView.findViewById(R.id.loc_distance);
+                                                    TextView locationNameTextView = eView.findViewById(R.id.loc_name);
+                                                    locationNameTextView.setText(node.getName());
+                                                    distanceTextView.setText(node.getDistance() + "M");
+                                                }
+                                            });
+                                            // Adding the marker
+                                            locationScene.mLocationMarkers.add(layoutLocationMarker);
+                                        }
                                     }
                                 });
-                                // Adding the marker
-                                locationScene.mLocationMarkers.add(layoutLocationMarker);
 
-                                // Adding a simple location marker of a 3D model
-                                locationScene.mLocationMarkers.add(
-                                        new LocationMarker(
-                                                121.44511075546684,
-                                                31.273142774057952,
-                                                getAndy()));
                             }
 
                             Frame frame = arSceneView.getArFrame();
@@ -186,7 +204,7 @@ public class ARNavigationActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(ARNavigationActivity.this, MainActivity.class);
-                intent.putExtra("id",1);
+                intent.putExtra("id", 1);
                 startActivity(intent);
             }
         });
@@ -197,7 +215,7 @@ public class ARNavigationActivity extends AppCompatActivity {
      *
      * @return
      */
-    private Node getExampleView() {
+    private Node getExampleView(String locationName) {
         Node base = new Node();
         base.setRenderable(exampleLayoutRenderable);
         Context c = this;
@@ -209,7 +227,7 @@ public class ARNavigationActivity extends AppCompatActivity {
                     .show();
             return false;
         });
-
+        base.setName(locationName);
         return base;
     }
 

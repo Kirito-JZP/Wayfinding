@@ -7,4 +7,8 @@
     <color name="teal_700">#FF018786</color>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="polyline_walking">#0000FF</color>
+    <color name="polyline_transit">#FFC107</color>
+    <color name="polyline_bicycling">#4CAF50</color>
+    <color name="polyline_default">#969696</color>
 </resources>
