@@ -13,4 +13,5 @@ public class StaticStringUtils {
     public static final String AUTHORITY_FAIL_MSG = "Incorrect username or password!";
     public static final String ADD_SUCCESS_MSG = "Added a destination!";
     public static final String NO_INPUT_MSG = "No inputs in destination!";
+    public static final String GET_LATEST_LOCATION_FAIL = "Unable to get the latest location";
 }

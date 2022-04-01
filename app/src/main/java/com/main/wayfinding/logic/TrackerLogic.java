@@ -3,6 +3,7 @@ package com.main.wayfinding.logic;
 import static android.content.pm.PackageManager.PERMISSION_DENIED;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
 import static com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY;
+import static com.main.wayfinding.utility.StaticStringUtils.*;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -230,7 +231,7 @@ public class TrackerLogic implements LocationSource {
             }
         }).addOnFailureListener(activity, exception -> {
             // UI notice
-            showNoticeUI(activity.getString(R.string.snackbar_fail_to_get_latest_location));
+            showNoticeUI(GET_LATEST_LOCATION_FAIL);
             exception.printStackTrace();
         });
     }
