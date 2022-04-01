@@ -4,6 +4,7 @@ import static com.main.wayfinding.utility.AlertDialogUtils.createAlertDialog;
 import static com.main.wayfinding.utility.PlaceManagerUtils.findLocationGeoMsg;
 import static com.main.wayfinding.utility.PlaceManagerUtils.queryDetail;
 import static com.main.wayfinding.utility.PlaceManagerUtils.queryLatLng;
+import static com.main.wayfinding.utility.StaticStringUtils.*;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -247,9 +248,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
                     if (targetLocDto != null && StringUtils.isNotEmpty(targetLocDto.getName())) {
                         targetLocDto.setDate(new Date());
                         new LocationDBLogic().insert(targetLocDto);
-                        createAlertDialog(getContext(), getString(R.string.dialog_msg_add));
+                        createAlertDialog(getContext(), ADD_SUCCESS_MSG);
                     } else {
-                        createAlertDialog(getContext(), getString(R.string.dialog_msg_no_inputs));
+                        createAlertDialog(getContext(), NO_INPUT_MSG);
                     }
                 } else {
                     createAlertDialog(getContext(), "Cannot add it without logging in!");

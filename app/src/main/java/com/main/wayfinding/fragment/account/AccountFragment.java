@@ -1,6 +1,6 @@
 package com.main.wayfinding.fragment.account;
 
-import static com.main.wayfinding.utility.StaticStringUtils.NULL_STRING;
+import static com.main.wayfinding.utility.StaticStringUtils.*;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -142,10 +142,10 @@ public class AccountFragment extends Fragment {
                 protocol.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        String str = FileReaderUtils.initAssets(getContext(), getString(R.string.privacyTxt));
+                        String str = FileReaderUtils.initAssets(getContext(), PRIVACY_TXT);
                         final View inflate = LayoutInflater.from(getActivity()).inflate(R.layout.dialog_protocol, null);
                         TextView tv_title = (TextView) inflate.findViewById(R.id.tv_title);
-                        tv_title.setText(getString(R.string.privacyProtocol));
+                        tv_title.setText(PRIVACY_TITLE);
                         TextView tv_content = (TextView) inflate.findViewById(R.id.tv_content);
                         tv_content.setText(str);
                         final AlertDialog dialog = new AlertDialog
@@ -208,7 +208,7 @@ public class AccountFragment extends Fragment {
                             errorMsg += accountCheckLogic.getErrorMessage();
                         }
                         if (!checkbox.isChecked()) {
-                            errorMsg += getString(R.string.requireAgreementWithTerm);
+                            errorMsg += TERMS_AGREE_MSG;
                         }
 
 
@@ -272,8 +272,8 @@ public class AccountFragment extends Fragment {
                                         //Event1Case05
                                         String msg = task.getException().getMessage();
                                         System.out.println(msg);
-                                        if (StringUtils.equals(msg, getString(R.string.wrongPasswordReturn))) {
-                                            AlertDialogUtils.createAlertDialog(getContext(),getString(R.string.wrongPasswordMsg));
+                                        if (StringUtils.equals(msg, AUTHORITY_FAIL_STRING)) {
+                                            AlertDialogUtils.createAlertDialog(getContext(), AUTHORITY_FAIL_MSG);
                                         }
                                     }
                                 }
