@@ -272,7 +272,7 @@ public class RouteDto {
     public List<RouteStep> findStepsAffectedBy(EmergencyEventDto event) {
         // uniformly sample in the range of event and obtain their place ids
         List<LatLng> eventSamples = new ArrayList<>();
-        LatLng centerPoint = event.getLocation().getLatLng();
+        LatLng centerPoint = LatLngConverterUtils.getLatLngFromDto(event.getLocation());
         double radius = event.getRadius();
         double stepLength = radius / 100;
         Random random = new Random();
@@ -307,8 +307,8 @@ public class RouteDto {
         double minDistance = Double.MAX_VALUE;
         double threshold = 1e-3;
         for (int i = 0; i < steps.size(); i++) {
-            LatLng start = steps.get(i).startLocation.getLatLng();
-            LatLng end = steps.get(i).endLocation.getLatLng();
+            LatLng start = LatLngConverterUtils.getLatLngFromDto(steps.get(i).startLocation);
+            LatLng end = LatLngConverterUtils.getLatLngFromDto(steps.get(i).endLocation);
             double distance = 0.0;
             if (Math.abs(start.latitude - end.latitude) <= threshold) {
                 // same latitude
@@ -389,7 +389,7 @@ public class RouteDto {
         List<com.google.maps.model.LatLng> results = new ArrayList<>();
         for (LocationDto waypoint : waypoints) {
             if (isLocationAheadOfReference(waypoint, currentLocation)) {
-                results.add(LatLngConverterUtils.convert(waypoint.getLatLng()));
+                results.add(LatLngConverterUtils.convert(LatLngConverterUtils.getLatLngFromDto(waypoint)));
             }
         }
         return results;
@@ -408,8 +408,8 @@ public class RouteDto {
                     filterValidWaypoints(currentLocation);
             DirectionsApiRequest request =
                     new DirectionsApiRequest(WayfindingApp.getGeoApiContext());
-            request.origin(LatLngConverterUtils.convert(currentLocation.getLatLng()));
-            request.destination(LatLngConverterUtils.convert(endLocation.getLatLng()));
+            request.origin(LatLngConverterUtils.convert(LatLngConverterUtils.getLatLngFromDto(currentLocation)));
+            request.destination(LatLngConverterUtils.convert(LatLngConverterUtils.getLatLngFromDto(endLocation)));
             request.mode(mode);
             request.waypoints(validWaypoints.toArray(new com.google.maps.model.LatLng[validWaypoints.size()]));
             DirectionsResult result = request.await();
