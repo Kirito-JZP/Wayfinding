@@ -199,12 +199,12 @@ public class PlaceManagerUtils {
                                     default:
                                         colour = Color.DKGRAY;
                                 }
-                                options.addAll(LatLngConverterUtils.convert(step.polyline.decodePath()))
-                                        .color(colour)
-                                        .width(25)
-                                        .startCap(new RoundCap())
-                                        .endCap(new RoundCap())
-                                        .geodesic(true);
+//                                options.addAll(LatLngConverterUtils.convert(step.polyline.decodePath()))
+//                                        .color(colour)
+//                                        .width(25)
+//                                        .startCap(new RoundCap())
+//                                        .endCap(new RoundCap())
+//                                        .geodesic(true);
                                 if (step.travelMode == TravelMode.WALKING) {
                                     options.pattern(walkingPattern);
                                 }
@@ -299,12 +299,12 @@ public class PlaceManagerUtils {
                         default:
                             colour = Color.DKGRAY;
                     }
-                    options.addAll(LatLngConverterUtils.convert(step.polyline.decodePath()))
-                            .color(colour)
-                            .width(25)
-                            .startCap(new RoundCap())
-                            .endCap(new RoundCap())
-                            .geodesic(true);
+//                    options.addAll(LatLngConverterUtils.convert(step.polyline.decodePath()))
+//                            .color(colour)
+//                            .width(25)
+//                            .startCap(new RoundCap())
+//                            .endCap(new RoundCap())
+//                            .geodesic(true);
                     if (step.travelMode == TravelMode.WALKING) {
                         options.pattern(walkingPattern);
                     }

@@ -282,20 +282,20 @@ public class RouteDto {
             eventSamples.add(new LatLng(Math.cos(theta) * Math.sqrt(r) + centerPoint.latitude,
                     Math.sin(theta) * Math.sqrt(r) + centerPoint.longitude));
         }   // https://blog.csdn.net/weixin_42305901/article/details/114128101
-        List<SnappedPoint> points = PlaceManagerUtils.nearestRoads(eventSamples);
+        //List<SnappedPoint> points = PlaceManagerUtils.nearestRoads(eventSamples);
         // obtain the intersection of these two sets and store it in placeIdsInRoute
         // if there is any place id in the current route that is affected, the result set will be
         // non-empty
         List<RouteStep> affectedSteps = new ArrayList<>();
         Set<Integer> affectedIndices = new HashSet<>();
-        for (int i = 0; i < points.size(); i++) {
-            for (int j = 0; j < steps.size(); j++) {
-                if (StringUtils.equals(points.get(i).placeId, steps.get(j).placeID)) {
-                    steps.get(j).isAffected = true;
-                    affectedIndices.add(j);
-                }
-            }
-        }
+//        for (int i = 0; i < points.size(); i++) {
+//            for (int j = 0; j < steps.size(); j++) {
+//                if (StringUtils.equals(points.get(i).placeId, steps.get(j).placeID)) {
+//                    steps.get(j).isAffected = true;
+//                    affectedIndices.add(j);
+//                }
+//            }
+//        }
         for (int index : affectedIndices) {
             affectedSteps.add(steps.get(index));
         }
