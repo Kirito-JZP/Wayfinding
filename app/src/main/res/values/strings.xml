@@ -45,4 +45,6 @@
     <string-array name="notices">
         <item>🔊Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello</item>
     </string-array>
+
+    <string name="plane_finding">Searching for surfaces&#8230;</string>
 </resources>
