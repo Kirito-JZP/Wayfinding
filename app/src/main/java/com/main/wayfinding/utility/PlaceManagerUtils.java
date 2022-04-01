@@ -3,6 +3,7 @@ package com.main.wayfinding.utility;
 import static com.main.wayfinding.utility.StaticStringUtils.NULL_STRING;
 
 import android.graphics.Color;
+import android.location.Location;
 import android.util.Log;
 import android.util.Pair;
 
@@ -431,5 +432,30 @@ public class PlaceManagerUtils {
 //            }
         }
         return results;
+    }
+
+    public static ArrayList<LocationDto> getNearby(Location location) {
+        ArrayList<LocationDto> rtn = new ArrayList<>();
+        try {
+            NearbySearchRequest nearbySearchRequest = PlacesApi.nearbySearchQuery(WayfindingApp.getGeoApiContext(),
+                    new com.google.maps.model.LatLng(location.getLatitude(), location.getLongitude()));
+            nearbySearchRequest.radius(100);
+            PlacesSearchResponse placesSearchResponse = nearbySearchRequest.await();
+            PlacesSearchResult[] results = placesSearchResponse.results;
+            for (PlacesSearchResult result : results) {
+                LocationDto locationDto = new LocationDto();
+                locationDto.setName(result.name);
+                locationDto.setGmPlaceID(result.placeId);
+                locationDto.setAddress(result.formattedAddress);
+                locationDto.setLatitude(result.geometry.location.lat);
+                locationDto.setLongitude(result.geometry.location.lng);
+                rtn.add(locationDto);
+            }
+
+        } catch (ApiException | InterruptedException | IOException e) {
+            e.printStackTrace();
+        }
+
+        return rtn;
     }
 }
