@@ -154,8 +154,8 @@ public class PlaceManagerUtils {
     public static Pair<List<RouteDto>, LatLngBounds> findRoute(
             LocationDto startLocDto, LocationDto targetLocDto, TravelMode mode) {
         if (startLocDto != null && targetLocDto != null) {
-            LatLng orig = startLocDto.getLatLng();
-            LatLng dest = targetLocDto.getLatLng();
+            LatLng orig = LatLngConverterUtils.getLatLngFromDto(startLocDto);
+            LatLng dest = LatLngConverterUtils.getLatLngFromDto(targetLocDto);
             if (orig != null && dest != null) {
                 List<RouteDto> routes = new ArrayList<>();
                 try {
@@ -252,8 +252,10 @@ public class PlaceManagerUtils {
             List<com.google.maps.model.LatLng> validWaypoints = filterValidWaypoints(route, currentLocation);
             DirectionsApiRequest request =
                     new DirectionsApiRequest(WayfindingApp.getGeoApiContext());
-            request.origin(LatLngConverterUtils.convert(currentLocation.getLatLng()));
-            request.destination(LatLngConverterUtils.convert(route.getEndLocation().getLatLng()));
+            request.origin(LatLngConverterUtils.convert(
+                    LatLngConverterUtils.getLatLngFromDto(currentLocation)));
+            request.destination(LatLngConverterUtils.convert(
+                    LatLngConverterUtils.getLatLngFromDto(route.getEndLocation())));
             request.mode(route.getMode());
             request.waypoints(validWaypoints.toArray(new com.google.maps.model.LatLng[0]));
             DirectionsResult result = request.await();

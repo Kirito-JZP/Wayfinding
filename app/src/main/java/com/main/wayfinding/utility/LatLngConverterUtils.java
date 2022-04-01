@@ -30,4 +30,8 @@ public class LatLngConverterUtils {
     public static com.google.maps.model.LatLng convert(LatLng ll) {
         return new com.google.maps.model.LatLng(ll.latitude, ll.longitude);
     }
+
+    public static LatLng getLatLngFromDto(LocationDto locationDto){
+        return new LatLng(locationDto.getLatitude(),locationDto.getLongitude());
+    }
 }
