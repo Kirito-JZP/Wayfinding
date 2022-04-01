@@ -60,6 +60,7 @@ import android.widget.TextView;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.main.wayfinding.utility.LatLngConverterUtils;
 import com.main.wayfinding.utility.PlaceManagerUtils;
 
 import java.io.InputStream;
@@ -482,7 +483,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
             destTxt.setText(keyword);
 
             targetLocDto = PlaceManagerUtils.autocompletePlaces(keyword,
-                    startLocDto != null ? startLocDto.getLatLng() : currentLocDto.getLatLng()).get(0);
+                    startLocDto != null ? LatLngConverterUtils.getLatLngFromDto(startLocDto)
+                            : LatLngConverterUtils.getLatLngFromDto(currentLocDto)).get(0);
             LatLng latlng = queryLatLng(targetLocDto.getGmPlaceID());
             targetLocDto.setLatitude(latlng.latitude);
             targetLocDto.setLongitude(latlng.longitude);
@@ -551,7 +553,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
             destLocList.clear();
             if (StringUtils.isNotEmpty(keyword)) {
                 places = PlaceManagerUtils.autocompletePlaces(keyword,
-                        startLocDto != null ? startLocDto.getLatLng() : currentLocDto.getLatLng());
+                        startLocDto != null ? LatLngConverterUtils.getLatLngFromDto(startLocDto)
+                                : LatLngConverterUtils.getLatLngFromDto(currentLocDto));
                 destLocList.clear();
                 destLocList.addAll(places);
             }
@@ -559,8 +562,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
             deptLocList.clear();
             if (StringUtils.isNotEmpty(keyword)) {
                 places = PlaceManagerUtils.autocompletePlaces(keyword,
-                        targetLocDto != null ? targetLocDto.getLatLng() :
-                                currentLocDto.getLatLng());
+                        targetLocDto != null ? LatLngConverterUtils.getLatLngFromDto(targetLocDto)
+                                : LatLngConverterUtils.getLatLngFromDto(currentLocDto));
                 deptLocList.addAll(places);
             }
         }
@@ -599,7 +602,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
             System.out.println("Error occurs while doing dto copy");
         }
         // reset map
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocDto.getLatLng(), 16.0F));    // https://developers.google.com/maps/documentation/android-sdk/views#zoom
+        // https://developers.google.com/maps/documentation/android-sdk/views#zoom
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLngConverterUtils
+                .getLatLngFromDto(currentLocDto), 16.0F));
     }
 
     private void showPlaceDetail(LocationDto location) {

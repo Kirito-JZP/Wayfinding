@@ -107,7 +107,4 @@ public class LocationDto {
         this.gmImgUrl = gmImgUrl;
     }
 
-    public LatLng getLatLng() {
-        return new LatLng(latitude, longitude);
-    }
 }
