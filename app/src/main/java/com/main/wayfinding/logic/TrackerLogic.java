@@ -199,16 +199,10 @@ public class TrackerLogic implements LocationSource {
 
     public void askForLocationPermissions(LocationPermissionRequestCompleteCallback callback) {
         locationPermissionRequestCompleteCallback = callback;
-        if (!ActivityCompat.shouldShowRequestPermissionRationale(
-                activity,
-                Manifest.permission.ACCESS_FINE_LOCATION)
-        ) {
-            // first-time request, typically happen after fresh installation
-            startRequestPermission();
-        } else if (ContextCompat.checkSelfPermission(activity,
+        // https://developer.android.com/training/permissions/requesting
+        if (ContextCompat.checkSelfPermission(activity,
                 Manifest.permission.ACCESS_FINE_LOCATION) == PERMISSION_DENIED) {
-            // TODO: make sure if this is the desired logic
-            // keep asking for core permissions even if previously rejected by the user
+            // request for permissions
             startRequestPermission();
         } else {
             // permissions have already been granted

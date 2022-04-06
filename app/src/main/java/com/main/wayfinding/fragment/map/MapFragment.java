@@ -225,7 +225,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         deptTxtClearBtn = view.findViewById(R.id.clear_dept_btn);
         destTxtClearBtn = view.findViewById(R.id.clear_dest_btn);
         btnLocNmTxt = view.findViewById(R.id.loc_name_txt);
-        accidentBtn = view. findViewById(R.id.accident);
+        accidentBtn = view.findViewById(R.id.accident);
         btnLocDtlTxt = view.findViewById(R.id.loc_detail_txt);
         setDeptBtn = view.findViewById(R.id.set_dept_btn);
         setDestBtn = view.findViewById(R.id.set_dest_btn);
@@ -334,18 +334,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
             public void onClick(View view) {
                 parseRouteData(NavigationLogic.findRoute(startLocDto, targetLocDto,
                         TravelMode.BICYCLING, null));
-            }
-        });
-
-        // Get current location after clicking the position button
-        locateBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                trackerLogic.requestLastLocation(location -> {
-                    resetCurrentPosition(location);
-                });
-                deptPlacesListView.setVisibility(View.INVISIBLE);
-                parseRouteData(NavigationLogic.findRoute(startLocDto, targetLocDto, mode, null));
             }
         });
 
@@ -478,10 +466,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
                         }
                     });
 
+                    // Get current location after clicking the position button
+                    locateBtn.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            trackerLogic.requestLastLocation(MapFragment.this::resetCurrentPosition);
+                            deptPlacesListView.setVisibility(View.INVISIBLE);
+                            parseRouteData(NavigationLogic.findRoute(startLocDto, targetLocDto,
+                                    mode, null));
+                        }
+                    });
+
                     // Add emergency event callback
                     EmergencyEventLogic.registerEmergencyEvent(MapFragment.this);
                 } else {
-                    // TODO: logic when the user refuses to give permissions
                     trackerLogic.askForLocationPermissions(this);
                 }
             }
@@ -507,7 +505,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
     public void onEmergencyEventHappen(EmergencyEventDto event) {
         // find out if the location of the emergency event is ahead of the current location in the
         // current route and if the current route is affected
-        if (NavigationLogic.isLocationAheadOfReference(currentRouteDto, event.getLocation(),
+        LocationDto location = new LocationDto();
+        location.setLatitude(event.getLatitude());
+        location.setLongitude(event.getLongitude());
+        if (NavigationLogic.isLocationAheadOfReference(currentRouteDto, location,
                 currentLocDto)) {
             List<RouteDto.RouteStep> affectedSteps =
                     NavigationLogic.findStepsAffectedBy(currentRouteDto, event);
@@ -518,8 +519,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
                 double y1 = backwardBoundary.getStartLocation().getLatitude();
                 double x2 = forwardBoundary.getEndLocation().getLongitude();
                 double y2 = forwardBoundary.getEndLocation().getLatitude();
-                double x0 = event.getLocation().getLongitude();
-                double y0 = event.getLocation().getLatitude();
+                double x0 = event.getLongitude();
+                double y0 = event.getLatitude();
                 double r0 = event.getRadius();
                 // the intersection points of the straight line
                 // perpendicular to the line formed by connecting (x1, y1) and (x2, y2)
@@ -658,7 +659,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
                 public void onClick(View v) {
                     startLocDto = location;
                     deptTxt.setText(startLocDto.getName());
-                    parseRouteData(NavigationLogic.findRoute(startLocDto, targetLocDto, mode, null));
+                    parseRouteData(NavigationLogic.findRoute(startLocDto, targetLocDto, mode,
+                            null));
                 }
             });
             setDestBtn.setOnClickListener(new View.OnClickListener() {
@@ -666,7 +668,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
                 public void onClick(View view) {
                     targetLocDto = location;
                     destTxt.setText(targetLocDto.getName());
-                    parseRouteData(NavigationLogic.findRoute(startLocDto, targetLocDto, mode, null));
+                    parseRouteData(NavigationLogic.findRoute(startLocDto, targetLocDto, mode,
+                            null));
                 }
             });
             addWaypointBtn.setOnClickListener(new View.OnClickListener() {
@@ -677,7 +680,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
             });
             // re-open the bottom sheet to display a new place and set a delay of 0.1s after folding
             // the bottom sheet
-            // the operation is done to avoid some cases where the bottom sheet fails to show up if conducted
+            // the operation is done to avoid some cases where the bottom sheet fails to show up
+            // if conducted
             // in the main thread
             new Thread(() -> {
                 try {
