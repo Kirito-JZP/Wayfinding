@@ -120,6 +120,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
     private ImageView arBtn;
     private ImageView navigateBtn;
     private ImageView locateBtn;
+    private ImageView accidentBtn;
     private ImageView deptTxtClearBtn;
     private ImageView destTxtClearBtn;
     private ImageView locationImg;
@@ -224,6 +225,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         deptTxtClearBtn = view.findViewById(R.id.clear_dept_btn);
         destTxtClearBtn = view.findViewById(R.id.clear_dest_btn);
         btnLocNmTxt = view.findViewById(R.id.loc_name_txt);
+        accidentBtn = view. findViewById(R.id.accident);
         btnLocDtlTxt = view.findViewById(R.id.loc_detail_txt);
         setDeptBtn = view.findViewById(R.id.set_dept_btn);
         setDestBtn = view.findViewById(R.id.set_dest_btn);
@@ -346,6 +348,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
                 parseRouteData(NavigationLogic.findRoute(startLocDto, targetLocDto, mode, null));
             }
         });
+
+        //accident button
+        accidentBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
 
         // Do way finding after clicking the navigate button
         navigateBtn.setOnClickListener(new View.OnClickListener() {
