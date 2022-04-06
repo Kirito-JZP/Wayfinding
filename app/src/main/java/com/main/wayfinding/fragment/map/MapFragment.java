@@ -289,7 +289,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
                         destTxt.setText("");
                     }
                 }
-                parseRouteData(PlaceManagerUtils.findRoute(startLocDto, targetLocDto, mode));
+                parseRouteData(NavigationLogic.findRoute(startLocDto, targetLocDto, mode, null));
             }
         });
 
@@ -314,24 +314,24 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         publicBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                parseRouteData(PlaceManagerUtils.findRoute(startLocDto, targetLocDto,
-                        TravelMode.TRANSIT));
+                parseRouteData(NavigationLogic.findRoute(startLocDto, targetLocDto,
+                        TravelMode.TRANSIT, null));
             }
         });
 
         walkBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                parseRouteData(PlaceManagerUtils.findRoute(startLocDto, targetLocDto,
-                        TravelMode.WALKING));
+                parseRouteData(NavigationLogic.findRoute(startLocDto, targetLocDto,
+                        TravelMode.WALKING, null));
             }
         });
 
         cycBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                parseRouteData(PlaceManagerUtils.findRoute(startLocDto, targetLocDto,
-                        TravelMode.BICYCLING));
+                parseRouteData(NavigationLogic.findRoute(startLocDto, targetLocDto,
+                        TravelMode.BICYCLING, null));
             }
         });
 
@@ -343,7 +343,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
                     resetCurrentPosition(location);
                 });
                 deptPlacesListView.setVisibility(View.INVISIBLE);
-                parseRouteData(PlaceManagerUtils.findRoute(startLocDto, targetLocDto, mode));
+                parseRouteData(NavigationLogic.findRoute(startLocDto, targetLocDto, mode, null));
             }
         });
 
@@ -488,15 +488,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
             LatLng latlng = queryLatLng(targetLocDto.getGmPlaceID());
             targetLocDto.setLatitude(latlng.latitude);
             targetLocDto.setLongitude(latlng.longitude);
-            parseRouteData(PlaceManagerUtils.findRoute(startLocDto, targetLocDto, mode));
+            parseRouteData(NavigationLogic.findRoute(startLocDto, targetLocDto, mode, null));
         }
     }
 
     @Override
     public void onEmergencyEventHappen(EmergencyEventDto event) {
-        // TODO: 判断发生位置是否在前方，并且影响范围是否包含了当前路线的一部分
-        if (currentRouteDto.isLocationAheadOfReference(event.getLocation(), currentLocDto)) {
-            List<RouteDto.RouteStep> affectedSteps = currentRouteDto.findStepsAffectedBy(event);
+        // find out if the location of the emergency event is ahead of the current location in the
+        // current route and if the current route is affected
+        if (NavigationLogic.isLocationAheadOfReference(currentRouteDto, event.getLocation(),
+                currentLocDto)) {
+            List<RouteDto.RouteStep> affectedSteps =
+                    NavigationLogic.findStepsAffectedBy(currentRouteDto, event);
             if (!affectedSteps.isEmpty()) {
                 RouteDto.RouteStep backwardBoundary = affectedSteps.get(0);
                 RouteDto.RouteStep forwardBoundary = affectedSteps.get(affectedSteps.size() - 1);
@@ -542,7 +545,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
                         intersect2.longitude);
                 currentRouteDto.addWaypoint(waypoint);
                 // re-search routes from the current position with the added waypoints
-                currentRouteDto.updateRouteFromCurrentLocation(currentLocDto);
+                NavigationLogic.updateRouteFromCurrentLocation(currentRouteDto, currentLocDto);
             }
         }
     }
@@ -613,11 +616,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
             map.addMarker(new MarkerOptions().position(new LatLng(location.getLatitude(),
                     location.getLongitude())));
             BottomSheetBehavior<FrameLayout> sheetBehavior = BottomSheetBehavior.from(bottomSheet);
-
+            // collapse the bottom sheet
             if (sheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
                 sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
             }
-
+            // obtain preview image if there is one
             if (StringUtils.isNotEmpty(location.getGmImgUrl())) {
                 new Thread(() -> {
                     try {
@@ -639,12 +642,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
             }
             btnLocNmTxt.setText(location.getName());
             btnLocDtlTxt.setText(location.getAddress());
-
+            // add listeners to buttons
             setDeptBtn.setOnClickListener(new View.OnClickListener() {
                 public void onClick(View v) {
                     startLocDto = location;
                     deptTxt.setText(startLocDto.getName());
-                    parseRouteData(PlaceManagerUtils.findRoute(startLocDto, targetLocDto, mode));
+                    parseRouteData(NavigationLogic.findRoute(startLocDto, targetLocDto, mode, null));
                 }
             });
             setDestBtn.setOnClickListener(new View.OnClickListener() {
@@ -652,7 +655,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
                 public void onClick(View view) {
                     targetLocDto = location;
                     destTxt.setText(targetLocDto.getName());
-                    parseRouteData(PlaceManagerUtils.findRoute(startLocDto, targetLocDto, mode));
+                    parseRouteData(NavigationLogic.findRoute(startLocDto, targetLocDto, mode, null));
                 }
             });
             addWaypointBtn.setOnClickListener(new View.OnClickListener() {
@@ -661,6 +664,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
                     navigationLogic.addWayPoint(location);
                 }
             });
+            // re-open the bottom sheet to display a new place and set a delay of 0.1s after folding
+            // the bottom sheet
+            // the operation is done to avoid some cases where the bottom sheet fails to show up if conducted
+            // in the main thread
             new Thread(() -> {
                 try {
                     Thread.sleep(100);
@@ -700,21 +707,23 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         editText.clearFocus();
         ;
         // update UI
-        parseRouteData(PlaceManagerUtils.findRoute(startLocDto, targetLocDto, mode));
-    }
-
-    private void updateRouteUI(RouteDto route, LatLngBounds bounds) {
-        map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
-        route.updatePolylinesUI(map);
+        parseRouteData(NavigationLogic.findRoute(startLocDto, targetLocDto, mode, null));
     }
 
     private void parseRouteData(Pair<List<RouteDto>, LatLngBounds> data) {
+        BottomSheetBehavior<FrameLayout> sheetBehavior = BottomSheetBehavior.from(bottomSheet);
+        // collapse the bottom sheet if it's currently expanded
+        if (sheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED) {
+            sheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
         if (data != null) {
             possibleRoutes = data.first;
             LatLngBounds bounds = data.second;
             // use the first route by default
             currentRouteDto = possibleRoutes.get(0);
-            updateRouteUI(currentRouteDto, bounds);
+            map.clear();
+            map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
+            NavigationLogic.updatePolylinesUI(currentRouteDto, map);
         }
     }
 }
