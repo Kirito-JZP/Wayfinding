@@ -40,7 +40,10 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PointOfInterest;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
 import com.google.maps.model.TravelMode;
 import com.main.wayfinding.ARNavigationActivity;
 import com.main.wayfinding.R;
@@ -49,7 +52,9 @@ import com.main.wayfinding.databinding.FragmentMapBinding;
 import com.main.wayfinding.dto.EmergencyEventDto;
 import com.main.wayfinding.dto.LocationDto;
 import com.main.wayfinding.dto.RouteDto;
+import com.main.wayfinding.dto.UserDto;
 import com.main.wayfinding.logic.EmergencyEventLogic;
+import com.main.wayfinding.logic.db.DisasterDBLogic;
 import com.main.wayfinding.logic.db.LocationDBLogic;
 import com.main.wayfinding.logic.TrackerLogic;
 import com.main.wayfinding.logic.NavigationLogic;
@@ -65,6 +70,7 @@ import com.main.wayfinding.utility.PlaceManagerUtils;
 
 import java.io.InputStream;
 import java.net.URL;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -341,6 +347,29 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         accidentBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // code use to add disaster even (define disaster code "A" "B" "C" ...)
+                EmergencyEventDto emergencyEventDto = new EmergencyEventDto();
+                emergencyEventDto.setCode("A");
+                emergencyEventDto.setLatitude(53.34153859999999);
+                emergencyEventDto.setLongitude(-6.255735299999999);
+                emergencyEventDto.setRadius(100);
+                emergencyEventDto.setType("Car Accident");
+                emergencyEventDto.setStartTime(LocalTime.of(16,0));
+                emergencyEventDto.setEndTime(LocalTime.of(19,0));
+                new DisasterDBLogic().insert(emergencyEventDto);
+                // code use to read disaster even (use disaster code "A" "B" "C" ...)
+//                new DisasterDBLogic().select("A", new OnCompleteListener<DataSnapshot>() {
+//                    @Override
+//                    public void onComplete(@NonNull Task<DataSnapshot> task) {
+//                        if (task.isSuccessful()) {
+//                            EmergencyEventDto event = task.getResult().getValue(EmergencyEventDto.class);
+//                            //Todo...
+//
+//                        } else {
+//                            System.out.println(task.getException().getMessage());
+//                        }
+//                    }
+//                });
 
             }
         });

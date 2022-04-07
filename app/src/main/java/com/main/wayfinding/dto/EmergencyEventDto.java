@@ -11,6 +11,7 @@ import java.time.LocalTime;
  * Date: 2022/3/31 15:26
  */
 public class EmergencyEventDto {
+    private String code;
     private double latitude;
     private double longitude;
     private LocalTime startTime;
@@ -18,12 +19,28 @@ public class EmergencyEventDto {
     private float radius;   // in meters
     private String type;
 
-    public float getRadius() {
-        return radius;
+    public String getCode() {
+        return code;
     }
 
-    public void setRadius(float radius) {
-        this.radius = radius;
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public double getLatitude() {
+        return latitude;
+    }
+
+    public void setLatitude(double latitude) {
+        this.latitude = latitude;
+    }
+
+    public double getLongitude() {
+        return longitude;
+    }
+
+    public void setLongitude(double longitude) {
+        this.longitude = longitude;
     }
 
     public LocalTime getStartTime() {
@@ -42,27 +59,19 @@ public class EmergencyEventDto {
         this.endTime = endTime;
     }
 
+    public float getRadius() {
+        return radius;
+    }
+
+    public void setRadius(float radius) {
+        this.radius = radius;
+    }
+
     public String getType() {
         return type;
     }
 
     public void setType(String type) {
         this.type = type;
-    }
-
-    public double getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
     }
 }

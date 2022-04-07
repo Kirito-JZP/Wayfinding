@@ -187,7 +187,7 @@ public class NavigationLogic {
                                                                EmergencyEventDto event) {
         // uniformly sample in the range of event and obtain their place ids
         List<LatLng> eventSamples = new ArrayList<>();
-        LatLng centerPoint = LatLngConverterUtils.getLatLngFromDto(event.getLocation());
+        LatLng centerPoint = new LatLng(event.getLatitude(),event.getLongitude());
         double radius = event.getRadius();
         double stepLength = radius / 100;
         Random random = new Random();
