@@ -52,6 +52,7 @@ import uk.co.appoly.arcorelocation.LocationMarker;
 import uk.co.appoly.arcorelocation.LocationScene;
 import uk.co.appoly.arcorelocation.rendering.LocationNode;
 import uk.co.appoly.arcorelocation.rendering.LocationNodeRender;
+import uk.co.appoly.arcorelocation.sensor.DeviceLocationChanged;
 import uk.co.appoly.arcorelocation.utils.ARLocationPermissionHelper;
 
 /**
@@ -73,7 +74,8 @@ public class ARNavigationActivity extends AppCompatActivity {
     private ArSceneView arSceneView;
     // Renderables for this example
     private ModelRenderable andyRenderable;
-    private ViewRenderable exampleLayoutRenderable;
+    private ViewRenderable exampleLayoutRenderable1;
+    private ViewRenderable exampleLayoutRenderable2;
     // Our ARCore-Location scene
     private LocationScene locationScene;
     private FirebaseAuth auth;
@@ -91,7 +93,11 @@ public class ARNavigationActivity extends AppCompatActivity {
         arSceneView = findViewById(R.id.ar_scene_view);
         arReturnBtn = findViewById(R.id.arReturnBtn);
         // Build a renderable from a 2D View.
-        CompletableFuture<ViewRenderable> exampleLayout =
+        CompletableFuture<ViewRenderable> exampleLayout1 =
+                ViewRenderable.builder()
+                        .setView(this, R.layout.layout_artext)
+                        .build();
+        CompletableFuture<ViewRenderable> exampleLayout2 =
                 ViewRenderable.builder()
                         .setView(this, R.layout.layout_artext)
                         .build();
@@ -103,7 +109,8 @@ public class ARNavigationActivity extends AppCompatActivity {
                 .build();
 
         CompletableFuture.allOf(
-                exampleLayout,
+                exampleLayout1,
+                exampleLayout2,
                 andy)
                 .handle(
                         (notUsed, throwable) -> {
@@ -117,7 +124,8 @@ public class ARNavigationActivity extends AppCompatActivity {
                             }
 
                             try {
-                                exampleLayoutRenderable = exampleLayout.get();
+                                exampleLayoutRenderable1 = exampleLayout1.get();
+                                exampleLayoutRenderable2 = exampleLayout2.get();
                                 andyRenderable = andy.get();
                                 hasFinishedLoading = true;
 
@@ -149,26 +157,54 @@ public class ARNavigationActivity extends AppCompatActivity {
                                 trackerLogic.requestLastLocation(new TrackerLogic.RequestLocationCompleteCallback() {
                                     @Override
                                     public void onRequestLocationComplete(Location location) {
+                                        locationScene.setLocationChangedEvent(new DeviceLocationChanged() {
+                                            @Override
+                                            public void onChange(Location ARlocation) {
+                                                trackerLogic.requestLastLocation(new TrackerLogic.RequestLocationCompleteCallback() {
+                                                    @Override
+                                                    public void onRequestLocationComplete(Location location) {
+                                                        locationScene.deviceLocation.currentBestLocation = location;
+                                                    }
+                                                });
+                                            }
+                                        });
                                         ArrayList<LocationDto> list = PlaceManagerUtils.getNearby(location);
-                                        for (LocationDto locationDto : list) {
-                                            LocationMarker layoutLocationMarker=new LocationMarker(
-                                                    locationDto.getLongitude(),
-                                                    locationDto.getLatitude(),
-                                                    getExampleView(locationDto.getName())
+                                        LocationDto locationDto1 = list.get(1);
+                                            LocationMarker layoutLocationMarker1 = new LocationMarker(
+                                                    locationDto1.getLongitude(),
+                                                    locationDto1.getLatitude(),
+                                                    getExampleView(locationDto1.getName(), exampleLayoutRenderable1)
                                             );
-                                            layoutLocationMarker.setRenderEvent(new LocationNodeRender() {
+                                            layoutLocationMarker1.setRenderEvent(new LocationNodeRender() {
                                                 @Override
                                                 public void render(LocationNode node) {
-                                                    View eView = exampleLayoutRenderable.getView();
+                                                    View eView = exampleLayoutRenderable1.getView();
                                                     TextView distanceTextView = eView.findViewById(R.id.loc_distance);
-                                                    TextView locationNameTextView = eView.findViewById(R.id.loc_name);
-                                                    locationNameTextView.setText(node.getName());
+
                                                     distanceTextView.setText(node.getDistance() + "M");
                                                 }
                                             });
                                             // Adding the marker
-                                            locationScene.mLocationMarkers.add(layoutLocationMarker);
-                                        }
+                                            locationScene.mLocationMarkers.add(layoutLocationMarker1);
+
+                                        LocationDto locationDto3 = list.get(2);
+                                        LocationMarker layoutLocationMarker2 = new LocationMarker(
+                                                locationDto3.getLongitude(),
+                                                locationDto3.getLatitude(),
+                                                getExampleView(locationDto3.getName(), exampleLayoutRenderable2)
+                                        );
+                                        layoutLocationMarker2.setRenderEvent(new LocationNodeRender() {
+                                            @Override
+                                            public void render(LocationNode node) {
+                                                View eView = exampleLayoutRenderable2.getView();
+                                                TextView distanceTextView = eView.findViewById(R.id.loc_distance);
+
+                                                distanceTextView.setText(node.getDistance() + "M");
+                                            }
+                                        });
+                                        // Adding the marker
+                                        locationScene.mLocationMarkers.add(layoutLocationMarker2);
+
                                     }
                                 });
 
@@ -215,7 +251,7 @@ public class ARNavigationActivity extends AppCompatActivity {
      *
      * @return
      */
-    private Node getExampleView(String locationName) {
+    private Node getExampleView(String locationName, ViewRenderable exampleLayoutRenderable) {
         Node base = new Node();
         base.setRenderable(exampleLayoutRenderable);
         Context c = this;
@@ -227,7 +263,8 @@ public class ARNavigationActivity extends AppCompatActivity {
                     .show();
             return false;
         });
-        base.setName(locationName);
+        TextView locationNameTextView = eView.findViewById(R.id.loc_name);
+        locationNameTextView.setText("1");
         return base;
     }
 
