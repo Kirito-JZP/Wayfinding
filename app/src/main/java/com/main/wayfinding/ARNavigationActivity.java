@@ -1,9 +1,5 @@
 package com.main.wayfinding;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
@@ -14,8 +10,10 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.material.snackbar.Snackbar;
 import com.google.ar.core.Frame;
 import com.google.ar.core.Plane;
@@ -28,23 +26,15 @@ import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.rendering.ViewRenderable;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.GenericTypeIndicator;
 import com.main.wayfinding.adapter.preferenceAdapter;
 import com.main.wayfinding.databinding.ActivityArnavigationBinding;
 import com.main.wayfinding.dto.LocationDto;
 import com.main.wayfinding.logic.TrackerLogic;
-import com.main.wayfinding.logic.db.LocationDBLogic;
-import com.main.wayfinding.utility.DemoUtils;
-import com.main.wayfinding.utility.LocationSortUtils;
+import com.main.wayfinding.utility.ArLocationUtils;
 import com.main.wayfinding.utility.PlaceManagerUtils;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -116,7 +106,7 @@ public class ARNavigationActivity extends AppCompatActivity {
                             // before calling get().
 
                             if (throwable != null) {
-                                DemoUtils.displayError(this, "Unable to load renderables", throwable);
+                                ArLocationUtils.displayError(this, "Unable to load renderables", throwable);
                                 return null;
                             }
 
@@ -128,7 +118,7 @@ public class ARNavigationActivity extends AppCompatActivity {
                                 hasFinishedLoading = true;
 
                             } catch (InterruptedException | ExecutionException ex) {
-                                DemoUtils.displayError(this, "Unable to load renderables", ex);
+                                ArLocationUtils.displayError(this, "Unable to load renderables", ex);
                             }
 
                             return null;
@@ -167,13 +157,6 @@ public class ARNavigationActivity extends AppCompatActivity {
                                             }
                                         });
                                         ArrayList<LocationDto> list = PlaceManagerUtils.getNearby(location);
-                                        int totalItems = list.size();
-                                        for (int i = 0; i < list.size(); i++) {
-                                            if (i > 4) {
-                                                totalItems = 5;
-                                                break;
-                                            }
-                                        }
                                         LocationDto locationDto1 = list.get(1);
                                             LocationMarker layoutLocationMarker1 = new LocationMarker(
                                                     locationDto1.getLongitude(),
@@ -269,7 +252,7 @@ public class ARNavigationActivity extends AppCompatActivity {
             return false;
         });
         TextView locationNameTextView = eView.findViewById(R.id.loc_name);
-        locationNameTextView.setText("1");
+        locationNameTextView.setText(locationName);
         return base;
     }
 
@@ -305,7 +288,7 @@ public class ARNavigationActivity extends AppCompatActivity {
             // If the session wasn't created yet, don't resume rendering.
             // This can happen if ARCore needs to be updated or permissions are not granted yet.
             try {
-                Session session = DemoUtils.createArSession(this, installRequested);
+                Session session = ArLocationUtils.createArSession(this, installRequested);
                 if (session == null) {
                     installRequested = ARLocationPermissionHelper.hasPermission(this);
                     return;
@@ -313,14 +296,14 @@ public class ARNavigationActivity extends AppCompatActivity {
                     arSceneView.setupSession(session);
                 }
             } catch (UnavailableException e) {
-                DemoUtils.handleSessionException(this, e);
+                ArLocationUtils.handleSessionException(this, e);
             }
         }
 
         try {
             arSceneView.resume();
         } catch (CameraNotAvailableException ex) {
-            DemoUtils.displayError(this, "Unable to get camera", ex);
+            ArLocationUtils.displayError(this, "Unable to get camera", ex);
             finish();
             return;
         }
