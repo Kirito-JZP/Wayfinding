@@ -12,7 +12,6 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.ar.core.Frame;
@@ -25,12 +24,10 @@ import com.google.ar.sceneform.ArSceneView;
 import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.rendering.ViewRenderable;
-import com.google.firebase.auth.FirebaseAuth;
-import com.main.wayfinding.adapter.preferenceAdapter;
 import com.main.wayfinding.databinding.ActivityArnavigationBinding;
 import com.main.wayfinding.dto.LocationDto;
 import com.main.wayfinding.logic.TrackerLogic;
-import com.main.wayfinding.utility.DemoUtils;
+import com.main.wayfinding.utility.ArLocationUtils;
 import com.main.wayfinding.utility.PlaceManagerUtils;
 
 import java.util.ArrayList;
@@ -67,10 +64,6 @@ public class ARNavigationActivity extends AppCompatActivity {
     private ViewRenderable[] layoutRenderableArray = new ViewRenderable[5];
     // Our ARCore-Location scene
     private LocationScene locationScene;
-    private FirebaseAuth auth;
-    private RecyclerView nearbyList;
-    private preferenceAdapter nearbyAdapter;
-    private preferenceAdapter recentSavedAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,7 +99,7 @@ public class ARNavigationActivity extends AppCompatActivity {
                             // before calling get().
 
                             if (throwable != null) {
-                                DemoUtils.displayError(this, "Unable to load renderables", throwable);
+                                ArLocationUtils.displayError(this, "Unable to load renderables", throwable);
                                 return null;
                             }
 
@@ -118,7 +111,7 @@ public class ARNavigationActivity extends AppCompatActivity {
                                 hasFinishedLoading = true;
 
                             } catch (InterruptedException | ExecutionException ex) {
-                                DemoUtils.displayError(this, "Unable to load renderables", ex);
+                                ArLocationUtils.displayError(this, "Unable to load renderables", ex);
                             }
 
                             return null;
@@ -259,7 +252,7 @@ public class ARNavigationActivity extends AppCompatActivity {
             return false;
         });
         TextView locationNameTextView = eView.findViewById(R.id.loc_name);
-        locationNameTextView.setText("1");
+        locationNameTextView.setText(locationName);
         return base;
     }
 
@@ -295,7 +288,7 @@ public class ARNavigationActivity extends AppCompatActivity {
             // If the session wasn't created yet, don't resume rendering.
             // This can happen if ARCore needs to be updated or permissions are not granted yet.
             try {
-                Session session = DemoUtils.createArSession(this, installRequested);
+                Session session = ArLocationUtils.createArSession(this, installRequested);
                 if (session == null) {
                     installRequested = ARLocationPermissionHelper.hasPermission(this);
                     return;
@@ -303,14 +296,14 @@ public class ARNavigationActivity extends AppCompatActivity {
                     arSceneView.setupSession(session);
                 }
             } catch (UnavailableException e) {
-                DemoUtils.handleSessionException(this, e);
+                ArLocationUtils.handleSessionException(this, e);
             }
         }
 
         try {
             arSceneView.resume();
         } catch (CameraNotAvailableException ex) {
-            DemoUtils.displayError(this, "Unable to get camera", ex);
+            ArLocationUtils.displayError(this, "Unable to get camera", ex);
             finish();
             return;
         }
