@@ -4,17 +4,11 @@ import android.location.Location;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.Dot;
-import com.google.android.gms.maps.model.Gap;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.PatternItem;
 import com.main.wayfinding.dto.LocationDto;
 import com.main.wayfinding.dto.RouteDto;
 import com.main.wayfinding.utility.LatLngConverterUtils;
 import com.main.wayfinding.utility.NavigationUtils;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Logic of Navigation

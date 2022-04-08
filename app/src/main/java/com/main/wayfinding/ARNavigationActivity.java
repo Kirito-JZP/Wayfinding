@@ -30,7 +30,7 @@ import com.main.wayfinding.adapter.preferenceAdapter;
 import com.main.wayfinding.databinding.ActivityArnavigationBinding;
 import com.main.wayfinding.dto.LocationDto;
 import com.main.wayfinding.logic.TrackerLogic;
-import com.main.wayfinding.utility.ArLocationUtils;
+import com.main.wayfinding.utility.DemoUtils;
 import com.main.wayfinding.utility.PlaceManagerUtils;
 
 import java.util.ArrayList;
@@ -106,7 +106,7 @@ public class ARNavigationActivity extends AppCompatActivity {
                             // before calling get().
 
                             if (throwable != null) {
-                                ArLocationUtils.displayError(this, "Unable to load renderables", throwable);
+                                DemoUtils.displayError(this, "Unable to load renderables", throwable);
                                 return null;
                             }
 
@@ -118,7 +118,7 @@ public class ARNavigationActivity extends AppCompatActivity {
                                 hasFinishedLoading = true;
 
                             } catch (InterruptedException | ExecutionException ex) {
-                                ArLocationUtils.displayError(this, "Unable to load renderables", ex);
+                                DemoUtils.displayError(this, "Unable to load renderables", ex);
                             }
 
                             return null;
@@ -157,6 +157,13 @@ public class ARNavigationActivity extends AppCompatActivity {
                                             }
                                         });
                                         ArrayList<LocationDto> list = PlaceManagerUtils.getNearby(location);
+                                        int totalItems = list.size();
+                                        for (int i = 0; i < list.size(); i++) {
+                                            if (i > 4) {
+                                                totalItems = 5;
+                                                break;
+                                            }
+                                        }
                                         LocationDto locationDto1 = list.get(1);
                                             LocationMarker layoutLocationMarker1 = new LocationMarker(
                                                     locationDto1.getLongitude(),
@@ -252,7 +259,7 @@ public class ARNavigationActivity extends AppCompatActivity {
             return false;
         });
         TextView locationNameTextView = eView.findViewById(R.id.loc_name);
-        locationNameTextView.setText(locationName);
+        locationNameTextView.setText("1");
         return base;
     }
 
@@ -288,7 +295,7 @@ public class ARNavigationActivity extends AppCompatActivity {
             // If the session wasn't created yet, don't resume rendering.
             // This can happen if ARCore needs to be updated or permissions are not granted yet.
             try {
-                Session session = ArLocationUtils.createArSession(this, installRequested);
+                Session session = DemoUtils.createArSession(this, installRequested);
                 if (session == null) {
                     installRequested = ARLocationPermissionHelper.hasPermission(this);
                     return;
@@ -296,14 +303,14 @@ public class ARNavigationActivity extends AppCompatActivity {
                     arSceneView.setupSession(session);
                 }
             } catch (UnavailableException e) {
-                ArLocationUtils.handleSessionException(this, e);
+                DemoUtils.handleSessionException(this, e);
             }
         }
 
         try {
             arSceneView.resume();
         } catch (CameraNotAvailableException ex) {
-            ArLocationUtils.displayError(this, "Unable to get camera", ex);
+            DemoUtils.displayError(this, "Unable to get camera", ex);
             finish();
             return;
         }

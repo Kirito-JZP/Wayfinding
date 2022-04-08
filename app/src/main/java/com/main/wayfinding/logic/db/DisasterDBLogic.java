@@ -1,13 +1,10 @@
 package com.main.wayfinding.logic.db;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.main.wayfinding.dto.EmergencyEventDto;
-import com.main.wayfinding.dto.UserDto;
 
 public class DisasterDBLogic {
 

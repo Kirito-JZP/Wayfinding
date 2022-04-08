@@ -4,7 +4,8 @@ import static com.main.wayfinding.utility.AlertDialogUtils.createAlertDialog;
 import static com.main.wayfinding.utility.PlaceManagerUtils.findLocationGeoMsg;
 import static com.main.wayfinding.utility.PlaceManagerUtils.queryDetail;
 import static com.main.wayfinding.utility.PlaceManagerUtils.queryLatLng;
-import static com.main.wayfinding.utility.StaticStringUtils.*;
+import static com.main.wayfinding.utility.StaticStringUtils.ADD_SUCCESS_MSG;
+import static com.main.wayfinding.utility.StaticStringUtils.NO_INPUT_MSG;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -23,9 +24,11 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -41,10 +44,8 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PointOfInterest;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
 import com.google.maps.model.TravelMode;
 import com.main.wayfinding.ARNavigationActivity;
 import com.main.wayfinding.R;
@@ -53,28 +54,20 @@ import com.main.wayfinding.databinding.FragmentMapBinding;
 import com.main.wayfinding.dto.EmergencyEventDto;
 import com.main.wayfinding.dto.LocationDto;
 import com.main.wayfinding.dto.RouteDto;
-import com.main.wayfinding.dto.UserDto;
 import com.main.wayfinding.logic.EmergencyEventLogic;
-import com.main.wayfinding.logic.db.DisasterDBLogic;
-import com.main.wayfinding.logic.db.LocationDBLogic;
-import com.main.wayfinding.logic.TrackerLogic;
 import com.main.wayfinding.logic.NavigationLogic;
-
-import android.widget.FrameLayout;
-import android.widget.TextView;
-
-import org.apache.commons.lang3.StringUtils;
-
-import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.main.wayfinding.logic.TrackerLogic;
+import com.main.wayfinding.logic.db.LocationDBLogic;
 import com.main.wayfinding.utility.EmergencyEventUtils;
 import com.main.wayfinding.utility.LatLngConverterUtils;
 import com.main.wayfinding.utility.NavigationUtils;
 import com.main.wayfinding.utility.PlaceManagerUtils;
 import com.main.wayfinding.utility.StaticStringUtils;
 
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.InputStream;
 import java.net.URL;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
