@@ -18,6 +18,7 @@
         android:id="@+id/scroll_text"
         android:layout_width="match_parent"
         android:layout_height="35dp"
+        android:visibility="gone"
         android:layout_alignParentStart="true"
         android:layout_alignParentEnd="true"
         android:layout_marginStart="0dp"
@@ -27,13 +28,13 @@
         android:background="#1a73e8">
 
         <com.charlie.widget.NoticeView
+            android:id="@+id/notice_view"
             android:layout_width="wrap_content"
             android:layout_height="35dp"
-            android:layout_weight="1"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
+            android:layout_weight="1"
             map:horScrollDelay="1000"
-            map:notices="@array/notices"
             map:textColor="#fff"
             map:textSize="20sp"
             map:verScrollDelay="2500"

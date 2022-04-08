@@ -153,7 +153,9 @@ public class TrackerLogic implements LocationSource {
         if (location == null) {
             locationClient.getLastLocation().addOnSuccessListener(activity, loc -> {
                 location = loc;
-                callback.onRequestLocationComplete(location);
+                if (location != null) {
+                    callback.onRequestLocationComplete(location);
+                }
             }).addOnFailureListener(activity, exception -> {
                 showNoticeUI("Unable to get the latest location");
                 exception.printStackTrace();

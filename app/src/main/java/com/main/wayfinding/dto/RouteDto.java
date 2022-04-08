@@ -56,17 +56,8 @@ public class RouteDto {
         private LocationDto endLocation;
         private TravelMode mode;
         private boolean passed;
-        private String placeID;
         private boolean isAffected;
         private long estimatedTime; // in seconds
-
-        public String getPlaceID() {
-            return placeID;
-        }
-
-        public void setPlaceID(String placeID) {
-            this.placeID = placeID;
-        }
 
         public TravelMode getMode() {
             return mode;

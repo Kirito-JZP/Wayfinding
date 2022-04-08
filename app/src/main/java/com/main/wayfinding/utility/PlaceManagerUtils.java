@@ -20,6 +20,7 @@ import com.google.maps.GeocodingApiRequest;
 import com.google.maps.NearbySearchRequest;
 import com.google.maps.PlaceAutocompleteRequest;
 import com.google.maps.PlacesApi;
+import com.google.maps.RoadsApi;
 import com.google.maps.errors.ApiException;
 import com.google.maps.errors.ZeroResultsException;
 import com.google.maps.model.AddressComponent;
@@ -34,6 +35,7 @@ import com.google.maps.model.LocationType;
 import com.google.maps.model.PlaceDetails;
 import com.google.maps.model.PlacesSearchResponse;
 import com.google.maps.model.PlacesSearchResult;
+import com.google.maps.model.SnappedPoint;
 import com.google.maps.model.TravelMode;
 import com.main.wayfinding.WayfindingApp;
 import com.main.wayfinding.dto.LocationDto;
@@ -234,5 +236,16 @@ public class PlaceManagerUtils {
         }
 
         return rtn;
+    }
+
+    public static List<SnappedPoint> nearestRoads(List<LatLng> coordinates) {
+        try {
+            SnappedPoint[] points = RoadsApi.nearestRoads(WayfindingApp.getGeoApiContext(),
+                    LatLngConverterUtils.convertGMS2Map(coordinates).toArray(new com.google.maps.model.LatLng[coordinates.size()])).await();
+            return Arrays.asList(points);
+        } catch (ApiException | InterruptedException | IOException e) {
+            e.printStackTrace();
+            return null;
+        }
     }
 }

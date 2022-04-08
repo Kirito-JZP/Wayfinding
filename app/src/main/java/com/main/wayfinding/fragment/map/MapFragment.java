@@ -31,6 +31,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.charlie.widget.NoticeView;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -65,13 +66,17 @@ import android.widget.TextView;
 import org.apache.commons.lang3.StringUtils;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
+import com.main.wayfinding.utility.EmergencyEventUtils;
 import com.main.wayfinding.utility.LatLngConverterUtils;
+import com.main.wayfinding.utility.NavigationUtils;
 import com.main.wayfinding.utility.PlaceManagerUtils;
+import com.main.wayfinding.utility.StaticStringUtils;
 
 import java.io.InputStream;
 import java.net.URL;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Timer;
@@ -91,6 +96,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         EmergencyEventLogic.EmergencyEventCallback {
 
     private int autocompleteDelay = 500;
+    private int mapAnimDuration = 500;
     private TravelMode mode;
     private FragmentMapBinding binding;
     private FrameLayout bottomSheet;
@@ -109,6 +115,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
     // Logic
     private TrackerLogic trackerLogic;
     private NavigationLogic navigationLogic;
+    private EmergencyEventLogic emergencyEventLogic;
 
     /*************** Components ***************/
     // Map
@@ -140,6 +147,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
     // ListView
     private ListView destPlacesListView;
     private ListView deptPlacesListView;
+
+    // Notice view
+    private NoticeView noticeView;
 
     // Autocomplete-related
     private enum AutocompleteType {
@@ -245,6 +255,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         destPlacesListView = view.findViewById(R.id.dest_places_list);
         deptPlacesListView = view.findViewById(R.id.dept_places_list);
 
+        // NoticeView
+        noticeView = view.findViewById(R.id.notice_view);
+
         UIHandler = new Handler();
         autocompleteTimer = new Timer();
         deptLocList = new ArrayList<>();
@@ -297,7 +310,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
                         destTxt.setText("");
                     }
                 }
-                parseRouteData(NavigationLogic.findRoute(startLocDto, targetLocDto, mode, null));
+                parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode, null));
             }
         });
 
@@ -322,7 +335,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         publicBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                parseRouteData(NavigationLogic.findRoute(startLocDto, targetLocDto,
+                parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto,
                         TravelMode.TRANSIT, null));
             }
         });
@@ -330,7 +343,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         walkBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                parseRouteData(NavigationLogic.findRoute(startLocDto, targetLocDto,
+                parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto,
                         TravelMode.WALKING, null));
             }
         });
@@ -338,7 +351,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         cycBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                parseRouteData(NavigationLogic.findRoute(startLocDto, targetLocDto,
+                parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto,
                         TravelMode.BICYCLING, null));
             }
         });
@@ -347,30 +360,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         accidentBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // code use to add disaster even (define disaster code "A" "B" "C" ...)
-                EmergencyEventDto emergencyEventDto = new EmergencyEventDto();
-                emergencyEventDto.setCode("A");
-                emergencyEventDto.setLatitude(53.34153859999999);
-                emergencyEventDto.setLongitude(-6.255735299999999);
-                emergencyEventDto.setRadius(100);
-                emergencyEventDto.setType("Car Accident");
-                emergencyEventDto.setStartTime(LocalTime.of(16,0));
-                emergencyEventDto.setEndTime(LocalTime.of(19,0));
-                new DisasterDBLogic().insert(emergencyEventDto);
                 // code use to read disaster even (use disaster code "A" "B" "C" ...)
+                EmergencyEventLogic.broadcast(EmergencyEventUtils.generateEmergencyEvent(map, currentRouteDto));
 //                new DisasterDBLogic().select("A", new OnCompleteListener<DataSnapshot>() {
 //                    @Override
 //                    public void onComplete(@NonNull Task<DataSnapshot> task) {
 //                        if (task.isSuccessful()) {
-//                            EmergencyEventDto event = task.getResult().getValue(EmergencyEventDto.class);
-//                            //Todo...
-//
+//                            EmergencyEventDto event =
+//                                    task.getResult().getValue(EmergencyEventDto.class);
+//                            EmergencyEventLogic.broadcast(event);
 //                        } else {
-//                            System.out.println(task.getException().getMessage());
+//                            task.getException().printStackTrace();
 //                        }
 //                    }
 //                });
-
             }
         });
 
@@ -461,19 +464,15 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
                         }
                     });
 
-                    // Create navigation object
-                    NavigationLogic.createInstance(map);
-                    navigationLogic = NavigationLogic.getInstance();
+                    // Create logic
+                    navigationLogic = new NavigationLogic(map);
+                    emergencyEventLogic = new EmergencyEventLogic();
                     // Create tracker object
                     trackerLogic = TrackerLogic.createInstance(getActivity());
                     // trackerLogic
                     trackerLogic.requestLastLocation(location -> resetCurrentPosition(location));
                     map.setLocationSource(trackerLogic);    // replace the default location
                     // source with
-
-                    // Create navigation object
-                    NavigationLogic.createInstance(map);
-                    navigationLogic = NavigationLogic.getInstance();
 
                     // Add map click listener
                     map.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
@@ -501,7 +500,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
                         public void onClick(View view) {
                             trackerLogic.requestLastLocation(MapFragment.this::resetCurrentPosition);
                             deptPlacesListView.setVisibility(View.INVISIBLE);
-                            parseRouteData(NavigationLogic.findRoute(startLocDto, targetLocDto,
+                            parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto,
                                     mode, null));
                         }
                     });
@@ -526,69 +525,16 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
             LatLng latlng = queryLatLng(targetLocDto.getGmPlaceID());
             targetLocDto.setLatitude(latlng.latitude);
             targetLocDto.setLongitude(latlng.longitude);
-            parseRouteData(NavigationLogic.findRoute(startLocDto, targetLocDto, mode, null));
+            parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode, null));
         }
     }
 
     @Override
     public void onEmergencyEventHappen(EmergencyEventDto event) {
-        // find out if the location of the emergency event is ahead of the current location in the
-        // current route and if the current route is affected
-        LocationDto location = new LocationDto();
-        location.setLatitude(event.getLatitude());
-        location.setLongitude(event.getLongitude());
-        if (NavigationLogic.isLocationAheadOfReference(currentRouteDto, location,
-                currentLocDto)) {
-            List<RouteDto.RouteStep> affectedSteps =
-                    NavigationLogic.findStepsAffectedBy(currentRouteDto, event);
-            if (!affectedSteps.isEmpty()) {
-                RouteDto.RouteStep backwardBoundary = affectedSteps.get(0);
-                RouteDto.RouteStep forwardBoundary = affectedSteps.get(affectedSteps.size() - 1);
-                double x1 = backwardBoundary.getStartLocation().getLongitude();
-                double y1 = backwardBoundary.getStartLocation().getLatitude();
-                double x2 = forwardBoundary.getEndLocation().getLongitude();
-                double y2 = forwardBoundary.getEndLocation().getLatitude();
-                double x0 = event.getLongitude();
-                double y0 = event.getLatitude();
-                double r0 = event.getRadius();
-                // the intersection points of the straight line
-                // perpendicular to the line formed by connecting (x1, y1) and (x2, y2)
-                // with the affected range
-                // these two points should be the farthest ones away from the center of the event
-                // range
-                // as well as (x1, y1) and (x2, y2)
-                LatLng intersect1, intersect2;
-                if (Math.abs(y1 - y2) < 1e-3) {
-                    // treat as y1 == y2
-                    intersect1 = new LatLng(y0 + r0, x0);
-                    intersect2 = new LatLng(y0 - r0, x0);
-                } else {
-                    double k = (x1 - x2) / (y1 - y2);
-                    double term = r0 / Math.sqrt(1 + k * k);
-                    double x = x0 + term;
-                    double y = -k * x + y0 + k * x0;
-                    intersect1 = new LatLng(y, x);
-                    x = x0 - term;
-                    y = -k * x + y0 + k * x0;
-                    intersect2 = new LatLng(y, x);
-                }
-                // use the point that is the closest to the current position as a waypoint to add
-                double p = intersect1.latitude - currentLocDto.getLatitude();
-                double q = intersect1.longitude - currentLocDto.getLongitude();
-                double distance1 = Math.sqrt(p * p + q * q);
-                p = intersect2.latitude - currentLocDto.getLatitude();
-                q = intersect2.longitude - currentLocDto.getLongitude();
-                double distance2 = Math.sqrt(p * p + q * q);
-                LocationDto waypoint = new LocationDto();
-                waypoint.setLatitude(distance1 < distance2 ? intersect1.latitude :
-                        intersect2.latitude);
-                waypoint.setLongitude(distance1 < distance2 ? intersect1.longitude :
-                        intersect2.longitude);
-                currentRouteDto.addWaypoint(waypoint);
-                // re-search routes from the current position with the added waypoints
-                NavigationLogic.updateRouteFromCurrentLocation(currentRouteDto, currentLocDto);
-            }
-        }
+        emergencyEventLogic.processEmergencyEvent(event, currentLocDto, currentRouteDto, map);
+        // display emergency event details
+        ((RelativeLayout) noticeView.getParent()).setVisibility(View.VISIBLE);
+        noticeView.setNotices(Arrays.asList(getString(R.string.notice_icon_char) + StaticStringUtils.displayEmergencyEvent(event)));
     }
 
     public void queryAutocomplete(AutocompleteType type, String keyword) {
@@ -645,10 +591,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
             e.printStackTrace();
             System.out.println("Error occurs while doing dto copy");
         }
-        // reset map
+        // move map camera
         // https://developers.google.com/maps/documentation/android-sdk/views#zoom
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(LatLngConverterUtils
-                .getLatLngFromDto(currentLocDto), 16.0F));
+        map.animateCamera(CameraUpdateFactory.newLatLngZoom(LatLngConverterUtils
+                .getLatLngFromDto(currentLocDto), 16.0F), mapAnimDuration, null);
     }
 
     private void showPlaceDetail(LocationDto location) {
@@ -688,7 +634,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
                 public void onClick(View v) {
                     startLocDto = location;
                     deptTxt.setText(startLocDto.getName());
-                    parseRouteData(NavigationLogic.findRoute(startLocDto, targetLocDto, mode,
+                    parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode,
                             null));
                 }
             });
@@ -697,7 +643,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
                 public void onClick(View view) {
                     targetLocDto = location;
                     destTxt.setText(targetLocDto.getName());
-                    parseRouteData(NavigationLogic.findRoute(startLocDto, targetLocDto, mode,
+                    parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode,
                             null));
                 }
             });
@@ -751,7 +697,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         editText.clearFocus();
         ;
         // update UI
-        parseRouteData(NavigationLogic.findRoute(startLocDto, targetLocDto, mode, null));
+        parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode, null));
     }
 
     private void parseRouteData(Pair<List<RouteDto>, LatLngBounds> data) {
@@ -766,8 +712,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
             // use the first route by default
             currentRouteDto = possibleRoutes.get(0);
             map.clear();
-            map.moveCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100));
-            NavigationLogic.updatePolylinesUI(currentRouteDto, map);
+            map.animateCamera(CameraUpdateFactory.newLatLngBounds(bounds, 100), mapAnimDuration,
+                    null);
+            NavigationUtils.updatePolylinesUI(currentRouteDto, map);
         }
     }
 }

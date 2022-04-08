@@ -33,9 +33,7 @@
     <string name="select_from_album">Select from album</string>
     <string name="cancel">Cancel</string>
     <!-- Scroll text   -->
-    <string-array name="notices">
-        <item>🔊Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello Hello</item>
-    </string-array>
+    <string name="notice_icon_char">🔊</string>
 
     <string name="plane_finding">Searching for surfaces&#8230;</string>
 </resources>
