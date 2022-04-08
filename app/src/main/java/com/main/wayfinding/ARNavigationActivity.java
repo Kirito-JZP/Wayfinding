@@ -74,8 +74,7 @@ public class ARNavigationActivity extends AppCompatActivity {
     private ArSceneView arSceneView;
     // Renderables for this example
     private ModelRenderable andyRenderable;
-    private ViewRenderable exampleLayoutRenderable1;
-    private ViewRenderable exampleLayoutRenderable2;
+    private ViewRenderable[] layoutRenderableArray = new ViewRenderable[5];
     // Our ARCore-Location scene
     private LocationScene locationScene;
     private FirebaseAuth auth;
@@ -93,14 +92,14 @@ public class ARNavigationActivity extends AppCompatActivity {
         arSceneView = findViewById(R.id.ar_scene_view);
         arReturnBtn = findViewById(R.id.arReturnBtn);
         // Build a renderable from a 2D View.
-        CompletableFuture<ViewRenderable> exampleLayout1 =
-                ViewRenderable.builder()
-                        .setView(this, R.layout.layout_artext)
-                        .build();
-        CompletableFuture<ViewRenderable> exampleLayout2 =
-                ViewRenderable.builder()
-                        .setView(this, R.layout.layout_artext)
-                        .build();
+        List<CompletableFuture<ViewRenderable>> renderLayoutList = new ArrayList<>();
+        for (int i = 0; i < 5; i++) {
+            CompletableFuture<ViewRenderable> renderLayout =
+                    ViewRenderable.builder()
+                            .setView(this, R.layout.layout_artext)
+                            .build();
+            renderLayoutList.add(renderLayout);
+        }
 
         // When you build a Renderable, Sceneform loads its resources in the background while returning
         // a CompletableFuture. Call thenAccept(), handle(), or check isDone() before calling get().
@@ -109,8 +108,6 @@ public class ARNavigationActivity extends AppCompatActivity {
                 .build();
 
         CompletableFuture.allOf(
-                exampleLayout1,
-                exampleLayout2,
                 andy)
                 .handle(
                         (notUsed, throwable) -> {
@@ -124,8 +121,9 @@ public class ARNavigationActivity extends AppCompatActivity {
                             }
 
                             try {
-                                exampleLayoutRenderable1 = exampleLayout1.get();
-                                exampleLayoutRenderable2 = exampleLayout2.get();
+                                for (int i = 0; i < 5; i++ ) {
+                                    layoutRenderableArray[i] = renderLayoutList.get(i).get();
+                                }
                                 andyRenderable = andy.get();
                                 hasFinishedLoading = true;
 
@@ -169,16 +167,23 @@ public class ARNavigationActivity extends AppCompatActivity {
                                             }
                                         });
                                         ArrayList<LocationDto> list = PlaceManagerUtils.getNearby(location);
+                                        int totalItems = list.size();
+                                        for (int i = 0; i < list.size(); i++) {
+                                            if (i > 4) {
+                                                totalItems = 5;
+                                                break;
+                                            }
+                                        }
                                         LocationDto locationDto1 = list.get(1);
                                             LocationMarker layoutLocationMarker1 = new LocationMarker(
                                                     locationDto1.getLongitude(),
                                                     locationDto1.getLatitude(),
-                                                    getExampleView(locationDto1.getName(), exampleLayoutRenderable1)
+                                                    getExampleView(locationDto1.getName(), layoutRenderableArray[0])
                                             );
                                             layoutLocationMarker1.setRenderEvent(new LocationNodeRender() {
                                                 @Override
                                                 public void render(LocationNode node) {
-                                                    View eView = exampleLayoutRenderable1.getView();
+                                                    View eView = layoutRenderableArray[0].getView();
                                                     TextView distanceTextView = eView.findViewById(R.id.loc_distance);
 
                                                     distanceTextView.setText(node.getDistance() + "M");
@@ -191,12 +196,12 @@ public class ARNavigationActivity extends AppCompatActivity {
                                         LocationMarker layoutLocationMarker2 = new LocationMarker(
                                                 locationDto3.getLongitude(),
                                                 locationDto3.getLatitude(),
-                                                getExampleView(locationDto3.getName(), exampleLayoutRenderable2)
+                                                getExampleView(locationDto3.getName(), layoutRenderableArray[1])
                                         );
                                         layoutLocationMarker2.setRenderEvent(new LocationNodeRender() {
                                             @Override
                                             public void render(LocationNode node) {
-                                                View eView = exampleLayoutRenderable2.getView();
+                                                View eView = layoutRenderableArray[1].getView();
                                                 TextView distanceTextView = eView.findViewById(R.id.loc_distance);
 
                                                 distanceTextView.setText(node.getDistance() + "M");
