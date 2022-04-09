@@ -64,7 +64,7 @@ public class EmergencyEventLogic {
                                 if (now.isAfter(endTime)) {
                                     broadcastEmergencyEventEnd(event);
                                     eventsToRemove.add(event.getCode());
-                                } else if (now.isBefore(endTime) && now.isAfter(startTime) && triggered.get(event.getCode()) != null) {
+                                } else if (now.isBefore(endTime) && now.isAfter(startTime) && !triggered.containsKey(event.getCode())) {
                                     broadcastEmergencyEventStart(event);
                                     triggered.put(event.getCode(), true);
                                 }
