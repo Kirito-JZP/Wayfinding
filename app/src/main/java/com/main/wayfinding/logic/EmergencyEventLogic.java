@@ -1,19 +1,19 @@
 package com.main.wayfinding.logic;
 
-import android.graphics.Color;
+import android.location.Location;
 
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
 import com.main.wayfinding.dto.EmergencyEventDto;
 import com.main.wayfinding.dto.LocationDto;
 import com.main.wayfinding.dto.RouteDto;
+import com.main.wayfinding.utility.EmergencyEventUtils;
 import com.main.wayfinding.utility.LatLngConverterUtils;
 import com.main.wayfinding.utility.NavigationUtils;
 
+import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -27,32 +27,84 @@ import java.util.Map;
  */
 public class EmergencyEventLogic {
     public interface EmergencyEventCallback {
-        void onEmergencyEventHappen(EmergencyEventDto event);
+        void onEmergencyEventBegin(EmergencyEventDto event);
+
+        void onEmergencyEventEnd(EmergencyEventDto event);
     }
 
-    private static int emergencyEventCallbackNum = 0;
-    private static final Map<Integer, EmergencyEventCallback> emergencyEventCallbacks =
+    private int emergencyEventCallbackNum = 0;
+    private final Map<Integer, EmergencyEventCallback> emergencyEventCallbacks =
             new HashMap<>();
+    private Map<String, EmergencyEventDto> events;
+    private Map<String, List<LatLng>> waypoints;    // waypoints added due to emergency events
+    private Map<String, Boolean> triggered;
+    private int locationUpdateCallbackIndex = -1;
 
-    public static int registerEmergencyEvent(EmergencyEventCallback callback) {
+    public EmergencyEventLogic() {
+        events = new HashMap<>();
+        waypoints = new HashMap<>();
+        triggered = new HashMap<>();
+    }
+
+    public void addEvent(EmergencyEventDto event) {
+        this.events.put(event.getCode(), event);
+        if (locationUpdateCallbackIndex == -1) {
+            locationUpdateCallbackIndex =
+                    TrackerLogic.registerLocationUpdateCompleteEvent(new TrackerLogic.LocationUpdateCompleteCallback() {
+                        @Override
+                        public void onLocationUpdateComplete(Location location) {
+                            // compare time and determine whether to end an event
+                            List<String> eventsToRemove = new ArrayList<>();
+                            for (EmergencyEventDto event : events.values()) {
+                                LocalTime startTime =
+                                        EmergencyEventUtils.convertToLocalTime(event.getStartTime());
+                                LocalTime endTime =
+                                        EmergencyEventUtils.convertToLocalTime(event.getEndTime());
+                                LocalTime now = LocalTime.now();
+                                if (now.isAfter(endTime)) {
+                                    broadcastEmergencyEventEnd(event);
+                                    eventsToRemove.add(event.getCode());
+                                } else if (now.isBefore(endTime) && now.isAfter(startTime) && triggered.get(event.getCode()) != null) {
+                                    broadcastEmergencyEventStart(event);
+                                    triggered.put(event.getCode(), true);
+                                }
+                            }
+                            // remove ended events
+                            for (String eventToRemove : eventsToRemove) {
+                                events.remove(eventToRemove);
+                                waypoints.remove(eventToRemove);
+                                triggered.remove(eventToRemove);
+                            }
+                        }
+                    });
+        }
+    }
+
+    public int registerEmergencyEvent(EmergencyEventCallback callback) {
         emergencyEventCallbacks.put(emergencyEventCallbackNum, callback);
         emergencyEventCallbackNum += 1;
         return emergencyEventCallbackNum - 1;
     }
 
-    public static void unregisterEmergencyEvent(int callbackNumber) {
+    public void unregisterEmergencyEvent(int callbackNumber) {
         emergencyEventCallbacks.remove(callbackNumber);
         emergencyEventCallbackNum -= 1;
     }
 
-    public static void broadcast(EmergencyEventDto event) {
+    public void broadcastEmergencyEventStart(EmergencyEventDto event) {
         for (EmergencyEventCallback callback : emergencyEventCallbacks.values()) {
-            callback.onEmergencyEventHappen(event);
+            callback.onEmergencyEventBegin(event);
         }
     }
 
-    public void processEmergencyEvent(EmergencyEventDto event, LocationDto currentLocation,
-                                      RouteDto currentRoute, List<RouteDto> possibleRoutes, GoogleMap map) {
+    public void broadcastEmergencyEventEnd(EmergencyEventDto event) {
+        for (EmergencyEventCallback callback : emergencyEventCallbacks.values()) {
+            callback.onEmergencyEventEnd(event);
+        }
+    }
+
+    public void processEmergencyEventStart(EmergencyEventDto event, LocationDto currentLocation,
+                                           RouteDto currentRoute) {
         // find out if the location of the emergency event is ahead of the current location in the
         // current route and if the current route is affected
         LocationDto location = new LocationDto();
@@ -73,7 +125,7 @@ public class EmergencyEventLogic {
                 double y0 = event.getLatitude();
 
                 // use latitude for simplicity
-                double r0 = LatLngConverterUtils.getLatitudeFromDistance(event.getRadius());
+                double r0 = LatLngConverterUtils.getLatitudeFromDistance(event.getRadius() * 2);
                 // the intersection points of the straight line
                 // perpendicular to the line formed by connecting (x1, y1) and (x2, y2)
                 // with the affected range
@@ -108,9 +160,36 @@ public class EmergencyEventLogic {
                 waypoint.setLongitude(distance1 < distance2 ? intersect1.longitude :
                         intersect2.longitude);
                 currentRoute.addWaypoint(waypoint);
+                List<LatLng> tempWaypoints = new ArrayList<>();
+                tempWaypoints.add(LatLngConverterUtils.getLatLngFromDto(waypoint));
+                waypoints.put(event.getCode(), tempWaypoints);
                 // re-search routes from the current position with the added waypoints
                 NavigationUtils.updateRouteFromCurrentLocation(currentRoute, currentLocation);
             }
         }
+    }
+
+    public void processEmergencyEvenEnd(EmergencyEventDto event, LocationDto currentLocation,
+                                        RouteDto currentRoute) {
+        List<LatLng> tempWaypoints = waypoints.get(event.getCode());
+        List<LocationDto> allWaypoints = currentRoute.getWaypoints();
+        Iterator<LatLng> itTempWaypoints = tempWaypoints.iterator();
+        while (itTempWaypoints.hasNext()) {
+            LatLng tw = itTempWaypoints.next();
+            Iterator<LocationDto> itAllWaypoints = allWaypoints.iterator();
+            while (itAllWaypoints.hasNext()) {
+                LocationDto ta = itAllWaypoints.next();
+                // if the two waypoints are the same, or the one stored in the current route has
+                // been passed, then remove it
+                if (tw.latitude == ta.getLatitude() && tw.longitude == ta.getLongitude() ||
+                        !NavigationUtils.isLocationAheadOfReference(currentRoute, ta,
+                                currentLocation)) {
+                    itAllWaypoints.remove();
+                }
+            }
+        }
+
+        // re-search routes from the current position with event-related waypoints removed
+        NavigationUtils.updateRouteFromCurrentLocation(currentRoute, currentLocation);
     }
 }

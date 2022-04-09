@@ -14,8 +14,8 @@ public class EmergencyEventDto {
     private String code;
     private double latitude;
     private double longitude;
-    private LocalTime startTime;
-    private LocalTime endTime;
+    private String startTime;
+    private String endTime;
     private float radius;   // in meters
     private String type;
 
@@ -43,22 +43,6 @@ public class EmergencyEventDto {
         this.longitude = longitude;
     }
 
-    public LocalTime getStartTime() {
-        return startTime;
-    }
-
-    public void setStartTime(LocalTime startTime) {
-        this.startTime = startTime;
-    }
-
-    public LocalTime getEndTime() {
-        return endTime;
-    }
-
-    public void setEndTime(LocalTime endTime) {
-        this.endTime = endTime;
-    }
-
     public float getRadius() {
         return radius;
     }
@@ -73,5 +57,21 @@ public class EmergencyEventDto {
 
     public void setType(String type) {
         this.type = type;
+    }
+
+    public String getStartTime() {
+        return startTime;
+    }
+
+    public void setStartTime(String startTime) {
+        this.startTime = startTime;
+    }
+
+    public String getEndTime() {
+        return endTime;
+    }
+
+    public void setEndTime(String endTime) {
+        this.endTime = endTime;
     }
 }

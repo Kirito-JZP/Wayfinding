@@ -15,7 +15,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.os.Handler;
@@ -27,10 +26,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.FrameLayout;
-import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -45,13 +42,18 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.Circle;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PointOfInterest;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
 import com.google.maps.model.TravelMode;
 import com.main.wayfinding.ARNavigationActivity;
 import com.main.wayfinding.R;
@@ -61,11 +63,10 @@ import com.main.wayfinding.dto.EmergencyEventDto;
 import com.main.wayfinding.dto.LocationDto;
 import com.main.wayfinding.dto.RouteDto;
 import com.main.wayfinding.logic.EmergencyEventLogic;
+import com.main.wayfinding.logic.db.DisasterDBLogic;
 import com.main.wayfinding.logic.db.LocationDBLogic;
 import com.main.wayfinding.logic.TrackerLogic;
 import com.main.wayfinding.logic.NavigationLogic;
-import com.main.wayfinding.logic.TrackerLogic;
-import com.main.wayfinding.logic.db.LocationDBLogic;
 import com.main.wayfinding.utility.EmergencyEventUtils;
 import com.main.wayfinding.utility.LatLngConverterUtils;
 import com.main.wayfinding.utility.NavigationUtils;
@@ -80,10 +81,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.stream.Collectors;
 
 import javadz.beanutils.BeanUtils;
 
@@ -95,8 +97,7 @@ import javadz.beanutils.BeanUtils;
  * @version Revision: 1
  * Date: 2022/2/2 19:50
  */
-public class MapFragment extends Fragment implements OnMapReadyCallback,
-        EmergencyEventLogic.EmergencyEventCallback {
+public class MapFragment extends Fragment implements OnMapReadyCallback {
 
     private int autocompleteDelay = 500;
     private int mapAnimDuration = 500;
@@ -212,6 +213,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         }
     }
 
+    // Emergency event circle UI
+    Map<String, Circle> eventCircles;
+
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -262,10 +266,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         // NoticeView
         noticeView = view.findViewById(R.id.notice_view);
 
+        // Autocomplete-related
         UIHandler = new Handler();
         autocompleteTimer = new Timer();
         deptLocList = new ArrayList<>();
         destLocList = new ArrayList<>();
+
+        // Emergency event-related
+        eventCircles = new HashMap<>();
 
         addBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -373,16 +381,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
         accidentBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // code use to read disaster even (use disaster code "A" "B" "C" ...)
-                EmergencyEventLogic.broadcast(EmergencyEventUtils.generateEmergencyEvent(map,
-                        currentRouteDto));
-//                new DisasterDBLogic().select("A", new OnCompleteListener<DataSnapshot>() {
+                // set a circle to visualise the event
+                emergencyEventLogic.addEvent(EmergencyEventUtils.generateEmergencyEvent
+                        (currentRouteDto));
+
+//                new DisasterDBLogic().select("1", new OnCompleteListener<DataSnapshot>() {
 //                    @Override
 //                    public void onComplete(@NonNull Task<DataSnapshot> task) {
 //                        if (task.isSuccessful()) {
-//                            EmergencyEventDto event =
-//                                    task.getResult().getValue(EmergencyEventDto.class);
-//                            EmergencyEventLogic.broadcast(event);
+//                record the event
+//                            emergencyEventLogic.addEvent(task.getResult().getValue
+//                            (EmergencyEventDto.class));
 //                        } else {
 //                            task.getException().printStackTrace();
 //                        }
@@ -536,16 +545,50 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
                         @Override
                         public void onClick(View view) {
                             trackerLogic.requestLastLocation(MapFragment.this::resetCurrentPosition);
-                            deptPlacesListView.setVisibility(View.INVISIBLE);
-                            List<com.google.maps.model.LatLng> waypoints =
-                                    NavigationUtils.getLatLngFromWaypoints(currentRouteDto);
-                            parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto,
-                                    mode, waypoints));
+
+                            // find routes if is navigating
+                            if (navigationLogic.isNavigating()) {
+                                deptPlacesListView.setVisibility(View.INVISIBLE);
+                                List<com.google.maps.model.LatLng> waypoints =
+                                        NavigationUtils.getLatLngFromWaypoints(currentRouteDto);
+                                parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto,
+                                        mode, waypoints));
+                            }
                         }
                     });
 
                     // Add emergency event callback
-                    EmergencyEventLogic.registerEmergencyEvent(MapFragment.this);
+                    emergencyEventLogic.registerEmergencyEvent(new EmergencyEventLogic.EmergencyEventCallback() {
+                        @Override
+                        public void onEmergencyEventBegin(EmergencyEventDto event) {
+                            emergencyEventLogic.processEmergencyEventStart(event, currentLocDto,
+                                    currentRouteDto);
+                            // update UI
+                            // add a circle for visualisation
+                            eventCircles.put(event.getCode(), map.addCircle(new CircleOptions()
+                                    .center(new LatLng(event.getLatitude(),
+                                            event.getLongitude()))
+                                    .radius(event.getRadius())
+                                    .fillColor(0x7F7F7F7F)
+                                    .strokeWidth(0.0F)));
+                            // display emergency event details
+                            ((RelativeLayout) noticeView.getParent()).setVisibility(View.VISIBLE);
+                            noticeView.setNotices(Arrays.asList(getString(R.string.notice_icon_char) + StaticStringUtils.displayEmergencyEvent(event)));
+                        }
+
+                        @Override
+                        public void onEmergencyEventEnd(EmergencyEventDto event) {
+                            emergencyEventLogic.processEmergencyEvenEnd(event, currentLocDto,
+                                    currentRouteDto);
+                            // update UI
+                            // remove the circle
+                            // add a circle for visualisation
+                            eventCircles.remove(event.getCode()).remove();
+                            // hide emergency event details
+                            ((RelativeLayout) noticeView.getParent()).setVisibility(View.GONE);
+                            noticeView.setNotices(null);
+                        }
+                    });
                 } else {
                     trackerLogic.askForLocationPermissions(this);
                 }
@@ -568,15 +611,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback,
                     NavigationUtils.getLatLngFromWaypoints(currentRouteDto);
             parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode, waypoints));
         }
-    }
-
-    @Override
-    public void onEmergencyEventHappen(EmergencyEventDto event) {
-        emergencyEventLogic.processEmergencyEvent(event, currentLocDto, currentRouteDto,
-                possibleRoutes, map);
-        // display emergency event details
-        ((RelativeLayout) noticeView.getParent()).setVisibility(View.VISIBLE);
-        noticeView.setNotices(Arrays.asList(getString(R.string.notice_icon_char) + StaticStringUtils.displayEmergencyEvent(event)));
     }
 
     public void queryAutocomplete(AutocompleteType type, String keyword) {
