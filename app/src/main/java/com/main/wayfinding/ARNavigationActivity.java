@@ -4,14 +4,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.snackbar.Snackbar;
 import com.google.ar.core.Frame;
@@ -31,7 +32,6 @@ import com.main.wayfinding.utility.ArLocationUtils;
 import com.main.wayfinding.utility.PlaceManagerUtils;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
@@ -42,84 +42,65 @@ import uk.co.appoly.arcorelocation.rendering.LocationNodeRender;
 import uk.co.appoly.arcorelocation.sensor.DeviceLocationChanged;
 import uk.co.appoly.arcorelocation.utils.ARLocationPermissionHelper;
 
-/**
- * Define the activity for AR navigation
- *
- * @author JIA
- * @author Last Modified By JIA
- * @version Revision: 0
- * Date: 2022/2/18 15:43
- */
 public class ARNavigationActivity extends AppCompatActivity {
-
-    //    private ArFragment arFragment;
-    private ImageView arReturnBtn;
-    private ActivityArnavigationBinding binding;
     private boolean installRequested;
     private boolean hasFinishedLoading = false;
     private Snackbar loadingMessageSnackbar = null;
     private ArSceneView arSceneView;
-    // Renderables for this example
-    private ModelRenderable andyRenderable;
-    private ViewRenderable[] layoutRenderableArray = new ViewRenderable[5];
-    // Our ARCore-Location scene
+    private ModelRenderable modelRenderable;
+    private ViewRenderable layoutRenderable;
     private LocationScene locationScene;
+    private ActivityArnavigationBinding binding;
+    ArrayList<LocationDto> list;
+    private Location lastPosition;
+    private boolean needUpdate;
+    private ImageView arReturnBtn;
 
     @Override
+    @SuppressWarnings({"AndroidApiChecker", "FutureReturnValueIgnored"})
+    // CompletableFuture requires api level 24
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         binding = ActivityArnavigationBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
-
-
         arSceneView = findViewById(R.id.ar_scene_view);
         arReturnBtn = findViewById(R.id.arReturnBtn);
-        // Build a renderable from a 2D View.
-        List<CompletableFuture<ViewRenderable>> renderLayoutList = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            CompletableFuture<ViewRenderable> renderLayout =
-                    ViewRenderable.builder()
-                            .setView(this, R.layout.layout_artext)
-                            .build();
-            renderLayoutList.add(renderLayout);
-        }
 
-        // When you build a Renderable, Sceneform loads its resources in the background while returning
-        // a CompletableFuture. Call thenAccept(), handle(), or check isDone() before calling get().
-        CompletableFuture<ModelRenderable> andy = ModelRenderable.builder()
+        CompletableFuture<ViewRenderable> layout =
+                ViewRenderable.builder()
+                        .setView(this, R.layout.layout_artext)
+                        .build();
+
+        CompletableFuture<ModelRenderable> model = ModelRenderable.builder()
                 .setSource(this, R.raw.andy)
                 .build();
 
-        CompletableFuture.allOf(
-                andy)
-                .handle(
-                        (notUsed, throwable) -> {
-                            // When you build a Renderable, Sceneform loads its resources in the background while
-                            // returning a CompletableFuture. Call handle(), thenAccept(), or check isDone()
-                            // before calling get().
 
-                            if (throwable != null) {
-                                ArLocationUtils.displayError(this, "Unable to load renderables", throwable);
-                                return null;
-                            }
+        CompletableFuture.allOf(layout, model).handle(
+                (notUsed, throwable) -> {
+                    // When you build a Renderable, Sceneform loads its resources in the background while
+                    // returning a CompletableFuture. Call handle(), thenAccept(), or check isDone()
+                    // before calling get().
 
-                            try {
-                                for (int i = 0; i < 5; i++ ) {
-                                    layoutRenderableArray[i] = renderLayoutList.get(i).get();
-                                }
-                                andyRenderable = andy.get();
-                                hasFinishedLoading = true;
+                    if (throwable != null) {
+                        ArLocationUtils.displayError(this, "Unable to load renderables", throwable);
+                        return null;
+                    }
 
-                            } catch (InterruptedException | ExecutionException ex) {
-                                ArLocationUtils.displayError(this, "Unable to load renderables", ex);
-                            }
+                    try {
+                        layoutRenderable = layout.get();
+                        modelRenderable = model.get();
+                        hasFinishedLoading = true;
 
-                            return null;
-                        });
+                    } catch (InterruptedException | ExecutionException ex) {
+                        ArLocationUtils.displayError(this, "Unable to load renderables", ex);
+                    }
+
+                    return null;
+                });
 
         // Set an update listener on the Scene that will hide the loading message once a Plane is
         // detected.
-        ARNavigationActivity arNavigationActivity = this;
         arSceneView
                 .getScene()
                 .addOnUpdateListener(
@@ -132,70 +113,99 @@ public class ARNavigationActivity extends AppCompatActivity {
                                 // If our locationScene object hasn't been setup yet, this is a good time to do it
                                 // We know that here, the AR components have been initiated.
                                 locationScene = new LocationScene(this, this, arSceneView);
-
-
-                                TrackerLogic trackerLogic = TrackerLogic.createInstance(arNavigationActivity);
-                                trackerLogic.requestLastLocation(new TrackerLogic.RequestLocationCompleteCallback() {
+                                ARNavigationActivity thisActivity = this;
+                                locationScene.setLocationChangedEvent(new DeviceLocationChanged() {
                                     @Override
-                                    public void onRequestLocationComplete(Location location) {
-                                        locationScene.setLocationChangedEvent(new DeviceLocationChanged() {
+                                    public void onChange(Location ArLocation) {
+                                        TrackerLogic trackerLogic = TrackerLogic.createInstance(thisActivity);
+                                        trackerLogic.requestLastLocation(new TrackerLogic.RequestLocationCompleteCallback() {
                                             @Override
-                                            public void onChange(Location ARlocation) {
-                                                trackerLogic.requestLastLocation(new TrackerLogic.RequestLocationCompleteCallback() {
-                                                    @Override
-                                                    public void onRequestLocationComplete(Location location) {
-                                                        locationScene.deviceLocation.currentBestLocation = location;
-                                                    }
-                                                });
-                                            }
-                                        });
-                                        ArrayList<LocationDto> list = PlaceManagerUtils.getNearby(location);
-                                        int totalItems = list.size();
-                                        for (int i = 0; i < list.size(); i++) {
-                                            if (i > 4) {
-                                                totalItems = 5;
-                                                break;
-                                            }
-                                        }
-                                        LocationDto locationDto1 = list.get(1);
-                                            LocationMarker layoutLocationMarker1 = new LocationMarker(
-                                                    locationDto1.getLongitude(),
-                                                    locationDto1.getLatitude(),
-                                                    getExampleView(locationDto1.getName(), layoutRenderableArray[0])
-                                            );
-                                            layoutLocationMarker1.setRenderEvent(new LocationNodeRender() {
-                                                @Override
-                                                public void render(LocationNode node) {
-                                                    View eView = layoutRenderableArray[0].getView();
-                                                    TextView distanceTextView = eView.findViewById(R.id.loc_distance);
+                                            public void onRequestLocationComplete(Location location) {
+                                                locationScene.deviceLocation.currentBestLocation = location;
 
-                                                    distanceTextView.setText(node.getDistance() + "M");
+                                                if (lastPosition == null) {
+                                                    lastPosition = location;
+                                                    list = PlaceManagerUtils.getNearby(location);
+                                                    needUpdate = true;
                                                 }
-                                            });
-                                            // Adding the marker
-                                            locationScene.mLocationMarkers.add(layoutLocationMarker1);
+                                                if (needUpdate) {
+                                                    System.out.println(list.size()+"zzzzzzzzzzzzzzzzzz");
+                                                    for (LocationDto locationDto : list) {
+                                                        //------------------------
+                                                        CompletableFuture<ViewRenderable> layout =
+                                                                ViewRenderable.builder()
+                                                                        .setView(thisActivity, R.layout.layout_artext)
+                                                                        .build();
 
-                                        LocationDto locationDto3 = list.get(2);
-                                        LocationMarker layoutLocationMarker2 = new LocationMarker(
-                                                locationDto3.getLongitude(),
-                                                locationDto3.getLatitude(),
-                                                getExampleView(locationDto3.getName(), layoutRenderableArray[1])
-                                        );
-                                        layoutLocationMarker2.setRenderEvent(new LocationNodeRender() {
-                                            @Override
-                                            public void render(LocationNode node) {
-                                                View eView = layoutRenderableArray[1].getView();
-                                                TextView distanceTextView = eView.findViewById(R.id.loc_distance);
+                                                        CompletableFuture<ModelRenderable> model = ModelRenderable.builder()
+                                                                .setSource(thisActivity, R.raw.andy)
+                                                                .build();
+                                                        CompletableFuture.allOf(layout, model).handle(
+                                                                (notUsed, throwable) -> {
+                                                                    // When you build a Renderable, Sceneform loads its resources in the background while
+                                                                    // returning a CompletableFuture. Call handle(), thenAccept(), or check isDone()
+                                                                    // before calling get().
 
-                                                distanceTextView.setText(node.getDistance() + "M");
+                                                                    if (throwable != null) {
+                                                                        ArLocationUtils.displayError(thisActivity, "Unable to load renderables", throwable);
+                                                                        return null;
+                                                                    }
+                                                                    try {
+                                                                        layoutRenderable = layout.get();
+                                                                        modelRenderable = model.get();
+                                                                        hasFinishedLoading = true;
+                                                                    } catch (InterruptedException | ExecutionException ex) {
+                                                                        ArLocationUtils.displayError(thisActivity, "Unable to load renderables", ex);
+                                                                    }
+                                                                    //-----------------------------
+                                                                    // Now lets create our location markers.
+                                                                    // First, a layout
+
+                                                                    LocationMarker layoutLocationMarker = new LocationMarker(
+                                                                            locationDto.getLongitude(),
+                                                                            locationDto.getLatitude(),
+                                                                            createViewNode()
+                                                                    );
+
+                                                                    // Updates the layout with the markers distance
+                                                                    ViewRenderable copyOfRenderable = layoutRenderable.makeCopy();
+                                                                    String name = locationDto.getName();
+                                                                    layoutLocationMarker.setRenderEvent(new LocationNodeRender() {
+                                                                        @Override
+                                                                        public void render(LocationNode node) {
+                                                                            View eView = copyOfRenderable.getView();
+                                                                            TextView distanceTextView = eView.findViewById(R.id.loc_distance);
+                                                                            TextView nameTextView = eView.findViewById(R.id.loc_name);
+                                                                            nameTextView.setText(name);
+                                                                            distanceTextView.setText(node.getDistance() + "M");
+
+                                                                        }
+                                                                    });
+                                                                    // Adding the marker
+                                                                    locationScene.mLocationMarkers.add(layoutLocationMarker);
+
+                                                                    // Adding a simple location marker of a 3D model
+                                                                    locationScene.mLocationMarkers.add(
+                                                                            new LocationMarker(
+                                                                                    locationDto.getLongitude(),
+                                                                                    locationDto.getLatitude(),
+                                                                                    createModelNode()));
+                                                                    return null;
+                                                                });
+                                                        //-------------------------
+                                                    }
+                                                    needUpdate = false;
+                                                }
+                                                if (location.distanceTo(lastPosition) >= 50) {
+                                                    lastPosition = location;
+                                                    list = PlaceManagerUtils.getNearby(location);
+                                                    locationScene.mLocationMarkers.clear();
+                                                    needUpdate = true;
+                                                }
                                             }
                                         });
-                                        // Adding the marker
-                                        locationScene.mLocationMarkers.add(layoutLocationMarker2);
-
                                     }
                                 });
-
                             }
 
                             Frame frame = arSceneView.getArFrame();
@@ -224,6 +234,7 @@ public class ARNavigationActivity extends AppCompatActivity {
         // Lastly request CAMERA & fine location permission which is required by ARCore-Location.
         ARLocationPermissionHelper.requestPermission(this);
 
+
         arReturnBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -234,36 +245,25 @@ public class ARNavigationActivity extends AppCompatActivity {
         });
     }
 
-    /**
-     * Example node of a layout
-     *
-     * @return
-     */
-    private Node getExampleView(String locationName, ViewRenderable exampleLayoutRenderable) {
+    private Node createViewNode() {
         Node base = new Node();
-        base.setRenderable(exampleLayoutRenderable);
+        base.setRenderable(layoutRenderable);
         Context c = this;
         // Add  listeners etc here
-        View eView = exampleLayoutRenderable.getView();
+        View eView = layoutRenderable.getView();
         eView.setOnTouchListener((v, event) -> {
             Toast.makeText(
                     c, "Location marker touched.", Toast.LENGTH_LONG)
                     .show();
             return false;
         });
-        TextView locationNameTextView = eView.findViewById(R.id.loc_name);
-        locationNameTextView.setText(locationName);
+
         return base;
     }
 
-    /***
-     * Example Node of a 3D model
-     *
-     * @return
-     */
-    private Node getAndy() {
+    private Node createModelNode() {
         Node base = new Node();
-        base.setRenderable(andyRenderable);
+        base.setRenderable(modelRenderable);
         Context c = this;
         base.setOnTapListener((v, event) -> {
             Toast.makeText(
@@ -273,9 +273,6 @@ public class ARNavigationActivity extends AppCompatActivity {
         return base;
     }
 
-    /**
-     * Make sure we call locationScene.resume();
-     */
     @Override
     protected void onResume() {
         super.onResume();
@@ -313,9 +310,6 @@ public class ARNavigationActivity extends AppCompatActivity {
         }
     }
 
-    /**
-     * Make sure we call locationScene.pause();
-     */
     @Override
     public void onPause() {
         super.onPause();

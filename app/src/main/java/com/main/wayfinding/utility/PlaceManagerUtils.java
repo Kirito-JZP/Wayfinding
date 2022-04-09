@@ -221,13 +221,13 @@ public class PlaceManagerUtils {
             nearbySearchRequest.radius(100);
             PlacesSearchResponse placesSearchResponse = nearbySearchRequest.await();
             PlacesSearchResult[] results = placesSearchResponse.results;
-            for (PlacesSearchResult result : results) {
+            for (int i = 1; i < results.length; i++) {
                 LocationDto locationDto = new LocationDto();
-                locationDto.setName(result.name);
-                locationDto.setGmPlaceID(result.placeId);
-                locationDto.setAddress(result.formattedAddress);
-                locationDto.setLatitude(result.geometry.location.lat);
-                locationDto.setLongitude(result.geometry.location.lng);
+                locationDto.setName(results[i].name);
+                locationDto.setGmPlaceID(results[i].placeId);
+                locationDto.setAddress(results[i].formattedAddress);
+                locationDto.setLatitude(results[i].geometry.location.lat);
+                locationDto.setLongitude(results[i].geometry.location.lng);
                 rtn.add(locationDto);
             }
 
