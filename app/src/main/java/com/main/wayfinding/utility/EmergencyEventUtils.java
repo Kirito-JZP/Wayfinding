@@ -51,8 +51,8 @@ public class EmergencyEventUtils {
         emergencyEventDto.setLongitude(-6.2587037);
         emergencyEventDto.setRadius(1000);
         emergencyEventDto.setType("Extreme Weather");
-        emergencyEventDto.setStartTime("8:43");
-        emergencyEventDto.setEndTime("8:46");
+        emergencyEventDto.setStartTime("8:52");
+        emergencyEventDto.setEndTime("8:55");
         new DisasterDBLogic().insert(emergencyEventDto);
         return emergencyEventDto;
     }

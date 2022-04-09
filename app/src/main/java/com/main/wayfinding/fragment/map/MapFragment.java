@@ -586,7 +586,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                             eventCircles.remove(event.getCode()).remove();
                             // hide emergency event details
                             ((RelativeLayout) noticeView.getParent()).setVisibility(View.GONE);
-                            noticeView.setNotices(null);
+                            noticeView.setNotices(Arrays.asList(""));
                         }
                     });
                 } else {
