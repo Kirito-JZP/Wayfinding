@@ -26,7 +26,8 @@ public class EmergencyEventUtils {
         List<RouteDto.RouteStep> steps = route.getSteps();
         int currentIndex = route.getCurrentStepIndex();
         RouteDto.RouteStep step;
-        step = steps.get(currentIndex < steps.size() ? ++currentIndex : currentIndex);
+//        step = steps.get(currentIndex < steps.size() ? ++currentIndex : currentIndex);
+        step = steps.get(Math.min(steps.size() - 3, steps.size() - 1));
         emergencyEventDto.setLatitude(step.getStartLocation().getLatitude());
         emergencyEventDto.setLongitude(step.getStartLocation().getLongitude());
         emergencyEventDto.setRadius(100);

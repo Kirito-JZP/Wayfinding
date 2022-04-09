@@ -42,7 +42,7 @@ import com.main.wayfinding.dto.UserDto;
 import com.main.wayfinding.logic.AccountCheckLogic;
 import com.main.wayfinding.logic.AuthLogic;
 import com.main.wayfinding.logic.db.UserDBLogic;
-import com.main.wayfinding.utility.AlertDialogUtils;
+import com.main.wayfinding.utility.NoticeUtils;
 import com.main.wayfinding.utility.FileReaderUtils;
 
 import org.apache.commons.lang3.StringUtils;
@@ -213,7 +213,7 @@ public class AccountFragment extends Fragment {
 
 
                         if (StringUtils.isNotEmpty(errorMsg)) {
-                            AlertDialogUtils.createAlertDialog(getContext(), errorMsg);
+                            NoticeUtils.createAlertDialog(getContext(), errorMsg);
                         } else {
                             //signup
                             accountLogic.signUp(email, password, new OnCompleteListener<AuthResult>() {
@@ -260,7 +260,7 @@ public class AccountFragment extends Fragment {
                         }
 
                         if (StringUtils.isNotEmpty(errorMsg)){
-                            AlertDialogUtils.createAlertDialog(getContext(),errorMsg);
+                            NoticeUtils.createAlertDialog(getContext(),errorMsg);
                         } else {
                             accountLogic.login(email, password, new OnCompleteListener<AuthResult>() {
                                 @Override
@@ -273,7 +273,7 @@ public class AccountFragment extends Fragment {
                                         String msg = task.getException().getMessage();
                                         System.out.println(msg);
                                         if (StringUtils.equals(msg, AUTHORITY_FAIL_STRING)) {
-                                            AlertDialogUtils.createAlertDialog(getContext(), AUTHORITY_FAIL_MSG);
+                                            NoticeUtils.createAlertDialog(getContext(), AUTHORITY_FAIL_MSG);
                                         }
                                     }
                                 }
@@ -355,7 +355,7 @@ public class AccountFragment extends Fragment {
                             errorMsg += accountCheckLogic.getErrorMessage();
                         }
                         if (StringUtils.isNotEmpty(errorMsg)){
-                            AlertDialogUtils.createAlertDialog(getContext(),errorMsg);
+                            NoticeUtils.createAlertDialog(getContext(),errorMsg);
                         } else {
                             // upgrade data
                             userDBLogic.update(userDto);

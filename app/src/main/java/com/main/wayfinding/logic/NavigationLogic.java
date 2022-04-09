@@ -23,6 +23,9 @@ public class NavigationLogic {
     private RouteDto currentRoute;
     private int registrationNumber;
     private final GoogleMap map;
+    private boolean isNavigating;
+    private boolean isDraggingMap;
+
 
     public NavigationLogic(GoogleMap map) {
         this.map = map;
@@ -39,16 +42,21 @@ public class NavigationLogic {
             // update route state
             NavigationUtils.updateRouteState(currentRoute, currentLocation);
             // update UI
-            map.animateCamera(CameraUpdateFactory.newLatLng(LatLngConverterUtils.getLatLngFromDto(currentLocation)), 500, null);
+            if (!isDraggingMap) {
+                map.animateCamera(CameraUpdateFactory.newLatLng(LatLngConverterUtils.getLatLngFromDto(currentLocation)), 500, null);
+            }
             NavigationUtils.updatePolylinesUI(currentRoute, map);
         });
         // move camera at once for more fluent appearance
         Location location = TrackerLogic.getInstance().getLocation();
-        map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(), location.getLongitude())), 500, null);
+        map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(),
+                location.getLongitude())), 500, null);
+        isNavigating = true;
     }
 
     public void pauseNavigation() {
         TrackerLogic.unregisterLocationUpdateCompleteEvent(registrationNumber);
+        isNavigating = false;
     }
 
     public void resumeNavigation() {
@@ -56,16 +64,39 @@ public class NavigationLogic {
             map.clear();
             NavigationUtils.updatePolylinesUI(currentRoute, map);
         });
+        isNavigating = true;
     }
 
     public void stopNavigation() {
         TrackerLogic.unregisterLocationUpdateCompleteEvent(registrationNumber);
         currentRoute = null;
+        isNavigating = false;
     }
 
     public void addWayPoint(LocationDto location) {
         // re-search routes based on the current route without changing steps passed previously
         currentRoute.addWaypoint(location);
-        NavigationUtils.updateRouteFromCurrentLocation(currentRoute, location);
+        LocationDto currentLocation = new LocationDto();
+        Location loc = TrackerLogic.getInstance().getLocation();
+        currentLocation.setLatitude(loc.getLatitude());
+        currentLocation.setLongitude(loc.getLongitude());
+        NavigationUtils.updateRouteFromCurrentLocation(currentRoute, currentLocation);
+        NavigationUtils.updatePolylinesUI(currentRoute, map);
+    }
+
+    public boolean isNavigating() {
+        return isNavigating;
+    }
+
+    public void setNavigating(boolean navigating) {
+        isNavigating = navigating;
+    }
+
+    public boolean isDraggingMap() {
+        return isDraggingMap;
+    }
+
+    public void setDraggingMap(boolean draggingMap) {
+        isDraggingMap = draggingMap;
     }
 }

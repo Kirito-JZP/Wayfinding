@@ -19,7 +19,7 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.GenericTypeIndicator;
 import com.main.wayfinding.R;
-import com.main.wayfinding.adapter.preferenceAdapter;
+import com.main.wayfinding.adapter.PreferenceAdapter;
 import com.main.wayfinding.databinding.FragmentPreferenceBinding;
 import com.main.wayfinding.dto.LocationDto;
 import com.main.wayfinding.logic.TrackerLogic;
@@ -44,9 +44,9 @@ import java.util.List;
 public class PreferenceFragment extends Fragment {
     private FragmentPreferenceBinding binding;
     private RecyclerView recentSavedList;
-    private preferenceAdapter recentSavedAdapter;
+    private PreferenceAdapter recentSavedAdapter;
     private RecyclerView nearbyList;
-    private preferenceAdapter nearbyAdapter;
+    private PreferenceAdapter nearbyAdapter;
     private FirebaseAuth auth;
 
     @Override
@@ -62,14 +62,14 @@ public class PreferenceFragment extends Fragment {
 
         // Recent saved list setting
         recentSavedList = view.findViewById(R.id.recent_loc);
-        recentSavedAdapter = new preferenceAdapter();
+        recentSavedAdapter = new PreferenceAdapter();
         recentSavedList.setAdapter(recentSavedAdapter);
         recentSavedList.setLayoutManager(new LinearLayoutManager(getContext(),
                 LinearLayoutManager.HORIZONTAL, false));
 
         // NearBy List setting
         nearbyList = view.findViewById(R.id.nearby_loc);
-        nearbyAdapter = new preferenceAdapter();
+        nearbyAdapter = new PreferenceAdapter();
         nearbyList.setAdapter(nearbyAdapter);
         nearbyList.setLayoutManager(new LinearLayoutManager(getContext(),
                 LinearLayoutManager.HORIZONTAL, false));

@@ -2,7 +2,9 @@ package com.main.wayfinding.adapter;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.Fragment;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,8 +20,10 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.main.wayfinding.MainActivity;
 import com.main.wayfinding.R;
 import com.main.wayfinding.dto.LocationDto;
+import com.main.wayfinding.fragment.map.MapFragment;
 import com.main.wayfinding.logic.db.LocationDBLogic;
 import com.squareup.picasso.Picasso;
 
@@ -33,7 +37,7 @@ import org.apache.commons.lang3.StringUtils;
  * @version Revision: 1
  * Date: 2022/3/29 01:50
  */
-public class PreferenceAdapter extends RecyclerView.Adapter<PreferenceAdapter.ViewHolder>
+public class preferenceAdapter extends RecyclerView.Adapter<preferenceAdapter.ViewHolder>
 {
     public class ViewHolder extends RecyclerView.ViewHolder
     {
@@ -59,7 +63,7 @@ public class PreferenceAdapter extends RecyclerView.Adapter<PreferenceAdapter.Vi
     public FirebaseUser currentUser;
     private LocationDBLogic locationDBLogic;
 
-    public PreferenceAdapter() {
+    public preferenceAdapter() {
         locationDtoList = new ArrayList<LocationDto>();
         currentUser = FirebaseAuth.getInstance().getCurrentUser();
         locationDBLogic = new LocationDBLogic();
@@ -71,7 +75,7 @@ public class PreferenceAdapter extends RecyclerView.Adapter<PreferenceAdapter.Vi
     }
 
     @Override
-    public PreferenceAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
+    public preferenceAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType)
     {
         context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
@@ -82,7 +86,7 @@ public class PreferenceAdapter extends RecyclerView.Adapter<PreferenceAdapter.Vi
     }
 
     @Override
-    public void onBindViewHolder(PreferenceAdapter.ViewHolder holder, @SuppressLint("RecyclerView") int position)
+    public void onBindViewHolder(preferenceAdapter.ViewHolder holder, @SuppressLint("RecyclerView") int position)
     {
         LocationDto locationDto = locationDtoList.get(position);
         if (StringUtils.isNotEmpty(locationDto.getGmImgUrl())) {

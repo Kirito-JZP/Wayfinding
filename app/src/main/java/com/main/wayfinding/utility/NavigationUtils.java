@@ -39,6 +39,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * Description
@@ -56,17 +57,18 @@ public class NavigationUtils {
         // re-arrange the route from the current step while keep the previously passed steps
         List<RouteDto.RouteStep> steps = route.getSteps();
         RouteDto.RouteStep currentStep = steps.get(route.getCurrentStepIndex());
-        // split currentStep into two steps according to the current location
-        currentStep.setEndLocation(currentLocation);
-        currentStep.setPassed(true);
+        // modify route from the next route step, otherwise just return (current step is the last
+        // step)
+        if (route.getCurrentStepIndex() >= route.getSteps().size() - 1) {
+            return;
+        }
         int indexToReplace = route.getCurrentStepIndex() + 1;
         // filter waypoints, removing those already passed
         List<com.google.maps.model.LatLng> validWaypoints =
                 filterValidWaypoints(route, currentLocation);
-        List<RouteDto> possibleRoutes = findRoute(currentLocation, route.getEndLocation(),
+        List<RouteDto> possibleRoutes = findRoute(currentStep.getEndLocation(),
+                route.getEndLocation(),
                 route.getMode(), validWaypoints).first;
-        // TODO: currently automatically select the one with the minimal estimated arriving time
-        //  but should give users options if there are more than one routes available
         long minTime = Long.MAX_VALUE;
         RouteDto bestRoute = possibleRoutes.get(0);
         for (RouteDto r : possibleRoutes) {
@@ -79,11 +81,16 @@ public class NavigationUtils {
                 bestRoute = r;
             }
         }
-        // save polyline options
+        // save new steps
         for (RouteDto.RouteStep step : bestRoute.getSteps()) {
             // replace the step already saved in the route
             replaceOrAddStep(route, indexToReplace, step);
-            indexToReplace += 1;
+            indexToReplace++;
+        }
+        // remove the rest steps if there are any
+        for (int i = indexToReplace; i < route.getSteps().size(); i++) {
+            route.getSteps().remove(indexToReplace);
+            indexToReplace++;
         }
     }
 
@@ -102,7 +109,7 @@ public class NavigationUtils {
 
     public static Pair<List<RouteDto>, LatLngBounds> findRoute(
             LocationDto startLocDto, LocationDto targetLocDto, TravelMode mode,
-            @Nullable List<com.google.maps.model.LatLng> waypoints) {
+            List<com.google.maps.model.LatLng> waypoints) {
         if (startLocDto != null && targetLocDto != null) {
             LatLng orig = LatLngConverterUtils.getLatLngFromDto(startLocDto);
             LatLng dest = LatLngConverterUtils.getLatLngFromDto(targetLocDto);
@@ -112,8 +119,9 @@ public class NavigationUtils {
                         new DirectionsApiRequest(WayfindingApp.getGeoApiContext())
                                 .origin(LatLngConverterUtils.convert(orig))
                                 .destination(LatLngConverterUtils.convert(dest))
+                                .alternatives(true)
                                 .mode(mode);
-                if (waypoints != null) {
+                if (waypoints != null && !waypoints.isEmpty()) {
                     request.waypoints(waypoints.toArray(new com.google.maps.model.LatLng[waypoints.size()]));
                 }
                 DirectionsResult result = request.await();
@@ -129,6 +137,13 @@ public class NavigationUtils {
                     min_lng = Math.min(min_lng, r.bounds.southwest.lng);
                     // set mode
                     route.setMode(mode);
+                    // set waypoints
+                    for (com.google.maps.model.LatLng waypoint : waypoints) {
+                        LocationDto loc = new LocationDto();
+                        loc.setLatitude(waypoint.lat);
+                        loc.setLongitude(waypoint.lng);
+                        route.addWaypoint(loc);
+                    }
                     // add start location and end location
                     LocationDto startLocation = new LocationDto();
                     LocationDto endLocation = new LocationDto();
@@ -176,7 +191,6 @@ public class NavigationUtils {
                         new LatLng(max_lat, max_lng));
                 return new Pair<>(routes, bounds);
             } catch (ZeroResultsException e) {
-                // TODO: notify users if there are no routes available
                 return null;
             } catch (InterruptedException | ApiException | IOException e) {
                 e.printStackTrace();
@@ -298,6 +312,7 @@ public class NavigationUtils {
         List<RouteDto.RouteStep> affectedSteps = new ArrayList<>();
         List<RouteDto.RouteStep> steps = route.getSteps();
         Set<Integer> affectedIndices = new HashSet<>();
+        int currentIndex = route.getCurrentStepIndex();
         for (int i = 0; i < points.size(); i++) {
             for (int j = 0; j < steps.size(); j++) {
                 String pointPlaceID = points.get(i).placeId;
@@ -305,8 +320,11 @@ public class NavigationUtils {
                 String endLocationPlaceID = steps.get(j).getEndLocation().getGmPlaceID();
                 if (StringUtils.equals(pointPlaceID, startLocationPlaceID) ||
                         StringUtils.equals(pointPlaceID, endLocationPlaceID)) {
-                    steps.get(j).setAffected(true);
-                    affectedIndices.add(j);
+                    // only add indices that are ahead of the current index
+                    if (j > currentIndex) {
+                        steps.get(j).setAffected(true);
+                        affectedIndices.add(j);
+                    }
                 }
             }
         }
@@ -387,5 +405,18 @@ public class NavigationUtils {
         int indexLocation = findClosestStep(route, location);
         int indexReference = findClosestStep(route, reference);
         return indexLocation != -1 && indexReference != -1 && indexLocation > indexReference;
+    }
+
+    @NonNull
+    public static List<com.google.maps.model.LatLng> getLatLngFromWaypoints(@Nullable RouteDto currentRoute) {
+        if (currentRoute == null || currentRoute.getWaypoints().isEmpty()) {
+            return new ArrayList<>();
+        } else {
+            return currentRoute.getWaypoints()
+                    .stream()
+                    .map(waypoint ->
+                            LatLngConverterUtils.convert(LatLngConverterUtils.getLatLngFromDto(waypoint))
+                    ).collect(Collectors.toList());
+        }
     }
 }

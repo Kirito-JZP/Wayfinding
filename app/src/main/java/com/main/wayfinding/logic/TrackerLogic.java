@@ -2,6 +2,7 @@ package com.main.wayfinding.logic;
 
 import static android.content.pm.PackageManager.PERMISSION_DENIED;
 import static android.content.pm.PackageManager.PERMISSION_GRANTED;
+import static com.google.android.gms.location.LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY;
 import static com.google.android.gms.location.LocationRequest.PRIORITY_HIGH_ACCURACY;
 import static com.main.wayfinding.utility.StaticStringUtils.*;
 
@@ -38,8 +39,6 @@ import java.util.TimerTask;
  * Date: 2022/1/29 0:58
  */
 public class TrackerLogic implements LocationSource {
-    // The minimum distance to change Updates in meters
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATES = 5; // 5 meters
     // The minimum time between updates in milliseconds
     private static final long MIN_TIME_BW_UPDATES = 1000 * 5; // 5 seconds
     // Request code for location permission request.

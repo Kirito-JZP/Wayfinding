@@ -1,7 +1,12 @@
 package com.main.wayfinding.logic;
 
+import android.graphics.Color;
+
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
 import com.main.wayfinding.dto.EmergencyEventDto;
 import com.main.wayfinding.dto.LocationDto;
 import com.main.wayfinding.dto.RouteDto;
@@ -47,7 +52,7 @@ public class EmergencyEventLogic {
     }
 
     public void processEmergencyEvent(EmergencyEventDto event, LocationDto currentLocation,
-                                      RouteDto currentRoute, GoogleMap map) {
+                                      RouteDto currentRoute, List<RouteDto> possibleRoutes, GoogleMap map) {
         // find out if the location of the emergency event is ahead of the current location in the
         // current route and if the current route is affected
         LocationDto location = new LocationDto();
