@@ -226,7 +226,12 @@ public class AccountFragment extends Fragment {
                                         dialogCreate.dismiss();
                                         reload();
                                     } else {
-                                        System.out.println(task.getException());
+                                        if ("The email address is already in use by another account"
+                                                .equals(Objects.requireNonNull(task.getException()).toString())) {
+                                            NoticeUtils.createAlertDialog(getContext(), SIGNUP_ERROR);
+                                        } else {
+                                            NoticeUtils.createAlertDialog(getContext(), ERROR);
+                                        }
                                     }
                                 }
                             });
