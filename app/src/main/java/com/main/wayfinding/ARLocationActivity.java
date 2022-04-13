@@ -42,7 +42,7 @@ import uk.co.appoly.arcorelocation.rendering.LocationNodeRender;
 import uk.co.appoly.arcorelocation.sensor.DeviceLocationChanged;
 import uk.co.appoly.arcorelocation.utils.ARLocationPermissionHelper;
 
-public class ARNavigationActivity extends AppCompatActivity {
+public class ARLocationActivity extends AppCompatActivity {
     private boolean installRequested;
     private boolean hasFinishedLoading = false;
     private Snackbar loadingMessageSnackbar = null;
@@ -113,7 +113,7 @@ public class ARNavigationActivity extends AppCompatActivity {
                                 // If our locationScene object hasn't been setup yet, this is a good time to do it
                                 // We know that here, the AR components have been initiated.
                                 locationScene = new LocationScene(this, this, arSceneView);
-                                ARNavigationActivity thisActivity = this;
+                                ARLocationActivity thisActivity = this;
                                 locationScene.setLocationChangedEvent(new DeviceLocationChanged() {
                                     @Override
                                     public void onChange(Location ArLocation) {
@@ -121,15 +121,14 @@ public class ARNavigationActivity extends AppCompatActivity {
                                         trackerLogic.requestLastLocation(new TrackerLogic.RequestLocationCompleteCallback() {
                                             @Override
                                             public void onRequestLocationComplete(Location location) {
-                                                locationScene.deviceLocation.currentBestLocation = location;
-
+                                                locationScene.deviceLocation.currentBestLocation.setLatitude(location.getLatitude());
+                                                locationScene.deviceLocation.currentBestLocation.setLongitude(location.getLongitude());
                                                 if (lastPosition == null) {
                                                     lastPosition = location;
                                                     list = PlaceManagerUtils.getNearby(location);
                                                     needUpdate = true;
                                                 }
                                                 if (needUpdate) {
-                                                    System.out.println(list.size()+"zzzzzzzzzzzzzzzzzz");
                                                     for (LocationDto locationDto : list) {
                                                         //------------------------
                                                         CompletableFuture<ViewRenderable> layout =
@@ -196,10 +195,10 @@ public class ARNavigationActivity extends AppCompatActivity {
                                                     }
                                                     needUpdate = false;
                                                 }
-                                                if (location.distanceTo(lastPosition) >= 50) {
+                                                if (location.distanceTo(lastPosition) >= 15) {
                                                     lastPosition = location;
                                                     list = PlaceManagerUtils.getNearby(location);
-                                                    locationScene.mLocationMarkers.clear();
+                                                    locationScene.clearMarkers();
                                                     needUpdate = true;
                                                 }
                                             }
@@ -238,7 +237,7 @@ public class ARNavigationActivity extends AppCompatActivity {
         arReturnBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(ARNavigationActivity.this, MainActivity.class);
+                Intent intent = new Intent(ARLocationActivity.this, MainActivity.class);
                 intent.putExtra("id", 1);
                 startActivity(intent);
             }
@@ -369,7 +368,7 @@ public class ARNavigationActivity extends AppCompatActivity {
 
         loadingMessageSnackbar =
                 Snackbar.make(
-                        ARNavigationActivity.this.findViewById(android.R.id.content),
+                        ARLocationActivity.this.findViewById(android.R.id.content),
                         R.string.plane_finding,
                         Snackbar.LENGTH_INDEFINITE);
         loadingMessageSnackbar.getView().setBackgroundColor(0xbf323232);

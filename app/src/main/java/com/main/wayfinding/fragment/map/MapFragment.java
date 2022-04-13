@@ -49,13 +49,10 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PointOfInterest;
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
 import com.google.maps.model.TravelMode;
-import com.main.wayfinding.ARNavigationActivity;
+import com.main.wayfinding.ARLocationActivity;
 import com.main.wayfinding.R;
 import com.main.wayfinding.adapter.LocationAdapter;
 import com.main.wayfinding.databinding.FragmentMapBinding;
@@ -63,7 +60,6 @@ import com.main.wayfinding.dto.EmergencyEventDto;
 import com.main.wayfinding.dto.LocationDto;
 import com.main.wayfinding.dto.RouteDto;
 import com.main.wayfinding.logic.EmergencyEventLogic;
-import com.main.wayfinding.logic.db.DisasterDBLogic;
 import com.main.wayfinding.logic.db.LocationDBLogic;
 import com.main.wayfinding.logic.TrackerLogic;
 import com.main.wayfinding.logic.NavigationLogic;
@@ -295,7 +291,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         arBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), ARNavigationActivity.class);
+                Intent intent = new Intent(getActivity(), ARLocationActivity.class);
                 startActivity(intent);
             }
         });

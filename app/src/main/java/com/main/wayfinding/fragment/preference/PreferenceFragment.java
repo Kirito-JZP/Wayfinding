@@ -94,12 +94,14 @@ public class PreferenceFragment extends Fragment {
                                 .getValue(new GenericTypeIndicator<HashMap<String, LocationDto>>() {});
                         //key: locationID
                         //value: LocationDto Object
-                        Iterator<Map.Entry<String, LocationDto>> iterator = map.entrySet().iterator();
-                        while (iterator.hasNext()) {
-                            Map.Entry<String, LocationDto> next = iterator.next();
-                            String key = next.getKey();
-                            LocationDto object = next.getValue();
-                            locationDtoList.add(object);
+                        if(map!=null){
+                            Iterator<Map.Entry<String, LocationDto>> iterator = map.entrySet().iterator();
+                            while (iterator.hasNext()) {
+                                Map.Entry<String, LocationDto> next = iterator.next();
+                                String key = next.getKey();
+                                LocationDto object = next.getValue();
+                                locationDtoList.add(object);
+                            }
                         }
 
                         // Sort locationDto list by adding date.
