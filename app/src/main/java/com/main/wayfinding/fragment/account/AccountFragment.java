@@ -299,7 +299,9 @@ public class AccountFragment extends Fragment {
                             accountLogic.resetPassword(email, new OnCompleteListener<Void>() {
                                 @Override
                                 public void onComplete(@NonNull Task<Void> task) {
-                                    if (!task.isSuccessful()) {
+                                    if (task.isSuccessful()) {
+                                        NoticeUtils.createAlertDialog(getContext(), EMAIL_SENT);
+                                    } else {
                                         if ("no user record corresponding to this identifier".equals(Objects.requireNonNull(task.getException()).toString())) {
                                             NoticeUtils.createAlertDialog(getContext(), NO_ACCOUNT_FOUND);
                                         }

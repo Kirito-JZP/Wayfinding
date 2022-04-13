@@ -23,6 +23,7 @@ public class StaticStringUtils {
             "means";
     public static final String NO_ACCOUNT_FOUND = "We couldn't find an account with that email " +
             "address.";
+    public static final String EMAIL_SENT = "Email sent!";
     public static final String displayEmergencyEvent(EmergencyEventDto event) {
         return "Emergency event: " + event.getType() + " centered at (" + event.getLatitude() +
                 ", " + event.getLongitude() + "). Estimated radius of affected area :" + (int) event.getRadius() +
