@@ -55,6 +55,7 @@ import com.google.maps.model.TravelMode;
 import com.main.wayfinding.ARLocationActivity;
 import com.main.wayfinding.R;
 import com.main.wayfinding.adapter.LocationAdapter;
+import com.main.wayfinding.databinding.FragmentMapBinding;
 import com.main.wayfinding.dto.EmergencyEventDto;
 import com.main.wayfinding.dto.LocationDto;
 import com.main.wayfinding.dto.RouteDto;
