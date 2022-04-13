@@ -44,12 +44,14 @@ import com.main.wayfinding.logic.AuthLogic;
 import com.main.wayfinding.logic.db.UserDBLogic;
 import com.main.wayfinding.utility.NoticeUtils;
 import com.main.wayfinding.utility.FileReaderUtils;
+import com.main.wayfinding.utility.StaticStringUtils;
 
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Objects;
 
 /**
  * Define the fragment used for displaying and changing user info
@@ -185,14 +187,14 @@ public class AccountFragment extends Fragment {
                         if (accountCheckLogic.isEmpty(getString(R.string.email), email)) {
                             errorMsg += accountCheckLogic.getErrorMessage();
                             System.out.println(errorMsg);
-                        }else if(accountCheckLogic.checkEmail(email)) {
-                                errorMsg += accountCheckLogic.getErrorMessage();
+                        } else if (accountCheckLogic.checkEmail(email)) {
+                            errorMsg += accountCheckLogic.getErrorMessage();
                         }
 
                         if (accountCheckLogic.isEmpty(getString(R.string.password), password)) {
                             errorMsg += accountCheckLogic.getErrorMessage();
-                        }else if (accountCheckLogic.checkLength(password.length())) {
-                                errorMsg += accountCheckLogic.getErrorMessage();
+                        } else if (accountCheckLogic.checkLength(password.length())) {
+                            errorMsg += accountCheckLogic.getErrorMessage();
                         }
 
                         if (accountCheckLogic.isEmpty(getString(R.string.first_name), userDto.getFirstName())) {
@@ -251,16 +253,16 @@ public class AccountFragment extends Fragment {
                         if (accountCheckLogic.isEmpty(getString(R.string.email), email)) {
                             errorMsg += accountCheckLogic.getErrorMessage();
                             System.out.println(errorMsg);
-                        }else if (accountCheckLogic.checkEmail(email)) {
-                                errorMsg += accountCheckLogic.getErrorMessage();
+                        } else if (accountCheckLogic.checkEmail(email)) {
+                            errorMsg += accountCheckLogic.getErrorMessage();
                         }
 
                         if (accountCheckLogic.isEmpty(getString(R.string.password), password)) {
                             errorMsg += accountCheckLogic.getErrorMessage();
                         }
 
-                        if (StringUtils.isNotEmpty(errorMsg)){
-                            NoticeUtils.createAlertDialog(getContext(),errorMsg);
+                        if (StringUtils.isNotEmpty(errorMsg)) {
+                            NoticeUtils.createAlertDialog(getContext(), errorMsg);
                         } else {
                             accountLogic.login(email, password, new OnCompleteListener<AuthResult>() {
                                 @Override
@@ -292,11 +294,19 @@ public class AccountFragment extends Fragment {
                         if (accountCheckLogic.isEmpty(getString(R.string.email), email)) {
                             errorMsg += accountCheckLogic.getErrorMessage();
                             NoticeUtils.createAlertDialog(getContext(), errorMsg);
-                        }else{
+                        } else {
                             // reset()
-                            NoticeUtils.createAlertDialog(getContext(), "testRet()!!!");
+                            accountLogic.resetPassword(email, new OnCompleteListener<Void>() {
+                                @Override
+                                public void onComplete(@NonNull Task<Void> task) {
+                                    if (!task.isSuccessful()) {
+                                        if ("no user record corresponding to this identifier".equals(Objects.requireNonNull(task.getException()).toString())) {
+                                            NoticeUtils.createAlertDialog(getContext(), NO_ACCOUNT_FOUND);
+                                        }
+                                    }
+                                }
+                            });
                         }
-
                     }
                 });
             }
@@ -371,8 +381,8 @@ public class AccountFragment extends Fragment {
                         if (accountCheckLogic.isEmpty(getString(R.string.phone_number), phone.getText().toString())) {
                             errorMsg += accountCheckLogic.getErrorMessage();
                         }
-                        if (StringUtils.isNotEmpty(errorMsg)){
-                            NoticeUtils.createAlertDialog(getContext(),errorMsg);
+                        if (StringUtils.isNotEmpty(errorMsg)) {
+                            NoticeUtils.createAlertDialog(getContext(), errorMsg);
                         } else {
                             // upgrade data
                             userDBLogic.update(userDto);

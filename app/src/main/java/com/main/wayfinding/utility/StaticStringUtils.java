@@ -21,7 +21,8 @@ public class StaticStringUtils {
     public static final String STOP_NAVIGATION = "Navigation stopped";
     public static final String NO_AVAILABLE_ROUTE = "No routes found for selected transporation " +
             "means";
-
+    public static final String NO_ACCOUNT_FOUND = "We couldn't find an account with that email " +
+            "address.";
     public static final String displayEmergencyEvent(EmergencyEventDto event) {
         return "Emergency event: " + event.getType() + " centered at (" + event.getLatitude() +
                 ", " + event.getLongitude() + "). Estimated radius of affected area :" + (int) event.getRadius() +
