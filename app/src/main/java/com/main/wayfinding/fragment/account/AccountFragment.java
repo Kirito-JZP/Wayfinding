@@ -268,7 +268,6 @@ public class AccountFragment extends Fragment {
                                     if (task.isSuccessful()) {
                                         dialogLogin.dismiss();
                                         reload();
-                                        count = 1;
                                     } else {
                                         //Event1Case05
                                         String msg = task.getException().getMessage();
@@ -276,7 +275,6 @@ public class AccountFragment extends Fragment {
                                         if (StringUtils.equals(msg, AUTHORITY_FAIL_STRING)) {
                                             NoticeUtils.createAlertDialog(getContext(), AUTHORITY_FAIL_MSG);
                                         }
-
                                     }
                                 }
                             });
@@ -288,7 +286,17 @@ public class AccountFragment extends Fragment {
                     @Override
                     public void onClick(View view) {
                         // ForgetPassword and Reset()
-                        NoticeUtils.createAlertDialog(getContext(), "testRet()!!!");
+                        EditText usernameLogin = loginView.findViewById(R.id.email_login);
+                        String email = usernameLogin.getText().toString();
+                        String errorMsg = NULL_STRING;
+                        if (accountCheckLogic.isEmpty(getString(R.string.email), email)) {
+                            errorMsg += accountCheckLogic.getErrorMessage();
+                            NoticeUtils.createAlertDialog(getContext(), errorMsg);
+                        }else{
+                            // reset()
+                            NoticeUtils.createAlertDialog(getContext(), "testRet()!!!");
+                        }
+
                     }
                 });
             }
