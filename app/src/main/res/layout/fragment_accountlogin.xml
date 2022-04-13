@@ -46,16 +46,26 @@
             android:layout_below="@id/email_login"
             android:background="@drawable/account_border"
             android:drawableLeft="@drawable/ic_lock"
+            android:drawablePadding="20sp"
             android:hint="@string/password"
             android:inputType="textPassword"
             android:minHeight="70dp"
-            android:text="test123"
-            android:paddingTop="20sp"
             android:paddingLeft="25dp"
-            android:drawablePadding="20sp"
+            android:paddingTop="20sp"
+            android:text="test123"
             android:textColor="@color/quantum_grey"
             android:textSize="20sp" />
     </RelativeLayout>
+
+    <TextView
+        android:id="@+id/forget"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/login_list"
+        android:layout_marginLeft="230dp"
+        android:text="ForgetPassword"
+        android:textColor="#1a73e8"
+        android:textSize="14sp" />
 
     <Button
         android:id="@+id/confirm"
@@ -66,6 +76,5 @@
         android:layout_marginTop="45dp"
         android:layout_marginBottom="50dp"
         android:text="@string/confirm" />
-
 
 </RelativeLayout>
