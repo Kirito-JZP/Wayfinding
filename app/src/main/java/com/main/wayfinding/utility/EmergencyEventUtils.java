@@ -24,11 +24,12 @@ public class EmergencyEventUtils {
     public static EmergencyEventDto generateEmergencyEvent(RouteDto route) {
         // code use to add disaster even (define disaster code "A" "B" "C" ...)
         EmergencyEventDto emergencyEventDto = new EmergencyEventDto();
-//        List<RouteDto.RouteStep> steps = route.getSteps();
-//        RouteDto.RouteStep step;
-//        step = steps.get(Math.min(steps.size() - 10, steps.size() - 1));
-//        emergencyEventDto.setLatitude(step.getStartLocation().getLatitude());
-//        emergencyEventDto.setLongitude(step.getStartLocation().getLongitude());
+        List<RouteDto.RouteStep> steps = route.getSteps();
+        RouteDto.RouteStep step;
+        step = steps.get(Math.min(steps.size() - 10, steps.size() - 1));
+        emergencyEventDto.setLatitude(step.getStartLocation().getLatitude());
+        emergencyEventDto.setLongitude(step.getStartLocation().getLongitude());
+        emergencyEventDto.setRadius(1000);
 
 //        emergencyEventDto.setCode("1");
 //        emergencyEventDto.setLatitude(53.3538627);

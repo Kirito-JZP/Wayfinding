@@ -39,6 +39,7 @@ public class EmergencyEventLogic {
     private Map<String, List<LatLng>> waypoints;    // waypoints added due to emergency events
     private Map<String, Boolean> triggered;
     private int locationUpdateCallbackIndex = -1;
+    private boolean firstTime = true;
 
     public EmergencyEventLogic() {
         events = new HashMap<>();
@@ -47,6 +48,13 @@ public class EmergencyEventLogic {
     }
 
     public void addEvent(EmergencyEventDto event) {
+        LocalTime endTime =
+                EmergencyEventUtils.convertToLocalTime(event.getEndTime());
+        LocalTime now = LocalTime.now();
+        // ignore this event if it has already passed when added
+        if (now.isAfter(endTime)) {
+            return;
+        }
         this.events.put(event.getCode(), event);
         if (locationUpdateCallbackIndex == -1) {
             locationUpdateCallbackIndex =
@@ -172,24 +180,18 @@ public class EmergencyEventLogic {
     public void processEmergencyEvenEnd(EmergencyEventDto event, LocationDto currentLocation,
                                         RouteDto currentRoute) {
         List<LatLng> tempWaypoints = waypoints.get(event.getCode());
-        List<LocationDto> allWaypoints = currentRoute.getWaypoints();
-        Iterator<LatLng> itTempWaypoints = tempWaypoints.iterator();
-        while (itTempWaypoints.hasNext()) {
-            LatLng tw = itTempWaypoints.next();
-            Iterator<LocationDto> itAllWaypoints = allWaypoints.iterator();
-            while (itAllWaypoints.hasNext()) {
-                LocationDto ta = itAllWaypoints.next();
+        if (tempWaypoints != null) {
+            List<LocationDto> allWaypoints = currentRoute.getWaypoints();
+            for (LatLng tw : tempWaypoints) {
                 // if the two waypoints are the same, or the one stored in the current route has
                 // been passed, then remove it
-                if (tw.latitude == ta.getLatitude() && tw.longitude == ta.getLongitude() ||
+                allWaypoints.removeIf(ta -> tw.latitude == ta.getLatitude() && tw.longitude == ta.getLongitude() ||
                         !NavigationUtils.isLocationAheadOfReference(currentRoute, ta,
-                                currentLocation)) {
-                    itAllWaypoints.remove();
-                }
+                                currentLocation));
             }
-        }
 
-        // re-search routes from the current position with event-related waypoints removed
-        NavigationUtils.updateRouteFromCurrentLocation(currentRoute, currentLocation);
+            // re-search routes from the current position with event-related waypoints removed
+            NavigationUtils.updateRouteFromCurrentLocation(currentRoute, currentLocation);
+        }
     }
 }

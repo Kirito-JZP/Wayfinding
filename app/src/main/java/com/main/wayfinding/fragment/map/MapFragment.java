@@ -324,8 +324,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                 }
                 List<com.google.maps.model.LatLng> waypoints =
                         NavigationUtils.getLatLngFromWaypoints(currentRouteDto);
-                parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode,
-                        waypoints));
+                if (startLocDto != null && targetLocDto != null) {
+                    parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode, waypoints));
+                }
             }
         });
 
@@ -352,8 +353,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             public void onClick(View view) {
                 List<com.google.maps.model.LatLng> waypoints =
                         NavigationUtils.getLatLngFromWaypoints(currentRouteDto);
-                parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto,
-                        TravelMode.TRANSIT, waypoints));
+                mode = TravelMode.TRANSIT;
+                if (startLocDto != null && targetLocDto != null) {
+                    parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode, waypoints));
+                }
             }
         });
 
@@ -362,8 +365,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             public void onClick(View view) {
                 List<com.google.maps.model.LatLng> waypoints =
                         NavigationUtils.getLatLngFromWaypoints(currentRouteDto);
-                parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto,
-                        TravelMode.WALKING, waypoints));
+                mode = TravelMode.WALKING;
+                if (startLocDto != null && targetLocDto != null) {
+                    parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode, waypoints));
+                }
             }
         });
 
@@ -372,8 +377,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             public void onClick(View view) {
                 List<com.google.maps.model.LatLng> waypoints =
                         NavigationUtils.getLatLngFromWaypoints(currentRouteDto);
-                parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto,
-                        TravelMode.BICYCLING, waypoints));
+                mode = TravelMode.BICYCLING;
+                if (startLocDto != null && targetLocDto != null) {
+                    parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode, waypoints));
+                }
             }
         });
 
@@ -389,9 +396,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
 //                    @Override
 //                    public void onComplete(@NonNull Task<DataSnapshot> task) {
 //                        if (task.isSuccessful()) {
-//                record the event
+//                             record the event
 //                            emergencyEventLogic.addEvent(task.getResult().getValue
-//                            (EmergencyEventDto.class));
+//                                    (EmergencyEventDto.class));
 //                        } else {
 //                            task.getException().printStackTrace();
 //                        }
@@ -551,8 +558,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                                 deptPlacesListView.setVisibility(View.INVISIBLE);
                                 List<com.google.maps.model.LatLng> waypoints =
                                         NavigationUtils.getLatLngFromWaypoints(currentRouteDto);
-                                parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto,
-                                        mode, waypoints));
+                                if (startLocDto != null && targetLocDto != null) {
+                                    parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode, waypoints));
+                                }
                             }
                         }
                     });
@@ -609,7 +617,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             targetLocDto.setLongitude(latlng.longitude);
             List<com.google.maps.model.LatLng> waypoints =
                     NavigationUtils.getLatLngFromWaypoints(currentRouteDto);
-            parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode, waypoints));
+            if (startLocDto != null && targetLocDto != null) {
+                parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode, waypoints));
+            }
         }
     }
 
@@ -720,8 +730,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     deptTxt.setText(startLocDto.getName());
                     List<com.google.maps.model.LatLng> waypoints =
                             NavigationUtils.getLatLngFromWaypoints(currentRouteDto);
-                    parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode,
-                            waypoints));
+                    if (startLocDto != null && targetLocDto != null) {
+                        parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode, waypoints));
+                    }
                 }
             });
             setDestBtn.setOnClickListener(new View.OnClickListener() {
@@ -731,8 +742,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     destTxt.setText(targetLocDto.getName());
                     List<com.google.maps.model.LatLng> waypoints =
                             NavigationUtils.getLatLngFromWaypoints(currentRouteDto);
-                    parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode,
-                            waypoints));
+                    if (startLocDto != null && targetLocDto != null) {
+                        parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode, waypoints));
+                    }
                 }
             });
             // deactivate addWaypointBtn at first and activate it once a route is selected
@@ -792,10 +804,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             manager.hideSoftInputFromWindow(getView().findFocus().getWindowToken(), 0);
         editText.clearFocus();
         ;
-        // update UI
+        // find route
         List<com.google.maps.model.LatLng> waypoints =
                 NavigationUtils.getLatLngFromWaypoints(currentRouteDto);
-        parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode, waypoints));
+        if (startLocDto != null && targetLocDto != null) {
+            parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode, waypoints));
+        }
     }
 
     private void parseRouteData(Pair<List<RouteDto>, LatLngBounds> data) {
@@ -807,7 +821,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         if (data != null) {
             possibleRoutes = data.first;
             LatLngBounds bounds = data.second;
-            // use the quickiest route by default
+            // use the quickest route by default
             long minTime = Long.MAX_VALUE;
             RouteDto bestRoute = possibleRoutes.get(0);
             for (RouteDto r : possibleRoutes) {

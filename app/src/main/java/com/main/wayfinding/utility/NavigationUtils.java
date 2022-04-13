@@ -121,7 +121,7 @@ public class NavigationUtils {
                         new DirectionsApiRequest(WayfindingApp.getGeoApiContext())
                                 .origin(LatLngConverterUtils.convert(orig))
                                 .destination(LatLngConverterUtils.convert(dest))
-                                .alternatives(true)
+//                                .alternatives(true)
                                 .mode(mode);
                 if (waypoints != null && !waypoints.isEmpty()) {
                     request.waypoints(waypoints.toArray(new com.google.maps.model.LatLng[waypoints.size()]));
