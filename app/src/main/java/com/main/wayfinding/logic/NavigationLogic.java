@@ -1,14 +1,18 @@
 package com.main.wayfinding.logic;
 
+import android.content.Context;
 import android.location.Location;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
+import com.main.wayfinding.R;
 import com.main.wayfinding.dto.LocationDto;
 import com.main.wayfinding.dto.RouteDto;
 import com.main.wayfinding.utility.LatLngConverterUtils;
 import com.main.wayfinding.utility.NavigationUtils;
+import com.main.wayfinding.utility.NoticeUtils;
+import com.main.wayfinding.utility.StaticStringUtils;
 
 /**
  * Logic of Navigation
@@ -23,12 +27,14 @@ public class NavigationLogic {
     private RouteDto currentRoute;
     private int registrationNumber;
     private final GoogleMap map;
+    private final Context context;
     private boolean isNavigating;
     private boolean isDraggingMap;
 
 
-    public NavigationLogic(GoogleMap map) {
+    public NavigationLogic(GoogleMap map, Context context) {
         this.map = map;
+        this.context = context;
     }
 
     public void startNavigation(RouteDto route) {
@@ -41,6 +47,11 @@ public class NavigationLogic {
             currentLocation.setLongitude(location.getLongitude());
             // update route state
             NavigationUtils.updateRouteState(currentRoute, currentLocation);
+            // decide whether to stop navigation
+            if (NavigationUtils.calcDistance(currentLocation, currentRoute.getEndLocation()) < 5.0f) {
+                stopNavigation();
+                return;
+            }
             // update UI
             if (!isDraggingMap) {
                 map.animateCamera(CameraUpdateFactory.newLatLng(LatLngConverterUtils.getLatLngFromDto(currentLocation)), 500, null);
@@ -52,11 +63,15 @@ public class NavigationLogic {
         map.animateCamera(CameraUpdateFactory.newLatLng(new LatLng(location.getLatitude(),
                 location.getLongitude())), 500, null);
         isNavigating = true;
+        // update UI
+        NoticeUtils.createToast(context, StaticStringUtils.START_NAVIGATION);
     }
 
     public void pauseNavigation() {
         TrackerLogic.unregisterLocationUpdateCompleteEvent(registrationNumber);
         isNavigating = false;
+        // update UI
+        NoticeUtils.createToast(context, StaticStringUtils.PAUSE_NAVIGATION);
     }
 
     public void resumeNavigation() {
@@ -65,12 +80,16 @@ public class NavigationLogic {
             NavigationUtils.updatePolylinesUI(currentRoute, map);
         });
         isNavigating = true;
+        // update UI
+        NoticeUtils.createToast(context, StaticStringUtils.RESUME_NAVIGATION);
     }
 
     public void stopNavigation() {
         TrackerLogic.unregisterLocationUpdateCompleteEvent(registrationNumber);
         currentRoute = null;
         isNavigating = false;
+        // update UI
+        NoticeUtils.createToast(context, StaticStringUtils.STOP_NAVIGATION);
     }
 
     public void addWayPoint(LocationDto location) {

@@ -18,6 +18,8 @@ public class StaticStringUtils {
     public static final String NO_INPUT_MSG = "No inputs in destination!";
     public static final String GET_LATEST_LOCATION_FAIL = "Unable to get the latest location";
     public static final String START_NAVIGATION = "Navigation started";
+    public static final String RESUME_NAVIGATION = "Navigation resumed";
+    public static final String PAUSE_NAVIGATION = "Navigation paused";
     public static final String STOP_NAVIGATION = "Navigation stopped";
     public static final String NO_AVAILABLE_ROUTE = "No routes found for selected transporation " +
             "means";

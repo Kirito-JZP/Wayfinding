@@ -30,6 +30,8 @@ public class EmergencyEventUtils {
         emergencyEventDto.setLatitude(step.getStartLocation().getLatitude());
         emergencyEventDto.setLongitude(step.getStartLocation().getLongitude());
         emergencyEventDto.setRadius(1000);
+        emergencyEventDto.setStartTime("6:00");
+        emergencyEventDto.setEndTime("19:00");
 
 //        emergencyEventDto.setCode("1");
 //        emergencyEventDto.setLatitude(53.3538627);
@@ -47,14 +49,14 @@ public class EmergencyEventUtils {
 //        emergencyEventDto.setStartTime("13:00");
 //        emergencyEventDto.setEndTime("13:25");
 //
-        emergencyEventDto.setCode("3");
-        emergencyEventDto.setLatitude(53.3593287);
-        emergencyEventDto.setLongitude(-6.2587037);
-        emergencyEventDto.setRadius(1000);
-        emergencyEventDto.setType("Extreme Weather");
-        emergencyEventDto.setStartTime("8:52");
-        emergencyEventDto.setEndTime("8:55");
-        new DisasterDBLogic().insert(emergencyEventDto);
+//        emergencyEventDto.setCode("3");
+//        emergencyEventDto.setLatitude(53.3593287);
+//        emergencyEventDto.setLongitude(-6.2587037);
+//        emergencyEventDto.setRadius(1000);
+//        emergencyEventDto.setType("Extreme Weather");
+//        emergencyEventDto.setStartTime("8:52");
+//        emergencyEventDto.setEndTime("8:55");
+//        new DisasterDBLogic().insert(emergencyEventDto);
         return emergencyEventDto;
     }
 

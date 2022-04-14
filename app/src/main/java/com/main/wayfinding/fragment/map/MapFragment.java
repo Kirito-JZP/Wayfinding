@@ -351,7 +351,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         NavigationUtils.getLatLngFromWaypoints(currentRouteDto);
                 mode = TravelMode.TRANSIT;
                 if (startLocDto != null && targetLocDto != null) {
-                    parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode, waypoints));
+                    if (currentRouteDto != null) {
+                        currentRouteDto.setMode(TravelMode.TRANSIT);
+                        parseRouteData(NavigationUtils.updateRouteFromCurrentLocation(currentRouteDto, currentLocDto));
+                    } else {
+                        parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode, waypoints));
+                    }
                 }
             }
         });
@@ -363,7 +368,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         NavigationUtils.getLatLngFromWaypoints(currentRouteDto);
                 mode = TravelMode.WALKING;
                 if (startLocDto != null && targetLocDto != null) {
-                    parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode, waypoints));
+                    if (currentRouteDto != null) {
+                        currentRouteDto.setMode(TravelMode.WALKING);
+                        parseRouteData(NavigationUtils.updateRouteFromCurrentLocation(currentRouteDto, currentLocDto));
+                    } else {
+                        parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode, waypoints));
+                    }
                 }
             }
         });
@@ -375,7 +385,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         NavigationUtils.getLatLngFromWaypoints(currentRouteDto);
                 mode = TravelMode.BICYCLING;
                 if (startLocDto != null && targetLocDto != null) {
-                    parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode, waypoints));
+                    if (currentRouteDto != null) {
+                        currentRouteDto.setMode(TravelMode.BICYCLING);
+                        parseRouteData(NavigationUtils.updateRouteFromCurrentLocation(currentRouteDto, currentLocDto));
+                    } else {
+                        parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode, waypoints));
+                    }
                 }
             }
         });
@@ -415,7 +430,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     map.clear();
                 } else {
                     navigationLogic.startNavigation(currentRouteDto);
-                    createToast(getContext(), START_NAVIGATION);
                 }
             }
         });
@@ -499,7 +513,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     });
 
                     // Create logic
-                    navigationLogic = new NavigationLogic(map);
+                    navigationLogic = new NavigationLogic(map, getContext());
                     emergencyEventLogic = new EmergencyEventLogic();
                     // Create tracker object
                     trackerLogic = TrackerLogic.createInstance(getActivity());

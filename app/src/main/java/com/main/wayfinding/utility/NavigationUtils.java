@@ -7,6 +7,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.Cap;
 import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.Dot;
 import com.google.android.gms.maps.model.Gap;
@@ -55,23 +56,26 @@ public class NavigationUtils {
 
     private static final List<PatternItem> walkingPattern = Arrays.asList(new Dot(), new Gap(20));
 
-    public static void updateRouteFromCurrentLocation(RouteDto route, LocationDto currentLocation) {
+    public static Pair<List<RouteDto>, LatLngBounds> updateRouteFromCurrentLocation(RouteDto route, LocationDto currentLocation) {
         // re-arrange the route from the current step while keep the previously passed steps
         List<RouteDto.RouteStep> steps = route.getSteps();
         RouteDto.RouteStep currentStep = steps.get(route.getCurrentStepIndex());
         // modify route from the next route step, otherwise just return (current step is the last
         // step)
         if (route.getCurrentStepIndex() >= route.getSteps().size() - 1) {
-            return;
+            return null;
         }
         int indexToReplace = route.getCurrentStepIndex() + 1;
         // filter waypoints, removing those already passed
         List<com.google.maps.model.LatLng> validWaypoints =
                 filterValidWaypoints(route, currentLocation);
-        List<RouteDto> possibleRoutes = findRoute(currentStep.getEndLocation(),
+        Pair<List<RouteDto>, LatLngBounds> result = findRoute(currentStep.getEndLocation(),
                 route.getEndLocation(),
-                route.getMode(), validWaypoints).first;
+                route.getMode(), validWaypoints);
+        List<RouteDto> possibleRoutes = result.first;
+        LatLngBounds latLngBounds = result.second;
         long minTime = Long.MAX_VALUE;
+        // update LatLng bounds
         RouteDto bestRoute = possibleRoutes.get(0);
         for (RouteDto r : possibleRoutes) {
             long totalTime = 0;
@@ -94,6 +98,9 @@ public class NavigationUtils {
             route.getSteps().remove(indexToReplace);
             indexToReplace++;
         }
+        List<RouteDto> routeList = new ArrayList<>();
+        routeList.add(route);
+        return new Pair<>(routeList, latLngBounds);
     }
 
     @NonNull
@@ -346,17 +353,7 @@ public class NavigationUtils {
                 // all options using one single method
                 // note that directly clearing all polylines and adding
                 // new ones will lead to flickering
-                line.setColor(options.getColor());
-                line.setClickable(options.isClickable());
-                line.setStartCap(options.getStartCap());
-                line.setEndCap(options.getEndCap());
-                line.setGeodesic(options.isGeodesic());
-                line.setJointType(options.getJointType());
-                line.setPattern(options.getPattern());
-                line.setPoints(options.getPoints());
-                line.setVisible(options.isVisible());
-                line.setWidth(options.getWidth());
-                line.setZIndex(options.getZIndex());
+                step.setLine(map.addPolyline(step.getOption()));
             } else {
                 step.setLine(map.addPolyline(step.getOption()));
             }
@@ -420,5 +417,13 @@ public class NavigationUtils {
                             LatLngConverterUtils.convert(LatLngConverterUtils.getLatLngFromDto(waypoint))
                     ).collect(Collectors.toList());
         }
+    }
+
+    public static double calcDistance(LocationDto firstLocation, LocationDto secondLocation) {
+        double delta_lat = firstLocation.getLatitude() - secondLocation.getLatitude();
+        double delta_lng = firstLocation.getLongitude() - secondLocation.getLongitude();
+        double d1 = LatLngConverterUtils.getDistanceInMetersAlongLatitude(delta_lat, firstLocation.getLatitude());
+        double d2 = LatLngConverterUtils.getDistanceInMetersAlongLongitude(delta_lng, firstLocation.getLongitude());
+        return Math.sqrt(d1 * d1 + d2 * d2);
     }
 }
