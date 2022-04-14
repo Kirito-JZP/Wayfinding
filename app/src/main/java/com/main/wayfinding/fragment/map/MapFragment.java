@@ -351,7 +351,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         NavigationUtils.getLatLngFromWaypoints(currentRouteDto);
                 mode = TravelMode.TRANSIT;
                 if (startLocDto != null && targetLocDto != null) {
-                    if (currentRouteDto != null) {
+                    if (currentRouteDto != null && navigationLogic.isNavigating()) {
                         currentRouteDto.setMode(TravelMode.TRANSIT);
                         parseRouteData(NavigationUtils.updateRouteFromCurrentLocation(currentRouteDto, currentLocDto));
                     } else {
@@ -368,7 +368,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         NavigationUtils.getLatLngFromWaypoints(currentRouteDto);
                 mode = TravelMode.WALKING;
                 if (startLocDto != null && targetLocDto != null) {
-                    if (currentRouteDto != null) {
+                    if (currentRouteDto != null && navigationLogic.isNavigating()) {
                         currentRouteDto.setMode(TravelMode.WALKING);
                         parseRouteData(NavigationUtils.updateRouteFromCurrentLocation(currentRouteDto, currentLocDto));
                     } else {
@@ -385,7 +385,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                         NavigationUtils.getLatLngFromWaypoints(currentRouteDto);
                 mode = TravelMode.BICYCLING;
                 if (startLocDto != null && targetLocDto != null) {
-                    if (currentRouteDto != null) {
+                    if (currentRouteDto != null && navigationLogic.isNavigating()) {
                         currentRouteDto.setMode(TravelMode.BICYCLING);
                         parseRouteData(NavigationUtils.updateRouteFromCurrentLocation(currentRouteDto, currentLocDto));
                     } else {
