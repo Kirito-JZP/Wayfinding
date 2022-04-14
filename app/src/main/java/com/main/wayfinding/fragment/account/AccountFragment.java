@@ -226,8 +226,8 @@ public class AccountFragment extends Fragment {
                                         dialogCreate.dismiss();
                                         reload();
                                     } else {
-                                        if ("The email address is already in use by another account"
-                                                .equals(Objects.requireNonNull(task.getException()).toString())) {
+                                        if (Objects.requireNonNull(task.getException()).toString()
+                                                .contains("The email address is already in use by another account")) {
                                             NoticeUtils.createAlertDialog(getContext(), SIGNUP_ERROR);
                                         } else {
                                             NoticeUtils.createAlertDialog(getContext(), ERROR);
@@ -307,7 +307,8 @@ public class AccountFragment extends Fragment {
                                     if (task.isSuccessful()) {
                                         NoticeUtils.createAlertDialog(getContext(), EMAIL_SENT);
                                     } else {
-                                        if ("no user record corresponding to this identifier".equals(Objects.requireNonNull(task.getException()).toString())) {
+                                        if (Objects.requireNonNull(task.getException()).toString()
+                                                .contains("no user record corresponding to this identifier")) {
                                             NoticeUtils.createAlertDialog(getContext(), NO_ACCOUNT_FOUND);
                                         }
                                     }
