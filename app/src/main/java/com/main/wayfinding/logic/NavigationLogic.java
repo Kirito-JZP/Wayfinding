@@ -49,7 +49,7 @@ public class NavigationLogic {
             NavigationUtils.updateRouteState(currentRoute, currentLocation);
             // decide whether to stop navigation
             if (NavigationUtils.calcDistance(currentLocation, currentRoute.getEndLocation()) < 5.0f) {
-                stopNavigation();
+                stopNavigation(true);
                 return;
             }
             // update UI
@@ -84,12 +84,16 @@ public class NavigationLogic {
         NoticeUtils.createToast(context, StaticStringUtils.RESUME_NAVIGATION);
     }
 
-    public void stopNavigation() {
+    public void stopNavigation(boolean arrived) {
         TrackerLogic.unregisterLocationUpdateCompleteEvent(registrationNumber);
         currentRoute = null;
         isNavigating = false;
         // update UI
-        NoticeUtils.createToast(context, StaticStringUtils.STOP_NAVIGATION);
+        if (arrived) {
+            NoticeUtils.createToast(context, StaticStringUtils.ARRIVED);
+        } else {
+            NoticeUtils.createToast(context, StaticStringUtils.STOP_NAVIGATION);
+        }
     }
 
     public void addWayPoint(LocationDto location) {

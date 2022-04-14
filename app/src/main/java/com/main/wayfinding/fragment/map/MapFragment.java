@@ -424,7 +424,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
             @Override
             public void onClick(View view) {
                 if (navigationLogic.isNavigating()) {
-                    navigationLogic.stopNavigation();
+                    navigationLogic.stopNavigation(false);
                     createToast(getContext(), STOP_NAVIGATION);
                     currentRouteDto = null;
                     map.clear();
