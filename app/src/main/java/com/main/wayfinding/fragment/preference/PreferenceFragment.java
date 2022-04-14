@@ -113,8 +113,9 @@ public class PreferenceFragment extends Fragment {
                         TrackerLogic trackerLogic = TrackerLogic.createInstance(getActivity());
                         trackerLogic.requestLastLocation(location -> {
                             // Sort LocationDto list by distance
-                            LocationSortUtils.sortByDistance(location,locationDtoList);
-                            nearbyAdapter.setLocationList(locationDtoList);
+                            List<LocationDto> list = new ArrayList<>(locationDtoList);
+                            LocationSortUtils.sortByDistance(location,list);
+                            nearbyAdapter.setLocationList(list);
                             nearbyAdapter.notifyDataSetChanged();
                         });
 
