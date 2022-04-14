@@ -215,14 +215,16 @@ public class TrackerLogic implements LocationSource {
     private void updateLocationInstantly() {
         locationClient.getCurrentLocation(PRIORITY_HIGH_ACCURACY, cancellationToken).addOnSuccessListener(activity, loc -> {
             location = loc;
-            // provide data to the my location layer for the Google Map instance
-            if (mapSourceDataListener != null) {
-                mapSourceDataListener.onLocationChanged(location);
-            }
-            // broadcast new location
-            for (LocationUpdateCompleteCallback callback :
-                    locationUpdateCompleteCallbacks.values()) {
-                callback.onLocationUpdateComplete(location);
+            if (location != null) {
+                // provide data to the my location layer for the Google Map instance
+                if (mapSourceDataListener != null) {
+                    mapSourceDataListener.onLocationChanged(location);
+                }
+                // broadcast new location
+                for (LocationUpdateCompleteCallback callback :
+                        locationUpdateCompleteCallbacks.values()) {
+                    callback.onLocationUpdateComplete(location);
+                }
             }
         }).addOnFailureListener(activity, exception -> {
             // UI notice

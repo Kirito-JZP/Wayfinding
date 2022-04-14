@@ -2,41 +2,14 @@ package com.main.wayfinding.dto;
 
 import android.content.Context;
 
-import androidx.annotation.NonNull;
-
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.Dot;
-import com.google.android.gms.maps.model.Gap;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.PatternItem;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.maps.model.RoundCap;
-import com.google.maps.DirectionsApiRequest;
-import com.google.maps.errors.ApiException;
-import com.google.maps.model.DirectionsLeg;
-import com.google.maps.model.DirectionsResult;
-import com.google.maps.model.DirectionsRoute;
-import com.google.maps.model.DirectionsStep;
-import com.google.maps.model.SnappedPoint;
 import com.google.maps.model.TravelMode;
 import com.main.wayfinding.R;
 import com.main.wayfinding.WayfindingApp;
-import com.main.wayfinding.utility.LatLngConverterUtils;
-import com.main.wayfinding.utility.PlaceManagerUtils;
 
-import org.apache.commons.lang3.StringUtils;
-
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
-import java.util.Random;
-import java.util.Set;
-
-import javadz.collections.list.AbstractListDecorator;
 
 /**
  * Description
@@ -202,10 +175,46 @@ public class RouteDto {
         this.currentStepIndex = currentStepIndex;
     }
 
+    public PolylineOptions getPassedPolylineOptions() {
+        return passedPolylineOptions;
+    }
+
+    public void setPassedPolylineOptions(PolylineOptions passedPolylineOptions) {
+        this.passedPolylineOptions = passedPolylineOptions;
+    }
+
+    public Polyline getPassedPolyline() {
+        return passedPolyline;
+    }
+
+    public void setPassedPolyline(Polyline passedPolyline) {
+        this.passedPolyline = passedPolyline;
+    }
+
+    public PolylineOptions getRestPolylineOptions() {
+        return restPolylineOptions;
+    }
+
+    public void setRestPolylineOptions(PolylineOptions restPolylineOptions) {
+        this.restPolylineOptions = restPolylineOptions;
+    }
+
+    public Polyline getRestPolyline() {
+        return restPolyline;
+    }
+
+    public void setRestPolyline(Polyline restPolyline) {
+        this.restPolyline = restPolyline;
+    }
+
     private LocationDto startLocation;
     private LocationDto endLocation;
     private TravelMode mode;
     private final List<RouteDto.RouteStep> steps;
     private final List<LocationDto> waypoints;
     private int currentStepIndex;
+    private PolylineOptions passedPolylineOptions;
+    private Polyline passedPolyline;
+    private PolylineOptions restPolylineOptions;
+    private Polyline restPolyline;
 }

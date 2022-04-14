@@ -49,8 +49,11 @@ import com.google.android.gms.maps.model.LatLngBounds;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PointOfInterest;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
 import com.google.maps.model.TravelMode;
 import com.main.wayfinding.ARLocationActivity;
 import com.main.wayfinding.R;
@@ -60,6 +63,7 @@ import com.main.wayfinding.dto.EmergencyEventDto;
 import com.main.wayfinding.dto.LocationDto;
 import com.main.wayfinding.dto.RouteDto;
 import com.main.wayfinding.logic.EmergencyEventLogic;
+import com.main.wayfinding.logic.db.DisasterDBLogic;
 import com.main.wayfinding.logic.db.LocationDBLogic;
 import com.main.wayfinding.logic.TrackerLogic;
 import com.main.wayfinding.logic.NavigationLogic;
@@ -399,22 +403,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
         accidentBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // set a circle to visualise the event
-                emergencyEventLogic.addEvent(EmergencyEventUtils.generateEmergencyEvent
-                        (currentRouteDto));
-
-//                new DisasterDBLogic().select("1", new OnCompleteListener<DataSnapshot>() {
-//                    @Override
-//                    public void onComplete(@NonNull Task<DataSnapshot> task) {
-//                        if (task.isSuccessful()) {
+                new DisasterDBLogic().select("1", new OnCompleteListener<DataSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DataSnapshot> task) {
+                        if (task.isSuccessful()) {
 //                             record the event
-//                            emergencyEventLogic.addEvent(task.getResult().getValue
-//                                    (EmergencyEventDto.class));
-//                        } else {
-//                            task.getException().printStackTrace();
-//                        }
-//                    }
-//                });
+                            emergencyEventLogic.addEvent(task.getResult().getValue
+                                    (EmergencyEventDto.class));
+                        } else {
+                            task.getException().printStackTrace();
+                        }
+                    }
+                });
             }
         });
 
@@ -741,7 +741,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     List<com.google.maps.model.LatLng> waypoints =
                             NavigationUtils.getLatLngFromWaypoints(currentRouteDto);
                     if (startLocDto != null && targetLocDto != null) {
-                        parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode, waypoints));
+                        if (!navigationLogic.isNavigating()) {
+                            parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode, waypoints));
+                        }
                     }
                 }
             });
@@ -753,7 +755,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback {
                     List<com.google.maps.model.LatLng> waypoints =
                             NavigationUtils.getLatLngFromWaypoints(currentRouteDto);
                     if (startLocDto != null && targetLocDto != null) {
-                        parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode, waypoints));
+                        if (navigationLogic.isNavigating()) {
+                            currentRouteDto.setEndLocation(targetLocDto);
+                            parseRouteData(NavigationUtils.updateRouteFromCurrentLocation(currentRouteDto, currentLocDto));
+                        } else {
+                            parseRouteData(NavigationUtils.findRoute(startLocDto, targetLocDto, mode, waypoints));
+                        }
                     }
                 }
             });

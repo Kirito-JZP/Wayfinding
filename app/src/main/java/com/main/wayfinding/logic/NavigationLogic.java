@@ -48,7 +48,10 @@ public class NavigationLogic {
             // update route state
             NavigationUtils.updateRouteState(currentRoute, currentLocation);
             // decide whether to stop navigation
-            if (NavigationUtils.calcDistance(currentLocation, currentRoute.getEndLocation()) < 5.0f) {
+            double distance = NavigationUtils.calcDistance(currentLocation, currentRoute.getEndLocation());
+//            NoticeUtils.createToast(context, Double.toString(distance));
+            // precision: 60m
+            if (distance < 20.0f) {
                 stopNavigation(true);
                 return;
             }

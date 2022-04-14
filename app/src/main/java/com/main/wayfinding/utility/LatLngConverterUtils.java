@@ -1,6 +1,7 @@
 package com.main.wayfinding.utility;
 
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.LatLngBounds;
 import com.main.wayfinding.dto.LocationDto;
 
 import java.util.ArrayList;
@@ -43,18 +44,6 @@ public class LatLngConverterUtils {
         return new LatLng(locationDto.getLatitude(), locationDto.getLongitude());
     }
 
-    public static double getDistanceInMetersAlongLatitude(double deltaInDegrees,
-                                                          double currentLat) {
-        // https://en.wikipedia.org/wiki/Geographic_coordinate_system
-        return deltaInDegrees * (111132.92 - 559.82 * Math.cos(2 * currentLat) + 1.175 * Math.cos(4 * currentLat) - 0.0023 * Math.cos(6 * currentLat));
-    }
-
-    public static double getDistanceInMetersAlongLongitude(double deltaInDegrees,
-                                                           double currentLng) {
-        // https://en.wikipedia.org/wiki/Geographic_coordinate_system
-        return deltaInDegrees * (111412.84 * Math.cos(currentLng) - 93.5 * Math.cos(3 * currentLng) + 0.118 * Math.cos(5 * currentLng));
-    }
-
     public static double getLatitudeFromDistance(double distanceInMeters) {
         // https://gis.stackexchange.com/questions/2951/algorithm-for-offsetting-a-latitude-longitude-by-some-amount-of-meters
         return Math.toDegrees(distanceInMeters / (6371.393 * 1000));
@@ -64,5 +53,12 @@ public class LatLngConverterUtils {
                                                               double currentLat) {
         // https://gis.stackexchange.com/questions/2951/algorithm-for-offsetting-a-latitude-longitude-by-some-amount-of-meters
         return Math.toDegrees(distanceInMeters / (6371.393 * 1000 * Math.cos(Math.toRadians(currentLat))));
+    }
+
+
+    public static double calcDistance(LatLng p1, LatLng p2) {
+        double delta_lat = p1.latitude - p2.latitude;
+        double delta_lng = p2.latitude - p2.longitude;
+        return Math.sqrt(delta_lat * delta_lat + delta_lng * delta_lng);
     }
 }

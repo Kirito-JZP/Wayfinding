@@ -21,45 +21,6 @@ import java.util.List;
  * Date: 2022/4/7 17:30
  */
 public class EmergencyEventUtils {
-    public static EmergencyEventDto generateEmergencyEvent(RouteDto route) {
-        // code use to add disaster even (define disaster code "A" "B" "C" ...)
-        EmergencyEventDto emergencyEventDto = new EmergencyEventDto();
-        List<RouteDto.RouteStep> steps = route.getSteps();
-        RouteDto.RouteStep step;
-        step = steps.get(Math.min(steps.size() - 10, steps.size() - 1));
-        emergencyEventDto.setLatitude(step.getStartLocation().getLatitude());
-        emergencyEventDto.setLongitude(step.getStartLocation().getLongitude());
-        emergencyEventDto.setRadius(1000);
-        emergencyEventDto.setStartTime("6:00");
-        emergencyEventDto.setEndTime("19:00");
-
-//        emergencyEventDto.setCode("1");
-//        emergencyEventDto.setLatitude(53.3538627);
-//        emergencyEventDto.setLongitude(-6.2585369);
-//        emergencyEventDto.setRadius(100);
-//        emergencyEventDto.setType("Car Accident");
-//        emergencyEventDto.setStartTime("16:00");
-//        emergencyEventDto.setEndTime("19:00");
-
-//        emergencyEventDto.setCode("2");
-//        emergencyEventDto.setLatitude(53.3442178);
-//        emergencyEventDto.setLongitude(-6.2765006);
-//        emergencyEventDto.setRadius(100);
-//        emergencyEventDto.setType("Road Maintenance");
-//        emergencyEventDto.setStartTime("13:00");
-//        emergencyEventDto.setEndTime("13:25");
-//
-//        emergencyEventDto.setCode("3");
-//        emergencyEventDto.setLatitude(53.3593287);
-//        emergencyEventDto.setLongitude(-6.2587037);
-//        emergencyEventDto.setRadius(1000);
-//        emergencyEventDto.setType("Extreme Weather");
-//        emergencyEventDto.setStartTime("8:52");
-//        emergencyEventDto.setEndTime("8:55");
-//        new DisasterDBLogic().insert(emergencyEventDto);
-        return emergencyEventDto;
-    }
-
     public static LocalTime convertToLocalTime(String time) {
         String[] split = time.split(":");
         return LocalTime.of(Integer.parseInt(split[0]), Integer.parseInt(split[1]));

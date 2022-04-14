@@ -1,14 +1,13 @@
 package com.main.wayfinding.utility;
 
 import android.content.Context;
+import android.location.Location;
 import android.util.Pair;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.model.Cap;
-import com.google.android.gms.maps.model.Circle;
 import com.google.android.gms.maps.model.Dot;
 import com.google.android.gms.maps.model.Gap;
 import com.google.android.gms.maps.model.LatLng;
@@ -31,7 +30,6 @@ import com.main.wayfinding.WayfindingApp;
 import com.main.wayfinding.dto.EmergencyEventDto;
 import com.main.wayfinding.dto.LocationDto;
 import com.main.wayfinding.dto.RouteDto;
-import com.main.wayfinding.logic.EmergencyEventLogic;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -171,6 +169,25 @@ public class NavigationUtils {
                             locations.add(step.endLocation);
                         }
                     }
+                    // add extra polylines
+                    RouteDto.RouteStep firstStep = route.getSteps().get(0);
+                    PolylineOptions originalOptions = firstStep.getOption();
+                    List<LatLng> points = firstStep.getOption().getPoints();
+                    route.setRestPolylineOptions(new PolylineOptions()
+                            .addAll(points)
+                            .color(originalOptions.getColor())
+                            .clickable(originalOptions.isClickable())
+                            .geodesic(originalOptions.isGeodesic())
+                            .endCap(originalOptions.getEndCap())
+                            .startCap(originalOptions.getStartCap())
+                            .jointType(originalOptions.getJointType())
+                            .pattern(originalOptions.getPattern())
+                            .visible(originalOptions.isVisible())
+                            .width(originalOptions.getWidth())
+                            .zIndex(originalOptions.getZIndex()));
+                    route.setRestPolyline(null);
+                    route.setPassedPolylineOptions(null);
+                    route.setPassedPolyline(null);
                     // find place IDs
                     int batchNum = locations.size() / 100 + 1;
                     for (int i = 0; i < batchNum; i++) {
@@ -258,37 +275,20 @@ public class NavigationUtils {
 
     private static int findClosestStep(RouteDto route, LocationDto location) {
         int index = -1;
-        double minDistance = Double.MAX_VALUE;
-        double threshold = 1e-3;
+        double minDistance = Double.POSITIVE_INFINITY;
         List<RouteDto.RouteStep> steps = route.getSteps();
         for (int i = 0; i < steps.size(); i++) {
-            LatLng start = LatLngConverterUtils.getLatLngFromDto(steps.get(i).getStartLocation());
-            LatLng end = LatLngConverterUtils.getLatLngFromDto(steps.get(i).getEndLocation());
-            double distance = 0.0;
-            if (Math.abs(start.latitude - end.latitude) <= threshold) {
-                // same latitude
-                distance = Math.abs(start.latitude - location.getLatitude());
-            } else if (Math.abs(start.longitude - end.longitude) <= threshold) {
-                // same longitude
-                distance = Math.abs(start.longitude - location.getLongitude());
-            } else {
-                // use line equation instead
-                double x1 = start.longitude;
-                double x2 = end.longitude;
-                double y1 = start.latitude;
-                double y2 = end.latitude;
-                double x = location.getLongitude();
-                double y = location.getLatitude();
-                double A = y2 - y1;
-                double B = x1 - x2;
-                double C = x1 * (y1 - y2) + y1 * (x2 - x1);
-                double nom = Math.abs(A * x + B * y + C);
-                double denom = Math.sqrt(A * A + B * B);
-                distance = nom / denom;
-            }
-            if (distance <= minDistance) {
-                index = i;
-                minDistance = distance;
+            List<LatLng> points = steps.get(i).getOption().getPoints();
+            for (int j = 0; j < points.size(); j++) {
+                LatLng startLocation = points.get(j);
+                LatLng endLocation = LatLngConverterUtils.getLatLngFromDto(location);
+                float[] results = {0.0f};
+                Location.distanceBetween(startLocation.latitude, startLocation.longitude, endLocation.latitude, endLocation.longitude, results);
+                double distance = results[0];
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    index = i;
+                }
             }
         }
         return index;
@@ -344,13 +344,30 @@ public class NavigationUtils {
     }
 
     public static void updatePolylinesUI(RouteDto route, GoogleMap map) {
-        for (RouteDto.RouteStep step : route.getSteps()) {
-            if (step.getLine() != null) {
-                Polyline line = step.getLine();
-                line.remove();
-                step.setLine(map.addPolyline(step.getOption()));
+        List<RouteDto.RouteStep> steps = route.getSteps();
+        for (int i = 0; i < steps.size(); i++) {
+            if (i == route.getCurrentStepIndex()) {
+                // draw extra polylines instead
+                if (route.getPassedPolyline() != null) {
+                    route.getPassedPolyline().remove();
+                    route.setPassedPolyline(null);
+                }
+                if (route.getPassedPolylineOptions() != null) {
+                    route.setPassedPolyline(map.addPolyline(route.getPassedPolylineOptions()));
+                }
+                if (route.getRestPolyline() != null) {
+                    route.getRestPolyline().remove();
+                    route.setRestPolyline(null);
+                }
+                if (route.getRestPolylineOptions() != null) {
+                    route.setRestPolyline(map.addPolyline(route.getRestPolylineOptions()));
+                }
             } else {
-                step.setLine(map.addPolyline(step.getOption()));
+                if (steps.get(i).getLine() != null) {
+                    Polyline line = steps.get(i).getLine();
+                    line.remove();
+                }
+                steps.get(i).setLine(map.addPolyline(steps.get(i).getOption()));
             }
         }
     }
@@ -370,6 +387,52 @@ public class NavigationUtils {
             for (int i = index - 1; i >= 0; i--) {
                 steps.get(i).setPassed(true);
             }
+            // fine-tune the polyline for the current step
+            int pointIndex = 0;
+            List<LatLng> points = route.getSteps().get(index).getOption().getPoints();
+            double min_distance = LatLngConverterUtils.calcDistance(points.get(0), LatLngConverterUtils.getLatLngFromDto(currentLocation));
+            for (int i = 0; i < points.size(); i++) {
+                double distance = LatLngConverterUtils.calcDistance(points.get(i), LatLngConverterUtils.getLatLngFromDto(currentLocation));
+                if (distance < min_distance) {
+                    pointIndex = i;
+                    min_distance = distance;
+                }
+            }
+            // split current polyline into 2 parts
+            // first modify the polyline for the current route step
+            RouteDto.RouteStep currentStep = route.getSteps().get(index);
+            PolylineOptions originalOptions = currentStep.getOption();
+            Context context = WayfindingApp.getContext();
+            route.setRestPolylineOptions(new PolylineOptions()
+                    .addAll(points.subList(pointIndex + 1, points.size()))
+                    .color(originalOptions.getColor())
+                    .clickable(originalOptions.isClickable())
+                    .geodesic(originalOptions.isGeodesic())
+                    .endCap(originalOptions.getEndCap())
+                    .startCap(originalOptions.getStartCap())
+                    .jointType(originalOptions.getJointType())
+                    .pattern(originalOptions.getPattern())
+                    .visible(originalOptions.isVisible())
+                    .width(originalOptions.getWidth())
+                    .zIndex(originalOptions.getZIndex()));
+            // then store the rest part of the current route step in an extra polyline
+            if (route.getPassedPolyline() != null) {
+                route.getPassedPolyline().remove();
+                route.setPassedPolyline(null);
+            }
+            route.setPassedPolylineOptions(new PolylineOptions()
+                    .addAll(points.subList(0, pointIndex + 1))
+                    .color(context.getResources().getColor(R.color.polyline_default,
+                            context.getTheme()))
+                    .clickable(originalOptions.isClickable())
+                    .geodesic(originalOptions.isGeodesic())
+                    .endCap(originalOptions.getEndCap())
+                    .startCap(originalOptions.getStartCap())
+                    .jointType(originalOptions.getJointType())
+                    .pattern(originalOptions.getPattern())
+                    .visible(originalOptions.isVisible())
+                    .width(originalOptions.getWidth())
+                    .zIndex(originalOptions.getZIndex()));
         }
     }
 
@@ -415,10 +478,9 @@ public class NavigationUtils {
     }
 
     public static double calcDistance(LocationDto firstLocation, LocationDto secondLocation) {
-        double delta_lat = firstLocation.getLatitude() - secondLocation.getLatitude();
-        double delta_lng = firstLocation.getLongitude() - secondLocation.getLongitude();
-        double d1 = LatLngConverterUtils.getDistanceInMetersAlongLatitude(delta_lat, firstLocation.getLatitude());
-        double d2 = LatLngConverterUtils.getDistanceInMetersAlongLongitude(delta_lng, firstLocation.getLongitude());
-        return Math.sqrt(d1 * d1 + d2 * d2);
+        float[] results = {0.0f};
+        Location.distanceBetween(firstLocation.getLatitude(), firstLocation.getLongitude(),
+                secondLocation.getLatitude(), secondLocation.getLongitude(), results);
+        return results[0];
     }
 }
