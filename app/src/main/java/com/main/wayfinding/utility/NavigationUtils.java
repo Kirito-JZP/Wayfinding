@@ -347,12 +347,7 @@ public class NavigationUtils {
         for (RouteDto.RouteStep step : route.getSteps()) {
             if (step.getLine() != null) {
                 Polyline line = step.getLine();
-                PolylineOptions options = step.getOption();
-                // refresh polyline by re-setting each option
-                // it seems that there are no direct ways to apply
-                // all options using one single method
-                // note that directly clearing all polylines and adding
-                // new ones will lead to flickering
+                line.remove();
                 step.setLine(map.addPolyline(step.getOption()));
             } else {
                 step.setLine(map.addPolyline(step.getOption()));
